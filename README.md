@@ -59,6 +59,7 @@ npm unlink -g intel
 | `intel` | Show help and available commands |
 | `intel init` | Initialize a project (clone from git, create from scratch, or use existing) |
 | `intel new` | Create a new task under the active project |
+| `intel import` | Import a task from any project as a local symlink |
 | `intel active` | Show the current active project and task |
 | `intel active project` | Select a different active project (arrow-key menu) |
 | `intel active task` | Select a different active task (arrow-key menu) |
@@ -82,6 +83,14 @@ Prompts for a task name, then:
 - Creates `~/.intelligence/projects/<project>/<task>/` with `docs/` and `context/` subdirectories.
 - Creates a symlink `.intelligence/<task>` in the local directory pointing to the task folder.
 - Sets the new task as the active task in `config.yaml`.
+
+### `intel import`
+
+Imports a task from any project into the local `.intelligence/` directory as a symlink. Useful for referencing tasks from other projects without switching the active project.
+
+1. Prompts to select a project (arrow-key menu listing all projects in `~/.intelligence/projects/`).
+2. Prompts to select a task from that project.
+3. Creates a symlink at `.intelligence/<project>/<task>` pointing to the task folder in the global store.
 
 ### `intel active`
 

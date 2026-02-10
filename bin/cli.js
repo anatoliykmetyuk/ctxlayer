@@ -10,13 +10,12 @@ import { select, input } from '@inquirer/prompts';
 // Constants
 // ---------------------------------------------------------------------------
 
-const INTELLIGENCE_HOME = '.intelligence';
 const PROJECTS_DIR = 'projects';
 const LOCAL_DIR = '.intelligence';
 
-const cwd = process.cwd();
-const intelligenceHome = path.join(os.homedir(), INTELLIGENCE_HOME);
-const projectsRoot = path.join(intelligenceHome, PROJECTS_DIR);
+const CWD = process.env.INTEL_CWD || process.cwd();
+const INTELLIGENCE_HOME = process.env.INTELLIGENCE_HOME || path.join(os.homedir(), '.intelligence');
+const PROJECTS_ROOT = path.join(INTELLIGENCE_HOME, PROJECTS_DIR);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -33,13 +32,13 @@ function repoNameFromUrl(url) {
 }
 
 function ensureProjectsRoot() {
-  if (!fs.existsSync(projectsRoot)) {
-    fs.mkdirSync(projectsRoot, { recursive: true });
+  if (!fs.existsSync(PROJECTS_ROOT)) {
+    fs.mkdirSync(PROJECTS_ROOT, { recursive: true });
   }
 }
 
 function readConfig() {
-  const configPath = path.join(cwd, LOCAL_DIR, 'config.yaml');
+  const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
   if (!fs.existsSync(configPath)) {
     throw new Error(
       'No config found at ' + configPath + '. Run "intel init" first.'
@@ -61,7 +60,7 @@ function readConfig() {
 }
 
 function writeConfig(config) {
-  const configPath = path.join(cwd, LOCAL_DIR, 'config.yaml');
+  const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
   let content = `active-project: ${config['active-project']}\n`;
   if (config['active-task']) {
     content += `active-task: ${config['active-task']}\n`;
@@ -76,14 +75,14 @@ function writeConfig(config) {
 function ensureTaskSymlink(projectName, taskName) {
   if (!taskName) return;
 
-  const localProjectDir = path.join(cwd, LOCAL_DIR, projectName);
+  const localProjectDir = path.join(CWD, LOCAL_DIR, projectName);
   if (!fs.existsSync(localProjectDir)) {
     fs.mkdirSync(localProjectDir, { recursive: true });
   }
 
   const linkPath = path.join(localProjectDir, taskName);
   if (!fs.existsSync(linkPath)) {
-    const taskDir = path.join(projectsRoot, projectName, taskName);
+    const taskDir = path.join(PROJECTS_ROOT, projectName, taskName);
     const target = path.resolve(taskDir);
     const type = process.platform === 'win32' ? 'dir' : undefined;
     fs.symlinkSync(target, linkPath, type);
@@ -97,7 +96,7 @@ function ensureTaskSymlink(projectName, taskName) {
 
 function setupLocal(projectName) {
   // 1. Create .intelligence/ in cwd
-  const localDir = path.join(cwd, LOCAL_DIR);
+  const localDir = path.join(CWD, LOCAL_DIR);
   if (!fs.existsSync(localDir)) {
     fs.mkdirSync(localDir, { recursive: true });
     console.log('Created', localDir);
@@ -109,7 +108,7 @@ function setupLocal(projectName) {
   console.log('Wrote', configPath);
 
   // 3. Add .intelligence to .gitignore
-  const gitignorePath = path.join(cwd, '.gitignore');
+  const gitignorePath = path.join(CWD, '.gitignore');
   let content = '';
   if (fs.existsSync(gitignorePath)) {
     content = fs.readFileSync(gitignorePath, 'utf8');
@@ -146,7 +145,7 @@ async function initFromGit() {
 
   ensureProjectsRoot();
 
-  const targetPath = path.join(projectsRoot, projectName);
+  const targetPath = path.join(PROJECTS_ROOT, projectName);
   if (fs.existsSync(targetPath)) {
     throw new Error('Project folder already exists: ' + targetPath);
   }
@@ -169,7 +168,7 @@ async function initFromScratch() {
 
   ensureProjectsRoot();
 
-  const targetPath = path.join(projectsRoot, projectName);
+  const targetPath = path.join(PROJECTS_ROOT, projectName);
   if (fs.existsSync(targetPath)) {
     throw new Error('Project folder already exists: ' + targetPath);
   }
@@ -187,17 +186,17 @@ async function initFromScratch() {
 // ---------------------------------------------------------------------------
 
 async function initFromExisting() {
-  if (!fs.existsSync(projectsRoot)) {
-    throw new Error('No projects directory found at ' + projectsRoot);
+  if (!fs.existsSync(PROJECTS_ROOT)) {
+    throw new Error('No projects directory found at ' + PROJECTS_ROOT);
   }
 
   const entries = fs
-    .readdirSync(projectsRoot, { withFileTypes: true })
+    .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
     .filter((e) => e.isDirectory())
     .map((e) => e.name);
 
   if (entries.length === 0) {
-    throw new Error('No projects found in ' + projectsRoot);
+    throw new Error('No projects found in ' + PROJECTS_ROOT);
   }
 
   const projectName = await select({
@@ -259,7 +258,7 @@ async function newTask() {
   try {
     const config = readConfig();
     const projectName = config['active-project'];
-    const projectDir = path.join(projectsRoot, projectName);
+    const projectDir = path.join(PROJECTS_ROOT, projectName);
 
     if (!fs.existsSync(projectDir)) {
       throw new Error('Project directory not found: ' + projectDir);
@@ -301,7 +300,7 @@ async function newTask() {
 // ---------------------------------------------------------------------------
 
 async function selectTaskForProject(projectName, currentTask) {
-  const projectDir = path.join(projectsRoot, projectName);
+  const projectDir = path.join(PROJECTS_ROOT, projectName);
 
   if (!fs.existsSync(projectDir)) {
     throw new Error('Project directory not found: ' + projectDir);
@@ -363,17 +362,17 @@ async function activeProject() {
   try {
     const config = readConfig();
 
-    if (!fs.existsSync(projectsRoot)) {
-      throw new Error('No projects directory found at ' + projectsRoot);
+    if (!fs.existsSync(PROJECTS_ROOT)) {
+      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
     }
 
     const entries = fs
-      .readdirSync(projectsRoot, { withFileTypes: true })
+      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
       .filter((e) => e.isDirectory())
       .map((e) => e.name);
 
     if (entries.length === 0) {
-      throw new Error('No projects found in ' + projectsRoot);
+      throw new Error('No projects found in ' + PROJECTS_ROOT);
     }
 
     const currentProject = config['active-project'];
@@ -430,6 +429,62 @@ function activeStatus() {
 }
 
 // ---------------------------------------------------------------------------
+// Import task from any project
+// ---------------------------------------------------------------------------
+
+async function importTask() {
+  try {
+    // Verify local setup exists
+    readConfig();
+
+    if (!fs.existsSync(PROJECTS_ROOT)) {
+      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    }
+
+    const projects = fs
+      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+
+    if (projects.length === 0) {
+      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    }
+
+    const selectedProject = await select({
+      message: 'Select a project:',
+      choices: projects.map((name) => ({ name, value: name })),
+    });
+
+    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
+    const tasks = fs
+      .readdirSync(projectDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
+      .map((e) => e.name);
+
+    if (tasks.length === 0) {
+      console.log('\nNo tasks found in project "' + selectedProject + '".');
+      console.log('To create a new task, run: intel new\n');
+      return;
+    }
+
+    const selectedTask = await select({
+      message: 'Select a task to import:',
+      choices: tasks.map((name) => ({ name, value: name })),
+    });
+
+    ensureTaskSymlink(selectedProject, selectedTask);
+
+    console.log('\nDone.');
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Entrypoint
 // ---------------------------------------------------------------------------
 
@@ -439,6 +494,8 @@ if (command === 'init') {
   await init();
 } else if (command === 'new') {
   await newTask();
+} else if (command === 'import') {
+  await importTask();
 } else if (command === 'active task') {
   await activeTask();
 } else if (command === 'active project') {
@@ -452,8 +509,15 @@ Usage: intel <command>
 Commands:
   init              Initialize a project (clone, create, or link an existing one)
   new               Create a new task under the current project
+  import            Import a task from any project as a symlink
   active            Show the current active project and task
   active task       Select the active task for the current project
   active project    Select the active project
 `);
 }
+
+// ---------------------------------------------------------------------------
+// Exports (for testing)
+// ---------------------------------------------------------------------------
+
+export { importTask };

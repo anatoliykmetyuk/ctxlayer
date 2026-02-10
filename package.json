@@ -7,7 +7,9 @@
   "bin": {
     "intel": "./bin/cli.js"
   },
-  "scripts": {},
+  "scripts": {
+    "test": "node --experimental-test-module-mocks --test"
+  },
   "keywords": [
     "intel",
     "intelligence",
