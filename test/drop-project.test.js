@@ -57,7 +57,7 @@ describe('intel drop project', () => {
     confirmQueue = [false];
     await dropProject();
 
-    const projectDir = path.join(tmpCwd, '.intelligence', 'project-alpha');
+    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
     assert.ok(fs.existsSync(projectDir), 'project dir should remain');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -67,13 +67,13 @@ describe('intel drop project', () => {
     confirmQueue = [true];
     await dropProject();
 
-    const projectDir = path.join(tmpCwd, '.intelligence', 'project-alpha');
+    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
     assert.ok(!fs.existsSync(projectDir), 'project dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no project directories exist', async () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence', 'project-alpha'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'project-alpha'), { recursive: true, force: true });
 
     await dropProject();
 
@@ -82,7 +82,7 @@ describe('intel drop project', () => {
   });
 
   it('exits when no config exists', async () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     await dropProject();
 

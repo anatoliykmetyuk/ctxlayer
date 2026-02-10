@@ -57,7 +57,7 @@ describe('intel drop task', () => {
   it('uses task name arg when provided (active project)', async () => {
     await dropTask('task-two');
 
-    const linkPath = path.join(tmpCwd, '.intelligence', 'project-alpha', 'task-two');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-alpha', 'task-two');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -66,10 +66,10 @@ describe('intel drop task', () => {
     selectQueue = ['project-alpha', 'task-one'];
     await dropTask();
 
-    const linkPath = path.join(tmpCwd, '.intelligence', 'project-alpha', 'task-one');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-alpha', 'task-one');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
-    const projectDir = path.join(tmpCwd, '.intelligence', 'project-alpha');
+    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
     assert.ok(!fs.existsSync(projectDir), 'empty project dir should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
@@ -79,18 +79,18 @@ describe('intel drop task', () => {
     selectQueue = ['project-beta', 'task-three'];
     await dropTask();
 
-    const linkPath = path.join(tmpCwd, '.intelligence', 'project-beta', 'task-three');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-beta', 'task-three');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
-    const projectDir = path.join(tmpCwd, '.intelligence', 'project-beta');
+    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-beta');
     assert.ok(!fs.existsSync(projectDir), 'empty project dir should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no project directories exist', async () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence', 'project-alpha'), { recursive: true, force: true });
-    fs.rmSync(path.join(tmpCwd, '.intelligence', 'project-beta'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'project-alpha'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'project-beta'), { recursive: true, force: true });
 
     await dropTask();
 
@@ -99,7 +99,7 @@ describe('intel drop task', () => {
   });
 
   it('exits when no config exists', async () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     await dropTask();
 

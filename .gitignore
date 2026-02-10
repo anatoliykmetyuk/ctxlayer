@@ -16,4 +16,4 @@ Thumbs.db
 *.swp
 *.swo
 .cursor/
-/.intelligence/
+/.ctxlayer/

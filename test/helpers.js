@@ -10,12 +10,12 @@ import os from 'os';
  */
 export function createSandbox() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'intel-test-'));
-  const tmpHome = path.join(tmpDir, '.intelligence');
+  const tmpHome = path.join(tmpDir, '.ctxlayer');
   const tmpProjectsRoot = path.join(tmpHome, 'projects');
   const tmpCwd = path.join(tmpDir, 'repo');
 
-  process.env.INTELLIGENCE_HOME = tmpHome;
-  process.env.INTEL_CWD = tmpCwd;
+  process.env.CONTEXT_LAYER_HOME = tmpHome;
+  process.env.CONTEXT_LAYER_CWD = tmpCwd;
 
   return {
     tmpDir,
@@ -24,21 +24,21 @@ export function createSandbox() {
     tmpCwd,
     cleanup() {
       fs.rmSync(tmpDir, { recursive: true, force: true });
-      delete process.env.INTELLIGENCE_HOME;
-      delete process.env.INTEL_CWD;
+      delete process.env.CONTEXT_LAYER_HOME;
+      delete process.env.CONTEXT_LAYER_CWD;
     },
   };
 }
 
 /**
- * Creates .intelligence/config.yaml in the given cwd.
+ * Creates .ctxlayer/config.yaml in the given cwd.
  *
  * @param {string} cwd - Path to the local repo (e.g. tmpCwd)
  * @param {string} project - active-project value
  * @param {string} [task] - optional active-task value
  */
 export function createConfig(cwd, project, task) {
-  const localDir = path.join(cwd, '.intelligence');
+  const localDir = path.join(cwd, '.ctxlayer');
   fs.mkdirSync(localDir, { recursive: true });
   let content = `active-project: ${project}\n`;
   if (task) {
@@ -65,7 +65,7 @@ export function createProject(projectsRoot, name, tasks = []) {
 }
 
 /**
- * Creates a symlink at cwd/.intelligence/<projectName>/<taskName> pointing to
+ * Creates a symlink at cwd/.ctxlayer/<projectName>/<taskName> pointing to
  * projectsRoot/<projectName>/<taskName>. Mirrors ensureTaskSymlink behavior for test setup.
  *
  * @param {string} cwd - Path to the local repo (e.g. tmpCwd)
@@ -74,7 +74,7 @@ export function createProject(projectsRoot, name, tasks = []) {
  * @param {string} projectsRoot
  */
 export function createTaskSymlink(cwd, projectName, taskName, projectsRoot) {
-  const localProjectDir = path.join(cwd, '.intelligence', projectName);
+  const localProjectDir = path.join(cwd, '.ctxlayer', projectName);
   fs.mkdirSync(localProjectDir, { recursive: true });
   const linkPath = path.join(localProjectDir, taskName);
   const target = path.resolve(path.join(projectsRoot, projectName, taskName));

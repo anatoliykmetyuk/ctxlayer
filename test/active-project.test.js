@@ -56,11 +56,11 @@ describe('intel active project', () => {
     selectQueue = ['project-b', 'task-b1'];
     await activeProject();
 
-    const config = fs.readFileSync(path.join(tmpCwd, '.intelligence', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-project: project-b'));
     assert.ok(config.includes('active-task: task-b1'));
 
-    const linkPath = path.join(tmpCwd, '.intelligence', 'project-b', 'task-b1');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-b', 'task-b1');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -70,17 +70,17 @@ describe('intel active project', () => {
     selectQueue = ['project-a'];
     await activeProject();
 
-    const config = fs.readFileSync(path.join(tmpCwd, '.intelligence', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-project: project-a'));
     assert.ok(config.includes('active-task: task-a1'));
 
-    const linkPath = path.join(tmpCwd, '.intelligence', 'project-a', 'task-a1');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-a', 'task-a1');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no config exists', async () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     await activeProject();
 
@@ -121,11 +121,11 @@ describe('intel active project', () => {
     selectQueue = ['project-empty'];
     await activeProject();
 
-    const config = fs.readFileSync(path.join(tmpCwd, '.intelligence', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-project: project-empty'));
     assert.ok(!config.includes('active-task: task-a1'));
 
-    const projectDir = path.join(tmpCwd, '.intelligence', 'project-empty');
+    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-empty');
     assert.ok(!fs.existsSync(projectDir) || fs.readdirSync(projectDir).length === 0);
     assert.equal(process.exit.mock.calls.length, 0);
   });

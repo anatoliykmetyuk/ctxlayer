@@ -63,7 +63,7 @@ describe('intel init', () => {
     const projectDir = path.join(tmpProjectsRoot, 'my-project');
     assert.ok(fs.existsSync(projectDir));
 
-    const configPath = path.join(tmpCwd, '.intelligence', 'config.yaml');
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
     assert.ok(config.includes('active-project: my-project'));
@@ -71,7 +71,7 @@ describe('intel init', () => {
     const gitignorePath = path.join(tmpCwd, '.gitignore');
     assert.ok(fs.existsSync(gitignorePath));
     const gitignore = fs.readFileSync(gitignorePath, 'utf8');
-    assert.ok(gitignore.includes('.intelligence'));
+    assert.ok(gitignore.includes('.ctxlayer'));
 
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -81,7 +81,7 @@ describe('intel init', () => {
     selectQueue = ['existing', 'existing-project'];
     await init();
 
-    const configPath = path.join(tmpCwd, '.intelligence', 'config.yaml');
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
     assert.ok(config.includes('active-project: existing-project'));

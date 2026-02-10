@@ -61,11 +61,11 @@ describe('intel new', () => {
     assert.ok(fs.existsSync(path.join(taskDir, 'docs')));
     assert.ok(fs.existsSync(path.join(taskDir, 'context')));
 
-    const linkPath = path.join(tmpCwd, '.intelligence', PROJECT, 'my-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', PROJECT, 'my-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(fs.readlinkSync(linkPath), path.resolve(taskDir));
 
-    const config = fs.readFileSync(path.join(tmpCwd, '.intelligence', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-project: my-project'));
     assert.ok(config.includes('active-task: my-task'));
 
@@ -78,13 +78,13 @@ describe('intel new', () => {
 
     const taskDir = path.join(tmpProjectsRoot, PROJECT, 'prompted-task');
     assert.ok(fs.existsSync(taskDir));
-    const linkPath = path.join(tmpCwd, '.intelligence', PROJECT, 'prompted-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', PROJECT, 'prompted-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no config exists', async () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     await newTask('x');
 

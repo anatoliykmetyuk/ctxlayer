@@ -11,11 +11,11 @@ import { select, input, confirm } from '@inquirer/prompts';
 // ---------------------------------------------------------------------------
 
 const PROJECTS_DIR = 'projects';
-const LOCAL_DIR = '.intelligence';
+const LOCAL_DIR = '.ctxlayer';
 
-const CWD = process.env.INTEL_CWD || process.cwd();
-const INTELLIGENCE_HOME = process.env.INTELLIGENCE_HOME || path.join(os.homedir(), '.intelligence');
-const PROJECTS_ROOT = path.join(INTELLIGENCE_HOME, PROJECTS_DIR);
+const CWD = process.env.CONTEXT_LAYER_CWD || process.cwd();
+const CONTEXT_LAYER_HOME = process.env.CONTEXT_LAYER_HOME || path.join(os.homedir(), '.ctxlayer');
+const PROJECTS_ROOT = path.join(CONTEXT_LAYER_HOME, PROJECTS_DIR);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -41,7 +41,7 @@ function readConfig() {
   const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
   if (!fs.existsSync(configPath)) {
     throw new Error(
-      'No config found at ' + configPath + '. Run "intel init" first.'
+      'No config found at ' + configPath + '. Run "ctx init" first.'
     );
   }
   const content = fs.readFileSync(configPath, 'utf8');
@@ -69,7 +69,7 @@ function writeConfig(config) {
 }
 
 // ---------------------------------------------------------------------------
-// Ensure a symlink for a task exists at <cwd>/.intelligence/<project>/<task>
+// Ensure a symlink for a task exists at <cwd>/.ctxlayer/<project>/<task>
 // ---------------------------------------------------------------------------
 
 function getLocalProjectDirs() {
@@ -106,7 +106,7 @@ function ensureTaskSymlink(projectName, taskName) {
 // ---------------------------------------------------------------------------
 
 function setupLocal(projectName) {
-  // 1. Create .intelligence/ in cwd
+  // 1. Create .ctxlayer/ in cwd
   const localDir = path.join(CWD, LOCAL_DIR);
   if (!fs.existsSync(localDir)) {
     fs.mkdirSync(localDir, { recursive: true });
@@ -118,7 +118,7 @@ function setupLocal(projectName) {
   fs.writeFileSync(configPath, `active-project: ${projectName}\n`);
   console.log('Wrote', configPath);
 
-  // 3. Add .intelligence to .gitignore
+  // 3. Add .ctxlayer to .gitignore
   const gitignorePath = path.join(CWD, '.gitignore');
   let content = '';
   if (fs.existsSync(gitignorePath)) {
@@ -290,7 +290,7 @@ async function newTask(nameArg) {
     fs.mkdirSync(path.join(taskDir, 'context'), { recursive: true });
     console.log('Created', taskDir);
 
-    // Create symlink in local .intelligence/<projectName>/ dir
+    // Create symlink in local .ctxlayer/<projectName>/ dir
     ensureTaskSymlink(projectName, taskName);
 
     // Set newly created task as active
@@ -324,7 +324,7 @@ async function selectTaskForProject(projectName, currentTask) {
 
   if (tasks.length === 0) {
     console.log('\nNo tasks found for this project.');
-    console.log('To create a new task, run: intel new\n');
+    console.log('To create a new task, run: ctx new\n');
     return '';
   }
 
@@ -352,7 +352,7 @@ async function activeTask() {
       config['active-task']
     );
 
-    // Ensure a symlink for the task exists at .intelligence/<projectName>/<task>
+    // Ensure a symlink for the task exists at .ctxlayer/<projectName>/<task>
     ensureTaskSymlink(projectName, selectedTask);
 
     writeConfig({ 'active-project': projectName, 'active-task': selectedTask });
@@ -419,7 +419,7 @@ async function activeProject() {
 }
 
 // ---------------------------------------------------------------------------
-// Active status (intel active)
+// Active status (ctx active)
 // ---------------------------------------------------------------------------
 
 function activeStatus() {
@@ -430,8 +430,8 @@ function activeStatus() {
 
     console.log(`\nActive project: ${project}`);
     console.log(`Active task:    ${task}\n`);
-    console.log('To change the active project, run: intel active project');
-    console.log('To change the active task, run:    intel active task');
+    console.log('To change the active project, run: ctx active project');
+    console.log('To change the active task, run:    ctx active task');
     console.log('');
   } catch (err) {
     console.error('Error:', err.message);
@@ -440,7 +440,7 @@ function activeStatus() {
 }
 
 // ---------------------------------------------------------------------------
-// intel git - run git in the current task directory
+// ctx git - run git in the current task directory
 // ---------------------------------------------------------------------------
 
 function intelGit() {
@@ -450,7 +450,7 @@ function intelGit() {
     const taskName = config['active-task'];
 
     if (!taskName) {
-      throw new Error('No active task set. Run "intel active task" to select a task.');
+      throw new Error('No active task set. Run "ctx active task" to select a task.');
     }
 
     const taskDir = path.join(PROJECTS_ROOT, projectName, taskName);
@@ -478,7 +478,7 @@ function intelGit() {
 }
 
 // ---------------------------------------------------------------------------
-// intel drop task - remove symlink to a task
+// ctx drop task - remove symlink to a task
 // ---------------------------------------------------------------------------
 
 async function dropTask(taskNameArg) {
@@ -487,7 +487,7 @@ async function dropTask(taskNameArg) {
 
     const projects = getLocalProjectDirs();
     if (projects.length === 0) {
-      throw new Error('No project directories found in .intelligence/. Import a task first.');
+      throw new Error('No project directories found in .ctxlayer/. Import a task first.');
     }
 
     let selectedProject;
@@ -548,7 +548,7 @@ async function dropTask(taskNameArg) {
 }
 
 // ---------------------------------------------------------------------------
-// intel drop project - remove project directory from local .intelligence/
+// ctx drop project - remove project directory from local .ctxlayer/
 // ---------------------------------------------------------------------------
 
 async function dropProject() {
@@ -557,7 +557,7 @@ async function dropProject() {
 
     const projects = getLocalProjectDirs();
     if (projects.length === 0) {
-      throw new Error('No project directories found in .intelligence/.');
+      throw new Error('No project directories found in .ctxlayer/.');
     }
 
     const selectedProject = await select({
@@ -567,7 +567,7 @@ async function dropProject() {
 
     const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
     const confirmed = await confirm({
-      message: `Remove project directory "${selectedProject}" from .intelligence/?`,
+      message: `Remove project directory "${selectedProject}" from .ctxlayer/?`,
       default: false,
     });
 
@@ -589,7 +589,7 @@ async function dropProject() {
 }
 
 // ---------------------------------------------------------------------------
-// intel delete task - remove task from intelligence store and symlink
+// ctx delete task - remove task from context store and symlink
 // ---------------------------------------------------------------------------
 
 async function deleteTask() {
@@ -669,7 +669,7 @@ async function deleteTask() {
 }
 
 // ---------------------------------------------------------------------------
-// intel delete project - remove project from intelligence store and local dir
+// ctx delete project - remove project from context store and local dir
 // ---------------------------------------------------------------------------
 
 async function deleteProject() {
@@ -695,7 +695,7 @@ async function deleteProject() {
     });
 
     const confirmed = await confirm({
-      message: `Permanently delete project "${selectedProject}" from the intelligence store?`,
+      message: `Permanently delete project "${selectedProject}" from the context store?`,
       default: false,
     });
 
@@ -759,7 +759,7 @@ async function importTask() {
 
     if (tasks.length === 0) {
       console.log('\nNo tasks found in project "' + selectedProject + '".');
-      console.log('To create a new task, run: intel new\n');
+      console.log('To create a new task, run: ctx new\n');
       return;
     }
 
@@ -810,7 +810,7 @@ if (command === 'git' || command.startsWith('git ')) {
   activeStatus();
 } else {
   console.log(`
-Usage: intel <command>
+Usage: ctx <command>
 
 Commands:
   init              Initialize a project (clone, create, or link an existing one)
@@ -818,9 +818,9 @@ Commands:
   import            Import a task from any project as a symlink
   git [args...]     Run git in the current task directory
   drop task [name]  Remove a task symlink (with optional task name)
-  drop project      Remove a project directory from local .intelligence/
-  delete task       Delete a task from the intelligence store and remove its symlink
-  delete project    Delete a project from the intelligence store and remove its local directory
+  drop project      Remove a project directory from local .ctxlayer/
+  delete task       Delete a task from the context store and remove its symlink
+  delete project    Delete a project from the context store and remove its local directory
   active            Show the current active project and task
   active task       Select the active task for the current project
   active project    Select the active project

@@ -70,7 +70,7 @@ describe('intel delete project', () => {
     const projectDir = path.join(tmpProjectsRoot, 'project-alpha');
     assert.ok(!fs.existsSync(projectDir), 'project dir should be deleted from store');
 
-    const localProjectDir = path.join(tmpCwd, '.intelligence', 'project-alpha');
+    const localProjectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
     assert.ok(!fs.existsSync(localProjectDir), 'local project dir should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);

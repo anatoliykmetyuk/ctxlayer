@@ -61,13 +61,13 @@ describe('intel active', () => {
     const output = logCalls.join('\n');
     assert.ok(output.includes(`Active project: ${PROJECT}`));
     assert.ok(output.includes(`Active task:    ${TASK}`));
-    assert.ok(output.includes('intel active project'));
-    assert.ok(output.includes('intel active task'));
+    assert.ok(output.includes('ctx active project'));
+    assert.ok(output.includes('ctx active task'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no config exists', () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     activeStatus();
 

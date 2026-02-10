@@ -10,12 +10,12 @@ import os from 'os';
 // ---------------------------------------------------------------------------
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'intel-test-'));
-const tmpHome = path.join(tmpDir, '.intelligence');
+const tmpHome = path.join(tmpDir, '.ctxlayer');
 const tmpProjectsRoot = path.join(tmpHome, 'projects');
 const tmpCwd = path.join(tmpDir, 'repo');
 
-process.env.INTELLIGENCE_HOME = tmpHome;
-process.env.INTEL_CWD = tmpCwd;
+process.env.CONTEXT_LAYER_HOME = tmpHome;
+process.env.CONTEXT_LAYER_CWD = tmpCwd;
 
 // ---------------------------------------------------------------------------
 // Mock @inquirer/prompts -- responses are configurable per test via selectQueue
@@ -62,8 +62,8 @@ describe('intel import', () => {
       }
     }
 
-    // Create local .intelligence/ with a valid config
-    const localDir = path.join(tmpCwd, '.intelligence');
+    // Create local .ctxlayer/ with a valid config
+    const localDir = path.join(tmpCwd, '.ctxlayer');
     fs.mkdirSync(localDir, { recursive: true });
     fs.writeFileSync(
       path.join(localDir, 'config.yaml'),
@@ -77,8 +77,8 @@ describe('intel import', () => {
 
   after(() => {
     fs.rmSync(tmpDir, { recursive: true, force: true });
-    delete process.env.INTELLIGENCE_HOME;
-    delete process.env.INTEL_CWD;
+    delete process.env.CONTEXT_LAYER_HOME;
+    delete process.env.CONTEXT_LAYER_CWD;
   });
 
   it('creates a symlink for the selected task', async () => {
@@ -86,7 +86,7 @@ describe('intel import', () => {
     await importTask();
 
     const linkPath = path.join(
-      tmpCwd, '.intelligence', 'project-beta', 'task-three'
+      tmpCwd, '.ctxlayer', 'project-beta', 'task-three'
     );
     const stat = fs.lstatSync(linkPath);
     assert.ok(stat.isSymbolicLink(), 'expected a symbolic link');
@@ -105,7 +105,7 @@ describe('intel import', () => {
     await importTask();
 
     const linkPath = path.join(
-      tmpCwd, '.intelligence', 'project-beta', 'task-three'
+      tmpCwd, '.ctxlayer', 'project-beta', 'task-three'
     );
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
@@ -115,7 +115,7 @@ describe('intel import', () => {
     selectQueue = ['empty-project'];
     await importTask();
 
-    const dirPath = path.join(tmpCwd, '.intelligence', 'empty-project');
+    const dirPath = path.join(tmpCwd, '.ctxlayer', 'empty-project');
     assert.ok(
       !fs.existsSync(dirPath),
       'should not create directory for taskless project'

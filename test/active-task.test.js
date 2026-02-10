@@ -56,10 +56,10 @@ describe('intel active task', () => {
     selectQueue = ['task-two'];
     await activeTask();
 
-    const config = fs.readFileSync(path.join(tmpCwd, '.intelligence', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-task: task-two'));
 
-    const linkPath = path.join(tmpCwd, '.intelligence', PROJECT, 'task-two');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', PROJECT, 'task-two');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(fs.readlinkSync(linkPath), path.resolve(path.join(tmpProjectsRoot, PROJECT, 'task-two')));
 
@@ -67,7 +67,7 @@ describe('intel active task', () => {
   });
 
   it('exits when no config exists', async () => {
-    fs.rmSync(path.join(tmpCwd, '.intelligence'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     await activeTask();
 

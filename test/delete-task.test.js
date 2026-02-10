@@ -71,7 +71,7 @@ describe('intel delete task', () => {
     const taskDir = path.join(tmpProjectsRoot, 'project-alpha', 'task-two');
     assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
 
-    const linkPath = path.join(tmpCwd, '.intelligence', 'project-alpha', 'task-two');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-alpha', 'task-two');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
     const taskOneDir = path.join(tmpProjectsRoot, 'project-alpha', 'task-one');
@@ -91,7 +91,7 @@ describe('intel delete task', () => {
     const taskDir = path.join(tmpProjectsRoot, 'project-solo', 'only-task');
     assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
 
-    const linkPath = path.join(tmpCwd, '.intelligence', 'project-solo', 'only-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-solo', 'only-task');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
