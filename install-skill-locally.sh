@@ -1,0 +1,1 @@
+npx skills add /Users/anatolii/Projects/intelligence-layer -g -a cursor --skill intelligence -y
