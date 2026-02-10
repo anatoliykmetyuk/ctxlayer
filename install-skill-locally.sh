@@ -1,1 +1,1 @@
-npx skills add /Users/anatolii/Projects/context-layer -g -a cursor --skill context-layer -y
+npx skills add /Users/anatolii/Projects/ctxlayer -g -a cursor --skill ctxlayer -y
