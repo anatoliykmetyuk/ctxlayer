@@ -254,7 +254,7 @@ async function init() {
 // New task flow
 // ---------------------------------------------------------------------------
 
-async function newTask() {
+async function newTask(nameArg) {
   try {
     const config = readConfig();
     const projectName = config['active-project'];
@@ -264,7 +264,7 @@ async function newTask() {
       throw new Error('Project directory not found: ' + projectDir);
     }
 
-    const taskName = await input({ message: 'Task name:' });
+    const taskName = nameArg || await input({ message: 'Task name:' });
     if (!taskName) {
       throw new Error('Task name cannot be empty');
     }
@@ -492,8 +492,8 @@ const command = process.argv.slice(2).join(' ');
 
 if (command === 'init') {
   await init();
-} else if (command === 'new') {
-  await newTask();
+} else if (command === 'new' || command.startsWith('new ')) {
+  await newTask(command.slice(4) || undefined);
 } else if (command === 'import') {
   await importTask();
 } else if (command === 'active task') {
@@ -508,7 +508,7 @@ Usage: intel <command>
 
 Commands:
   init              Initialize a project (clone, create, or link an existing one)
-  new               Create a new task under the current project
+  new [name]        Create a new task under the current project
   import            Import a task from any project as a symlink
   active            Show the current active project and task
   active task       Select the active task for the current project
