@@ -2,11 +2,19 @@
   "name": "intel",
   "version": "1.0.0",
   "description": "Initialize .intelligence directory in the current folder",
+  "type": "module",
   "main": "bin/cli.js",
   "bin": {
     "intel": "./bin/cli.js"
   },
   "scripts": {},
-  "keywords": ["intel", "intelligence", "cli"],
-  "license": "MIT"
+  "keywords": [
+    "intel",
+    "intelligence",
+    "cli"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/prompts": "^8.2.0"
+  }
 }
