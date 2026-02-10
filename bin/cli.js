@@ -38,6 +38,21 @@ function ensureProjectsRoot() {
   }
 }
 
+function readProjectFromConfig() {
+  const configPath = path.join(cwd, LOCAL_DIR, 'config.yaml');
+  if (!fs.existsSync(configPath)) {
+    throw new Error(
+      'No config found at ' + configPath + '. Run "intel init" first.'
+    );
+  }
+  const content = fs.readFileSync(configPath, 'utf8');
+  const match = content.match(/^project:\s*(.+)$/m);
+  if (!match || !match[1].trim()) {
+    throw new Error('No "project" field found in ' + configPath);
+  }
+  return match[1].trim();
+}
+
 // ---------------------------------------------------------------------------
 // Local setup (runs after every choice)
 // ---------------------------------------------------------------------------
@@ -199,6 +214,51 @@ async function init() {
 }
 
 // ---------------------------------------------------------------------------
+// New task flow
+// ---------------------------------------------------------------------------
+
+async function newTask() {
+  try {
+    const projectName = readProjectFromConfig();
+    const projectDir = path.join(projectsRoot, projectName);
+
+    if (!fs.existsSync(projectDir)) {
+      throw new Error('Project directory not found: ' + projectDir);
+    }
+
+    const taskName = await input({ message: 'Task name:' });
+    if (!taskName) {
+      throw new Error('Task name cannot be empty');
+    }
+
+    // Create task dir with docs/ and context/ subdirs
+    const taskDir = path.join(projectDir, taskName);
+    if (fs.existsSync(taskDir)) {
+      throw new Error('Task folder already exists: ' + taskDir);
+    }
+
+    fs.mkdirSync(path.join(taskDir, 'docs'), { recursive: true });
+    fs.mkdirSync(path.join(taskDir, 'context'), { recursive: true });
+    console.log('Created', taskDir);
+
+    // Create symlink in local .intelligence/ dir
+    const linkPath = path.join(cwd, LOCAL_DIR, taskName);
+    const target = path.resolve(taskDir);
+    const type = process.platform === 'win32' ? 'dir' : undefined;
+    fs.symlinkSync(target, linkPath, type);
+    console.log('Created symlink', linkPath, '->', target);
+
+    console.log('\nDone.');
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Entrypoint
 // ---------------------------------------------------------------------------
 
@@ -206,6 +266,14 @@ const command = process.argv[2];
 
 if (command === 'init') {
   await init();
+} else if (command === 'new') {
+  await newTask();
 } else {
-  console.log('Usage: intel init');
+  console.log(`
+Usage: intel <command>
+
+Commands:
+  init    Initialize a project (clone, create, or link an existing one)
+  new     Create a new task under the current project
+`);
 }
