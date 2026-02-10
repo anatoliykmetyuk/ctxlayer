@@ -5,14 +5,14 @@ const path = require('path');
 const { execSync } = require('child_process');
 
 const cwd = process.cwd();
-const dir = path.join(cwd, '.intelligence');
+const dir = path.join(cwd, 'intelligence');
 
 function ensureIntelligenceDir() {
   if (!fs.existsSync(dir)) {
     fs.mkdirSync(dir, { recursive: true });
-    console.log('Created .intelligence');
+    console.log('Created intelligence');
   } else {
-    console.log('.intelligence already exists');
+    console.log('intelligence already exists');
   }
 }
 
@@ -28,7 +28,7 @@ function addToGitExclude() {
   }
 
   const excludePath = path.join(gitRoot, '.git', 'info', 'exclude');
-  const entry = '.intelligence';
+  const entry = 'intelligence';
   let content = '';
 
   if (fs.existsSync(excludePath)) {
@@ -37,13 +37,13 @@ function addToGitExclude() {
 
   const lines = content.split(/\r?\n/);
   const alreadyAdded = lines.some(
-    (line) => line.trim() === entry || line.trim() === '/.intelligence'
+    (line) => line.trim() === entry || line.trim() === '/intelligence'
   );
   if (alreadyAdded) return;
 
   const suffix = content.length > 0 && !content.endsWith('\n') ? '\n' : '';
   fs.appendFileSync(excludePath, suffix + entry + '\n');
-  console.log('Added .intelligence to .git/info/exclude');
+  console.log('Added intelligence to .git/info/exclude');
 }
 
 ensureIntelligenceDir();

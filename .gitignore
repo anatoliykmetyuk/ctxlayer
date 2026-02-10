@@ -15,7 +15,4 @@ Thumbs.db
 .vscode/
 *.swp
 *.swo
-
-# Optional: local .intelligence when running intel in this repo
-.intelligence
 .cursor/
