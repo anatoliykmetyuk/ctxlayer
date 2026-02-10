@@ -63,3 +63,21 @@ export function createProject(projectsRoot, name, tasks = []) {
     fs.mkdirSync(path.join(projDir, task, 'context'), { recursive: true });
   }
 }
+
+/**
+ * Creates a symlink at cwd/.intelligence/<projectName>/<taskName> pointing to
+ * projectsRoot/<projectName>/<taskName>. Mirrors ensureTaskSymlink behavior for test setup.
+ *
+ * @param {string} cwd - Path to the local repo (e.g. tmpCwd)
+ * @param {string} projectName
+ * @param {string} taskName
+ * @param {string} projectsRoot
+ */
+export function createTaskSymlink(cwd, projectName, taskName, projectsRoot) {
+  const localProjectDir = path.join(cwd, '.intelligence', projectName);
+  fs.mkdirSync(localProjectDir, { recursive: true });
+  const linkPath = path.join(localProjectDir, taskName);
+  const target = path.resolve(path.join(projectsRoot, projectName, taskName));
+  const type = process.platform === 'win32' ? 'dir' : undefined;
+  fs.symlinkSync(target, linkPath, type);
+}

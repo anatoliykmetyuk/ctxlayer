@@ -4,7 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import { execSync } from 'child_process';
-import { select, input } from '@inquirer/prompts';
+import { select, input, confirm } from '@inquirer/prompts';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -71,6 +71,17 @@ function writeConfig(config) {
 // ---------------------------------------------------------------------------
 // Ensure a symlink for a task exists at <cwd>/.intelligence/<project>/<task>
 // ---------------------------------------------------------------------------
+
+function getLocalProjectDirs() {
+  const localDir = path.join(CWD, LOCAL_DIR);
+  if (!fs.existsSync(localDir)) {
+    return [];
+  }
+  return fs
+    .readdirSync(localDir, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name);
+}
 
 function ensureTaskSymlink(projectName, taskName) {
   if (!taskName) return;
@@ -429,6 +440,286 @@ function activeStatus() {
 }
 
 // ---------------------------------------------------------------------------
+// intel git - run git in the current task directory
+// ---------------------------------------------------------------------------
+
+function intelGit() {
+  try {
+    const config = readConfig();
+    const projectName = config['active-project'];
+    const taskName = config['active-task'];
+
+    if (!taskName) {
+      throw new Error('No active task set. Run "intel active task" to select a task.');
+    }
+
+    const taskDir = path.join(PROJECTS_ROOT, projectName, taskName);
+    if (!fs.existsSync(taskDir)) {
+      throw new Error('Task directory not found: ' + taskDir);
+    }
+
+    const args = process.argv.slice(2);
+    const gitArgs = args[0] === 'git' ? args.slice(1).join(' ') : '';
+    const cmd = gitArgs ? `git ${gitArgs}` : 'git';
+
+    execSync(cmd, { cwd: taskDir, stdio: 'inherit' });
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// intel drop task - remove symlink to a task
+// ---------------------------------------------------------------------------
+
+async function dropTask(taskNameArg) {
+  try {
+    const config = readConfig();
+
+    const projects = getLocalProjectDirs();
+    if (projects.length === 0) {
+      throw new Error('No project directories found in .intelligence/. Import a task first.');
+    }
+
+    let selectedProject;
+    let selectedTask;
+
+    if (taskNameArg) {
+      selectedProject = config['active-project'];
+      const projectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+      if (!fs.existsSync(projectDir)) {
+        throw new Error('Project directory not found: ' + projectDir);
+      }
+      const linkPath = path.join(projectDir, taskNameArg);
+      if (!fs.existsSync(linkPath)) {
+        throw new Error('Task symlink not found: ' + linkPath);
+      }
+      selectedTask = taskNameArg;
+    } else {
+      selectedProject = await select({
+        message: 'Select project:',
+        choices: projects.map((name) => ({ name, value: name })),
+      });
+
+      const projectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+      const entries = fs
+        .readdirSync(projectDir, { withFileTypes: true })
+        .filter((e) => e.isSymbolicLink() || (e.isDirectory() && !e.name.startsWith('.')))
+        .map((e) => e.name);
+
+      if (entries.length === 0) {
+        throw new Error('No tasks found in project "' + selectedProject + '".');
+      }
+
+      selectedTask = await select({
+        message: 'Select task to drop:',
+        choices: entries.map((name) => ({ name, value: name })),
+      });
+    }
+
+    const linkPath = path.join(CWD, LOCAL_DIR, selectedProject, selectedTask);
+    fs.unlinkSync(linkPath);
+    console.log('Dropped symlink:', linkPath);
+
+    const projectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+    const remaining = fs.readdirSync(projectDir);
+    if (remaining.length === 0) {
+      fs.rmdirSync(projectDir);
+      console.log('Removed empty project directory:', projectDir);
+    }
+
+    console.log('\nDone.');
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// intel drop project - remove project directory from local .intelligence/
+// ---------------------------------------------------------------------------
+
+async function dropProject() {
+  try {
+    readConfig();
+
+    const projects = getLocalProjectDirs();
+    if (projects.length === 0) {
+      throw new Error('No project directories found in .intelligence/.');
+    }
+
+    const selectedProject = await select({
+      message: 'Select project to drop:',
+      choices: projects.map((name) => ({ name, value: name })),
+    });
+
+    const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+    const confirmed = await confirm({
+      message: `Remove project directory "${selectedProject}" from .intelligence/?`,
+      default: false,
+    });
+
+    if (!confirmed) {
+      console.log('Cancelled.');
+      return;
+    }
+
+    fs.rmSync(localProjectDir, { recursive: true });
+    console.log('Removed:', localProjectDir);
+    console.log('\nDone.');
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// intel delete task - remove task from intelligence store and symlink
+// ---------------------------------------------------------------------------
+
+async function deleteTask() {
+  try {
+    readConfig();
+
+    if (!fs.existsSync(PROJECTS_ROOT)) {
+      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    }
+
+    const projects = fs
+      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+
+    if (projects.length === 0) {
+      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    }
+
+    const selectedProject = await select({
+      message: 'Select project:',
+      choices: projects.map((name) => ({ name, value: name })),
+    });
+
+    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
+    const tasks = fs
+      .readdirSync(projectDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
+      .map((e) => e.name);
+
+    if (tasks.length === 0) {
+      throw new Error('No tasks found in project "' + selectedProject + '".');
+    }
+
+    const selectedTask = await select({
+      message: 'Select task to delete:',
+      choices: tasks.map((name) => ({ name, value: name })),
+    });
+
+    const confirmed = await confirm({
+      message: `Permanently delete task "${selectedTask}" from project "${selectedProject}"?`,
+      default: false,
+    });
+
+    if (!confirmed) {
+      console.log('Cancelled.');
+      return;
+    }
+
+    const taskDir = path.join(PROJECTS_ROOT, selectedProject, selectedTask);
+    fs.rmSync(taskDir, { recursive: true });
+    console.log('Deleted:', taskDir);
+
+    const linkPath = path.join(CWD, LOCAL_DIR, selectedProject, selectedTask);
+    if (fs.existsSync(linkPath)) {
+      fs.unlinkSync(linkPath);
+      console.log('Removed symlink:', linkPath);
+    }
+
+    const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+    if (fs.existsSync(localProjectDir)) {
+      const remaining = fs.readdirSync(localProjectDir);
+      if (remaining.length === 0) {
+        fs.rmSync(localProjectDir, { recursive: true });
+        console.log('Removed empty project directory:', localProjectDir);
+      }
+    }
+
+    console.log('\nDone.');
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// intel delete project - remove project from intelligence store and local dir
+// ---------------------------------------------------------------------------
+
+async function deleteProject() {
+  try {
+    readConfig();
+
+    if (!fs.existsSync(PROJECTS_ROOT)) {
+      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    }
+
+    const projects = fs
+      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+
+    if (projects.length === 0) {
+      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    }
+
+    const selectedProject = await select({
+      message: 'Select project to delete:',
+      choices: projects.map((name) => ({ name, value: name })),
+    });
+
+    const confirmed = await confirm({
+      message: `Permanently delete project "${selectedProject}" from the intelligence store?`,
+      default: false,
+    });
+
+    if (!confirmed) {
+      console.log('Cancelled.');
+      return;
+    }
+
+    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
+    fs.rmSync(projectDir, { recursive: true });
+    console.log('Deleted:', projectDir);
+
+    const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+    if (fs.existsSync(localProjectDir)) {
+      fs.rmSync(localProjectDir, { recursive: true });
+      console.log('Removed local directory:', localProjectDir);
+    }
+
+    console.log('\nDone.');
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Import task from any project
 // ---------------------------------------------------------------------------
 
@@ -490,7 +781,17 @@ async function importTask() {
 
 const command = process.argv.slice(2).join(' ');
 
-if (command === 'init') {
+if (command === 'git' || command.startsWith('git ')) {
+  intelGit();
+} else if (command === 'drop project') {
+  await dropProject();
+} else if (command === 'drop task' || command.startsWith('drop task ')) {
+  await dropTask(command.slice(10).trim() || undefined);
+} else if (command === 'delete project') {
+  await deleteProject();
+} else if (command === 'delete task') {
+  await deleteTask();
+} else if (command === 'init') {
   await init();
 } else if (command === 'new' || command.startsWith('new ')) {
   await newTask(command.slice(4) || undefined);
@@ -510,6 +811,11 @@ Commands:
   init              Initialize a project (clone, create, or link an existing one)
   new [name]        Create a new task under the current project
   import            Import a task from any project as a symlink
+  git [args...]     Run git in the current task directory
+  drop task [name]  Remove a task symlink (with optional task name)
+  drop project      Remove a project directory from local .intelligence/
+  delete task       Delete a task from the intelligence store and remove its symlink
+  delete project    Delete a project from the intelligence store and remove its local directory
   active            Show the current active project and task
   active task       Select the active task for the current project
   active project    Select the active project
@@ -520,4 +826,16 @@ Commands:
 // Exports (for testing)
 // ---------------------------------------------------------------------------
 
-export { init, newTask, activeStatus, activeProject, activeTask, importTask };
+export {
+  init,
+  newTask,
+  activeStatus,
+  activeProject,
+  activeTask,
+  importTask,
+  intelGit,
+  dropTask,
+  dropProject,
+  deleteTask,
+  deleteProject,
+};

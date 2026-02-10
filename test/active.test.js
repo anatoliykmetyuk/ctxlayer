@@ -18,6 +18,7 @@ mock.module('@inquirer/prompts', {
   namedExports: {
     select: async () => {},
     input: async () => '',
+    confirm: async () => false,
   },
 });
 

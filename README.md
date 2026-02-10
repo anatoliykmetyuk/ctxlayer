@@ -60,6 +60,11 @@ npm unlink -g intel
 | `intel init` | Initialize a project (clone from git, create from scratch, or use existing) |
 | `intel new` | Create a new task under the active project |
 | `intel import` | Import a task from any project as a local symlink |
+| `intel git [args...]` | Run git in the current task directory |
+| `intel drop task [name]` | Remove a task symlink (with optional task name) |
+| `intel drop project` | Remove a project directory from local `.intelligence/` |
+| `intel delete task` | Delete a task from the intelligence store and remove its symlink |
+| `intel delete project` | Delete a project from the intelligence store and remove its local directory |
 | `intel active` | Show the current active project and task |
 | `intel active project` | Select a different active project (arrow-key menu) |
 | `intel active task` | Select a different active task (arrow-key menu) |
@@ -91,6 +96,26 @@ Imports a task from any project into the local `.intelligence/` directory as a s
 1. Prompts to select a project (arrow-key menu listing all projects in `~/.intelligence/projects/`).
 2. Prompts to select a task from that project.
 3. Creates a symlink at `.intelligence/<project>/<task>` pointing to the task folder in the global store.
+
+### `intel git [args...]`
+
+Runs `git` with the given arguments in the current task directory. Requires an active task to be set. Example: `intel git status` runs `git status` in `~/.intelligence/projects/<project>/<task>/`.
+
+### `intel drop task [name]`
+
+Removes a task symlink from the local `.intelligence/` directory. Prompts to select a project, then a task (or use the optional task name with the active project). If the project directory is left empty, it is removed.
+
+### `intel drop project`
+
+Removes an entire project directory from the local `.intelligence/` directory. Prompts to select a project and asks for confirmation before removing.
+
+### `intel delete task`
+
+Permanently deletes a task from the intelligence store (`~/.intelligence/projects/`) and removes its symlink from the local directory. Prompts to select a project and task, then asks for confirmation.
+
+### `intel delete project`
+
+Permanently deletes a project from the intelligence store and removes its local directory from `.intelligence/`. Prompts to select a project and asks for confirmation.
 
 ### `intel active`
 

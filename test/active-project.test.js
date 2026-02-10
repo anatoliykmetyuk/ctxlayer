@@ -20,6 +20,7 @@ mock.module('@inquirer/prompts', {
   namedExports: {
     select: async () => selectQueue.shift(),
     input: async () => '',
+    confirm: async () => false,
   },
 });
 
