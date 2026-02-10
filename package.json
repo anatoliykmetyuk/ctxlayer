@@ -2,9 +2,9 @@
   "name": "intel",
   "version": "1.0.0",
   "description": "Initialize .intelligence directory in the current folder",
-  "main": "cli.js",
+  "main": "bin/cli.js",
   "bin": {
-    "intel": "./cli.js"
+    "intel": "./bin/cli.js"
   },
   "scripts": {},
   "keywords": ["intel", "intelligence", "cli"],
