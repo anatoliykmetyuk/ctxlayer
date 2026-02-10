@@ -1,4 +1,4 @@
-# Context Layer
+# CtxLayer - the Context Layer for AI agents
 
 A **context layer** used as **context for AI agents** during iterative development. It gives agents a structured place for documentation and reference material so they can focus and operate more precisely across iterations.
 

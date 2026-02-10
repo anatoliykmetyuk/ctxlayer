@@ -1,5 +1,5 @@
 ---
-name: context-layer
+name: ctxlayer
 description: Manages context layer projects, tasks, and documentation via the ctx CLI. Use when the user mentions ctx commands, context layer projects or tasks, or requests you to write any form of documentation -- such as documenting implemented features, research findings, or drawing diagrams. Also use when the user asks to clone a repo as context layer context.
 ---
 
