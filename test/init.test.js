@@ -2,6 +2,7 @@ import { describe, it, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
+import * as cp from 'child_process';
 import { createSandbox, createProject } from './helpers.js';
 
 // ---------------------------------------------------------------------------
@@ -28,6 +29,8 @@ mock.module('@inquirer/prompts', {
 mock.module('child_process', {
   namedExports: {
     execSync: () => {},
+    spawn: cp.spawn,
+    spawnSync: cp.spawnSync,
   },
 });
 

@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
-import { execSync } from 'child_process';
+import { execSync, spawnSync } from 'child_process';
 import { select, input, confirm } from '@inquirer/prompts';
 
 // ---------------------------------------------------------------------------
@@ -459,10 +459,15 @@ function intelGit() {
     }
 
     const args = process.argv.slice(2);
-    const gitArgs = args[0] === 'git' ? args.slice(1).join(' ') : '';
-    const cmd = gitArgs ? `git ${gitArgs}` : 'git';
+    const gitArgs = args[0] === 'git' ? args.slice(1) : [];
 
-    execSync(cmd, { cwd: taskDir, stdio: 'inherit' });
+    const result = spawnSync('git', gitArgs, { cwd: taskDir, stdio: 'inherit' });
+    if (result.status !== 0) {
+      const err = new Error(result.error?.message || `Command failed: git`);
+      err.status = result.status;
+      err.signal = result.signal;
+      throw err;
+    }
   } catch (err) {
     if (err.name === 'ExitPromptError') {
       process.exit(130);

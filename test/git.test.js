@@ -12,18 +12,19 @@ import { createSandbox, createConfig, createProject } from './helpers.js';
 const { tmpProjectsRoot, tmpCwd, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
-// Mocks - preserve spawn/spawnSync for inquirer deps, mock execSync
+// Mocks - preserve spawn for inquirer deps, mock spawnSync for git
 // ---------------------------------------------------------------------------
 
-let execSyncCalls = [];
+let spawnSyncCalls = [];
 
 mock.module('child_process', {
   namedExports: {
-    execSync: (...args) => {
-      execSyncCalls.push(args);
-    },
+    execSync: cp.execSync,
     spawn: cp.spawn,
-    spawnSync: cp.spawnSync,
+    spawnSync: (cmd, args, opts) => {
+      spawnSyncCalls.push([cmd, args, opts]);
+      return { status: 0, signal: null, error: null };
+    },
   },
 });
 
@@ -50,7 +51,7 @@ describe('intel git', () => {
 
   beforeEach(() => {
     process.exit.mock.resetCalls();
-    execSyncCalls = [];
+    spawnSyncCalls = [];
   });
 
   after(() => {
@@ -61,11 +62,23 @@ describe('intel git', () => {
     process.argv = ['node', 'intel', 'git', 'status'];
     intelGit();
 
-    assert.equal(execSyncCalls.length, 1);
-    const [cmd, opts] = execSyncCalls[0];
-    assert.equal(cmd, 'git status');
+    assert.equal(spawnSyncCalls.length, 1);
+    const [cmd, args, opts] = spawnSyncCalls[0];
+    assert.equal(cmd, 'git');
+    assert.deepStrictEqual(args, ['status']);
     assert.equal(opts.cwd, path.join(tmpProjectsRoot, PROJECT, TASK));
     assert.equal(opts.stdio, 'inherit');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('preserves commit message with spaces when passed as single arg', () => {
+    process.argv = ['node', 'intel', 'git', 'commit', '-m', 'Added documentation about commands and tests'];
+    intelGit();
+
+    assert.equal(spawnSyncCalls.length, 1);
+    const [cmd, args, opts] = spawnSyncCalls[0];
+    assert.equal(cmd, 'git');
+    assert.deepStrictEqual(args, ['commit', '-m', 'Added documentation about commands and tests']);
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
@@ -73,9 +86,11 @@ describe('intel git', () => {
     process.argv = ['node', 'intel', 'git'];
     intelGit();
 
-    assert.equal(execSyncCalls.length, 1);
-    const [cmd] = execSyncCalls[0];
+    assert.equal(spawnSyncCalls.length, 1);
+    const [cmd, args, opts] = spawnSyncCalls[0];
     assert.equal(cmd, 'git');
+    assert.deepStrictEqual(args, []);
+    assert.equal(opts.cwd, path.join(tmpProjectsRoot, PROJECT, TASK));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
