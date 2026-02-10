@@ -70,6 +70,28 @@ function writeConfig(config) {
 }
 
 // ---------------------------------------------------------------------------
+// Ensure a symlink for a task exists at <cwd>/.intelligence/<project>/<task>
+// ---------------------------------------------------------------------------
+
+function ensureTaskSymlink(projectName, taskName) {
+  if (!taskName) return;
+
+  const localProjectDir = path.join(cwd, LOCAL_DIR, projectName);
+  if (!fs.existsSync(localProjectDir)) {
+    fs.mkdirSync(localProjectDir, { recursive: true });
+  }
+
+  const linkPath = path.join(localProjectDir, taskName);
+  if (!fs.existsSync(linkPath)) {
+    const taskDir = path.join(projectsRoot, projectName, taskName);
+    const target = path.resolve(taskDir);
+    const type = process.platform === 'win32' ? 'dir' : undefined;
+    fs.symlinkSync(target, linkPath, type);
+    console.log('Created symlink', linkPath, '->', target);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Local setup (runs after every choice)
 // ---------------------------------------------------------------------------
 
@@ -258,12 +280,8 @@ async function newTask() {
     fs.mkdirSync(path.join(taskDir, 'context'), { recursive: true });
     console.log('Created', taskDir);
 
-    // Create symlink in local .intelligence/ dir
-    const linkPath = path.join(cwd, LOCAL_DIR, taskName);
-    const target = path.resolve(taskDir);
-    const type = process.platform === 'win32' ? 'dir' : undefined;
-    fs.symlinkSync(target, linkPath, type);
-    console.log('Created symlink', linkPath, '->', target);
+    // Create symlink in local .intelligence/<projectName>/ dir
+    ensureTaskSymlink(projectName, taskName);
 
     // Set newly created task as active
     writeConfig({ 'active-project': projectName, 'active-task': taskName });
@@ -324,6 +342,9 @@ async function activeTask() {
       config['active-task']
     );
 
+    // Ensure a symlink for the task exists at .intelligence/<projectName>/<task>
+    ensureTaskSymlink(projectName, selectedTask);
+
     writeConfig({ 'active-project': projectName, 'active-task': selectedTask });
   } catch (err) {
     if (err.name === 'ExitPromptError') {
@@ -365,12 +386,14 @@ async function activeProject() {
     console.log('Active project set to:', selectedProject);
 
     if (selectedProject === currentProject) {
+      ensureTaskSymlink(selectedProject, config['active-task']);
       writeConfig({
         'active-project': selectedProject,
         'active-task': config['active-task'],
       });
     } else {
       const selectedTask = await selectTaskForProject(selectedProject, '');
+      ensureTaskSymlink(selectedProject, selectedTask);
       writeConfig({
         'active-project': selectedProject,
         'active-task': selectedTask,
