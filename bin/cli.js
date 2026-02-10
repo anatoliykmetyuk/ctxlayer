@@ -520,4 +520,4 @@ Commands:
 // Exports (for testing)
 // ---------------------------------------------------------------------------
 
-export { importTask };
+export { init, newTask, activeStatus, activeProject, activeTask, importTask };
