@@ -125,15 +125,14 @@ function setupLocal(projectName) {
     content = fs.readFileSync(gitignorePath, 'utf8');
   }
 
+  const GITIGNORE_ENTRY = '/.ctxlayer/';
   const lines = content.split(/\r?\n/);
-  const alreadyListed = lines.some(
-    (line) => line.trim() === LOCAL_DIR || line.trim() === '/' + LOCAL_DIR
-  );
+  const alreadyListed = lines.some((line) => line.trim() === GITIGNORE_ENTRY);
 
   if (!alreadyListed) {
     const suffix = content.length > 0 && !content.endsWith('\n') ? '\n' : '';
-    fs.appendFileSync(gitignorePath, suffix + LOCAL_DIR + '\n');
-    console.log('Added', LOCAL_DIR, 'to .gitignore');
+    fs.appendFileSync(gitignorePath, suffix + GITIGNORE_ENTRY + '\n');
+    console.log('Added', GITIGNORE_ENTRY, 'to .gitignore');
   }
 }
 
