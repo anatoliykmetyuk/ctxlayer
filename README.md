@@ -13,7 +13,7 @@ A **context layer** used as **context for AI agents** during iterative developme
 
 ## What it does
 
-- Manages a global store at `~/.ctxlayer/projects/` where projects and tasks live.
+- Manages a global store at `~/.agents/ctxlayer/projects/` where projects and tasks live.
 - Each task has `docs/` and `context/` for documentation and reference material.
 - A local `.ctxlayer/config.yaml` in your repo (or workspace) tracks the active project and task.
 - An agent skill teaches AI coding assistants (Cursor, Claude Code, etc.) how to write documentation and manage context using these conventions.
@@ -21,7 +21,7 @@ A **context layer** used as **context for AI agents** during iterative developme
 ## Directory layout
 
 ```
-~/.ctxlayer/                              # global store (in home dir)
+~/.agents/ctxlayer/                              # global store (in home dir)
   projects/
     <project-name>/                       # one per project (can span one or more git repos)
       <task-name>/                        # one per task (think: branch)
@@ -73,9 +73,9 @@ npm unlink -g ctx
 
 Interactive menu with three choices:
 
-1. **Fetch from git** -- paste a GitHub URL, name the project (defaults to repo name), clone it into `~/.ctxlayer/projects/`.
+1. **Fetch from git** -- paste a GitHub URL, name the project (defaults to repo name), clone it into `~/.agents/ctxlayer/projects/`.
 2. **Create from scratch** -- enter a project name, creates the directory and runs `git init`.
-3. **Use existing project** -- pick from existing projects in `~/.ctxlayer/projects/`.
+3. **Use existing project** -- pick from existing projects in `~/.agents/ctxlayer/projects/`.
 
 After any choice, local setup runs automatically:
 - Creates `.ctxlayer/` in the current directory.
@@ -85,7 +85,7 @@ After any choice, local setup runs automatically:
 ### `ctx new`
 
 Prompts for a task name, then:
-- Creates `~/.ctxlayer/projects/<project>/<task>/` with `docs/` and `context/` subdirectories.
+- Creates `~/.agents/ctxlayer/projects/<project>/<task>/` with `docs/` and `context/` subdirectories.
 - Creates a symlink `.ctxlayer/<task>` in the local directory pointing to the task folder.
 - Sets the new task as the active task in `config.yaml`.
 
@@ -93,13 +93,13 @@ Prompts for a task name, then:
 
 Imports a task from any project into the local `.ctxlayer/` directory as a symlink. Useful for referencing tasks from other projects without switching the active project.
 
-1. Prompts to select a project (arrow-key menu listing all projects in `~/.ctxlayer/projects/`).
+1. Prompts to select a project (arrow-key menu listing all projects in `~/.agents/ctxlayer/projects/`).
 2. Prompts to select a task from that project.
 3. Creates a symlink at `.ctxlayer/<project>/<task>` pointing to the task folder in the global store.
 
 ### `ctx git [args...]`
 
-Runs `git` with the given arguments in the current task directory. Requires an active task to be set. Example: `ctx git status` runs `git status` in `~/.ctxlayer/projects/<project>/<task>/`.
+Runs `git` with the given arguments in the current task directory. Requires an active task to be set. Example: `ctx git status` runs `git status` in `~/.agents/ctxlayer/projects/<project>/<task>/`.
 
 ### `ctx drop task [name]`
 
@@ -111,7 +111,7 @@ Removes an entire project directory from the local `.ctxlayer/` directory. Promp
 
 ### `ctx delete task`
 
-Permanently deletes a task from the context store (`~/.ctxlayer/projects/`) and removes its symlink from the local directory. Prompts to select a project and task, then asks for confirmation.
+Permanently deletes a task from the context store (`~/.agents/ctxlayer/projects/`) and removes its symlink from the local directory. Prompts to select a project and task, then asks for confirmation.
 
 ### `ctx delete project`
 

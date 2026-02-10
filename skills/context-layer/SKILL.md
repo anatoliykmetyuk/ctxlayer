@@ -31,14 +31,14 @@ active-project: <project-name>
 active-task: <task-name>
 ```
 
-Projects are stored globally at `~/.ctxlayer/projects/`. Each project contains task folders, and each task folder has `docs/` and `context/` subdirectories.
+Projects are stored globally at `~/.agents/ctxlayer/projects/`. Each project contains task folders, and each task folder has `docs/` and `context/` subdirectories.
 
 ## Docs folder convention
 
 When the user asks to document something -- implemented features, research findings, search results, architecture decisions, diagrams, or any other form of documentation -- follow these steps:
 
 1. Read `.ctxlayer/config.yaml` to get `active-project` and `active-task`. `.ctxlayer` folder is likely to be gitignored, so read it using command line.
-2. Navigate to `~/.ctxlayer/projects/<active-project>/<active-task>/docs/`.
+2. Navigate to `~/.agents/ctxlayer/projects/<active-project>/<active-task>/docs/`.
 3. Create a new markdown file using this naming convention:
    - **Prefix:** two-digit incrementing number based on existing files in the folder (`01`, `02`, `03`, ...).
    - **Separator:** a single dash.
@@ -51,7 +51,7 @@ Each file is a standalone document covering one topic. The docs folder serves as
 
 ## Context folder convention
 
-The context folder at `~/.ctxlayer/projects/<active-project>/<active-task>/context/` holds reference material for the task: sample data, configuration snippets, external repositories, and anything else useful as a reference during implementation.
+The context folder at `~/.agents/ctxlayer/projects/<active-project>/<active-task>/context/` holds reference material for the task: sample data, configuration snippets, external repositories, and anything else useful as a reference during implementation.
 
 ### Cloning repos as context layer context
 

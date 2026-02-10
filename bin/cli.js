@@ -14,7 +14,7 @@ const PROJECTS_DIR = 'projects';
 const LOCAL_DIR = '.ctxlayer';
 
 const CWD = process.env.CONTEXT_LAYER_CWD || process.cwd();
-const CONTEXT_LAYER_HOME = process.env.CONTEXT_LAYER_HOME || path.join(os.homedir(), '.ctxlayer');
+const CONTEXT_LAYER_HOME = process.env.CONTEXT_LAYER_HOME || path.join(os.homedir(), '.agents', 'ctxlayer');
 const PROJECTS_ROOT = path.join(CONTEXT_LAYER_HOME, PROJECTS_DIR);
 
 // ---------------------------------------------------------------------------
