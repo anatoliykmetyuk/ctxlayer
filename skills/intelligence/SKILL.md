@@ -28,7 +28,7 @@ Projects are stored globally at `~/.intelligence/projects/`. Each project contai
 
 When the user asks to document something -- implemented features, research findings, search results, architecture decisions, diagrams, or any other form of documentation -- follow these steps:
 
-1. Read `.intelligence/config.yaml` to get `active-project` and `active-task`.
+1. Read `.intelligence/config.yaml` to get `active-project` and `active-task`. `.intelligence` folder is likely to be gitignored, so read it using command line.
 2. Navigate to `~/.intelligence/projects/<active-project>/<active-task>/docs/`.
 3. Create a new markdown file using this naming convention:
    - **Prefix:** two-digit incrementing number based on existing files in the folder (`01`, `02`, `03`, ...).
