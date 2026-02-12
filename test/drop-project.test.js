@@ -40,12 +40,16 @@ const { dropProject } = await import('../bin/cli.js');
 describe('intel drop project', () => {
   before(() => {
     createProject(tmpProjectsRoot, 'project-alpha', ['task-one']);
+    createProject(tmpProjectsRoot, 'project-beta', ['task-three']);
     createConfig(tmpCwd, 'project-alpha', 'task-one');
     createTaskSymlink(tmpCwd, 'project-alpha', 'task-one', tmpProjectsRoot);
+    createTaskSymlink(tmpCwd, 'project-beta', 'task-three', tmpProjectsRoot);
   });
 
   beforeEach(() => {
     process.exit.mock.resetCalls();
+    selectQueue = [];
+    confirmQueue = [];
   });
 
   after(() => {
@@ -62,18 +66,44 @@ describe('intel drop project', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('removes project directory when confirmed', async () => {
-    selectQueue = ['project-alpha'];
+  it('removes project directory when name arg provided and confirmed', async () => {
     confirmQueue = [true];
-    await dropProject();
+    await dropProject('project-alpha');
 
     const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
     assert.ok(!fs.existsSync(projectDir), 'project dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('does not remove when name arg provided but user cancels', async () => {
+    confirmQueue = [false];
+    await dropProject('project-beta');
+
+    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-beta');
+    assert.ok(fs.existsSync(projectDir), 'project dir should remain');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('exits when name arg refers to nonexistent project', async () => {
+    await dropProject('nonexistent');
+
+    assert.equal(process.exit.mock.calls.length, 1);
+    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
+  });
+
+  it('removes project directory when confirmed', async () => {
+    selectQueue = ['project-beta'];
+    confirmQueue = [true];
+    await dropProject();
+
+    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-beta');
+    assert.ok(!fs.existsSync(projectDir), 'project dir should be removed');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('exits when no project directories exist', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'project-alpha'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'project-beta'), { recursive: true, force: true });
 
     await dropProject();
 

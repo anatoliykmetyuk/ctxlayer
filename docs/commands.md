@@ -387,10 +387,11 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 | `ctx import` | `importTask()` | ensureWorkspaceInitialized, readConfigOrNull, select from PROJECTS_ROOT, ensureTaskSymlink, set active when config empty/missing |
 | `ctx git [args...]` | `intelGit()` | readConfig, spawnSync('git', args, { cwd: taskDir }) |
 | `ctx drop task [name]` | `dropTask(name?)` | getLocalProjectDirs, unlink symlink, rmdir if empty |
-| `ctx drop project` | `dropProject()` | getLocalProjectDirs, confirm, rm local dir |
+| `ctx drop project [name]` | `dropProject(name?)` | getLocalProjectDirs, optional name skips select, confirm, rm local dir |
 | `ctx delete task` | `deleteTask()` | list from PROJECTS_ROOT, confirm, rm task + symlink |
 | `ctx delete project` | `deleteProject()` | list from PROJECTS_ROOT, confirm, rm project + local dir |
-| `ctx active` | `activeStatus()` | readConfig, print |
+| `ctx status` | `status()` | readConfig, print |
+| `ctx set` | `setActive()` | ensureWorkspaceInitialized, select project + task from PROJECTS_ROOT, writeConfig |
 
 ---
 
@@ -399,7 +400,8 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 | File | Command |
 |------|---------|
 | `test/new.test.js` | ctx new |
-| `test/active.test.js` | ctx active |
+| `test/status.test.js` | ctx status |
+| `test/set.test.js` | ctx set |
 | `test/import.test.js` | ctx import |
 | `test/git.test.js` | ctx git |
 | `test/drop-task.test.js` | ctx drop task |

@@ -14,10 +14,11 @@ The `ctx` CLI manages projects and tasks. Available commands:
 - `ctx import` -- Import a task from any project as a local symlink (works on uninitialized workspaces; sets active when config is empty or missing)
 - `ctx git [args...]` -- Run git in the current task directory
 - `ctx drop task [name]` -- Remove a task symlink (with optional task name)
-- `ctx drop project` -- Remove a project directory from local `.ctxlayer/`
+- `ctx drop project [name]` -- Remove a project directory from local `.ctxlayer/` (optional project name)
 - `ctx delete task` -- Delete a task from the context store and remove its symlink
 - `ctx delete project` -- Delete a project from the context store and remove its local directory
-- `ctx active` -- Show the current active project and task
+- `ctx status` -- Show the current active project and task
+- `ctx set` -- Set active project and task (prompts to select)
 
 **Git operations on the context layer:** When the user requests any git operations (e.g., status, add, commit, push, pull) on the context layer or task context, perform them via `ctx git <args>` rather than running `git` directly.
 

@@ -118,6 +118,16 @@ function ensureTaskSymlink(projectName, taskName) {
   }
 }
 
+/**
+ * Set the active project and task. Call after project and task are selected.
+ * 1. Updates config.yaml (active-project, active-task)
+ * 2. Ensures workspace structure: project dir under .ctxlayer/<project>/, symlink to task
+ */
+function setActiveProjectAndTask(projectName, taskName) {
+  writeConfig({ 'active-project': projectName, 'active-task': taskName });
+  ensureTaskSymlink(projectName, taskName);
+}
+
 // ---------------------------------------------------------------------------
 // Local setup (runs after every choice)
 // ---------------------------------------------------------------------------
@@ -435,10 +445,10 @@ async function selectOrCreateProject() {
 }
 
 // ---------------------------------------------------------------------------
-// Active status (ctx active)
+// Status (ctx status)
 // ---------------------------------------------------------------------------
 
-function activeStatus() {
+function status() {
   try {
     const config = readConfig();
     const project = config['active-project'];
@@ -446,8 +456,6 @@ function activeStatus() {
 
     console.log(`\nActive project: ${project}`);
     console.log(`Active task:    ${task}\n`);
-    console.log('To change the active project, run: ctx new (and choose a different project when prompted)');
-    console.log('');
   } catch (err) {
     console.error('Error:', err.message);
     process.exit(1);
@@ -566,7 +574,7 @@ async function dropTask(taskNameArg) {
 // ctx drop project - remove project directory from local .ctxlayer/
 // ---------------------------------------------------------------------------
 
-async function dropProject() {
+async function dropProject(projectNameArg) {
   try {
     readConfig();
 
@@ -575,10 +583,19 @@ async function dropProject() {
       throw new Error('No project directories found in .ctxlayer/.');
     }
 
-    const selectedProject = await select({
-      message: 'Select project to drop:',
-      choices: projects.map((name) => ({ name, value: name })),
-    });
+    let selectedProject;
+    if (projectNameArg) {
+      if (!projects.includes(projectNameArg)) {
+        const localProjectDir = path.join(CWD, LOCAL_DIR, projectNameArg);
+        throw new Error('Project directory not found: ' + localProjectDir);
+      }
+      selectedProject = projectNameArg;
+    } else {
+      selectedProject = await select({
+        message: 'Select project to drop:',
+        choices: projects.map((name) => ({ name, value: name })),
+      });
+    }
 
     const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
     const confirmed = await confirm({
@@ -740,6 +757,72 @@ async function deleteProject() {
 }
 
 // ---------------------------------------------------------------------------
+// Set active project and task (ctx set)
+// ---------------------------------------------------------------------------
+
+async function setActive() {
+  try {
+    ensureWorkspaceInitialized();
+    const config = readConfigOrNull();
+
+    if (!fs.existsSync(PROJECTS_ROOT)) {
+      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    }
+
+    const projects = fs
+      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+      .filter((e) => e.isDirectory())
+      .map((e) => e.name);
+
+    if (projects.length === 0) {
+      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    }
+
+    const selectedProject = await select({
+      message: 'Select a project:',
+      choices: projects.map((name) => ({ name, value: name })),
+      default:
+        config &&
+        config['active-project'] &&
+        projects.includes(config['active-project'])
+          ? config['active-project']
+          : undefined,
+    });
+
+    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
+    const tasks = fs
+      .readdirSync(projectDir, { withFileTypes: true })
+      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
+      .map((e) => e.name);
+
+    if (tasks.length === 0) {
+      throw new Error('No tasks found in project "' + selectedProject + '".');
+    }
+
+    const selectedTask = await select({
+      message: 'Select a task:',
+      choices: tasks.map((name) => ({ name, value: name })),
+      default:
+        config &&
+        selectedProject === config['active-project'] &&
+        config['active-task'] &&
+        tasks.includes(config['active-task'])
+          ? config['active-task']
+          : undefined,
+    });
+
+    setActiveProjectAndTask(selectedProject, selectedTask);
+    console.log('\nDone.');
+  } catch (err) {
+    if (err.name === 'ExitPromptError') {
+      process.exit(130);
+    }
+    console.error('Error:', err.message);
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Import task from any project
 // ---------------------------------------------------------------------------
 
@@ -784,14 +867,14 @@ async function importTask() {
       choices: tasks.map((name) => ({ name, value: name })),
     });
 
-    ensureTaskSymlink(selectedProject, selectedTask);
-
     const shouldSetActive =
       !config ||
       !config['active-project'] ||
       !config['active-task'];
     if (shouldSetActive) {
-      writeConfig({ 'active-project': selectedProject, 'active-task': selectedTask });
+      setActiveProjectAndTask(selectedProject, selectedTask);
+    } else {
+      ensureTaskSymlink(selectedProject, selectedTask);
     }
 
     console.log('\nDone.');
@@ -812,8 +895,8 @@ const command = process.argv.slice(2).join(' ');
 
 if (command === 'git' || command.startsWith('git ')) {
   intelGit();
-} else if (command === 'drop project') {
-  await dropProject();
+} else if (command === 'drop project' || command.startsWith('drop project ')) {
+  await dropProject(command.slice(12).trim() || undefined);
 } else if (command === 'drop task' || command.startsWith('drop task ')) {
   await dropTask(command.slice(10).trim() || undefined);
 } else if (command === 'delete project') {
@@ -824,8 +907,10 @@ if (command === 'git' || command.startsWith('git ')) {
   await newTask(command.slice(4) || undefined);
 } else if (command === 'import') {
   await importTask();
-} else if (command === 'active') {
-  activeStatus();
+} else if (command === 'status') {
+  status();
+} else if (command === 'set') {
+  await setActive();
 } else {
   console.log(`
 Usage: ctx <command>
@@ -833,12 +918,13 @@ Usage: ctx <command>
 Main Commands:
   new [name]        Create a new task (prompts for project if needed)
   import            Import a task from any project as a symlink
-  active            Show the current active project and task
+  status            Show the current active project and task
+  set               Set active project and task (prompts to select)
 
 Convenience Commands:
   git [args...]     Run git in the current task directory
   drop task [name]  Remove a task symlink (with optional task name)
-  drop project      Remove a project directory from local .ctxlayer/
+  drop project [name]  Remove a project directory from local .ctxlayer/
   delete task       Delete a task from the context store and remove its symlink
   delete project    Delete a project from the context store and remove its local directory
 `);
@@ -850,7 +936,8 @@ Convenience Commands:
 
 export {
   newTask,
-  activeStatus,
+  status,
+  setActive,
   importTask,
   intelGit,
   dropTask,

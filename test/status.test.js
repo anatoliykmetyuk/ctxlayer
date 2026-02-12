@@ -28,13 +28,13 @@ mock.method(process, 'exit', () => {});
 // Import
 // ---------------------------------------------------------------------------
 
-const { activeStatus } = await import('../bin/cli.js');
+const { status } = await import('../bin/cli.js');
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('intel active', () => {
+describe('ctx status', () => {
   const PROJECT = 'my-project';
   const TASK = 'my-task';
 
@@ -50,25 +50,24 @@ describe('intel active', () => {
     cleanup();
   });
 
-  it('prints active project and task with hints', () => {
+  it('prints active project and task', () => {
     const logCalls = [];
     mock.method(console, 'log', (...args) => {
       logCalls.push(args.join(' '));
     });
 
-    activeStatus();
+    status();
 
     const output = logCalls.join('\n');
     assert.ok(output.includes(`Active project: ${PROJECT}`));
     assert.ok(output.includes(`Active task:    ${TASK}`));
-    assert.ok(output.includes('ctx new'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no config exists', () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
-    activeStatus();
+    status();
 
     assert.equal(process.exit.mock.calls.length, 1);
     assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);

@@ -61,10 +61,11 @@ npm unlink -g ctx
 | `ctx import` | Import a task from any project as a local symlink |
 | `ctx git [args...]` | Run git in the current task directory |
 | `ctx drop task [name]` | Remove a task symlink (with optional task name) |
-| `ctx drop project` | Remove a project directory from local `.ctxlayer/` |
+| `ctx drop project [name]` | Remove a project directory from local `.ctxlayer/` (optional project name) |
 | `ctx delete task` | Delete a task from the context store and remove its symlink |
 | `ctx delete project` | Delete a project from the context store and remove its local directory |
-| `ctx active` | Show the current active project and task |
+| `ctx status` | Show the current active project and task |
+| `ctx set` | Set active project and task (prompts to select) |
 
 ### `ctx new`
 
@@ -93,9 +94,9 @@ Runs `git` with the given arguments in the current task directory. Requires an a
 
 Removes a task symlink from the local `.ctxlayer/` directory. Prompts to select a project, then a task (or use the optional task name with the active project). If the project directory is left empty, it is removed.
 
-### `ctx drop project`
+### `ctx drop project [name]`
 
-Removes an entire project directory from the local `.ctxlayer/` directory. Prompts to select a project and asks for confirmation before removing.
+Removes an entire project directory from the local `.ctxlayer/` directory. Pass an optional project name to drop it directly; otherwise prompts to select a project. Asks for confirmation before removing.
 
 ### `ctx delete task`
 
@@ -105,9 +106,13 @@ Permanently deletes a task from the context store (`~/.agents/ctxlayer/projects/
 
 Permanently deletes a project from the context store and removes its local directory from `.ctxlayer/`. Prompts to select a project and asks for confirmation.
 
-### `ctx active`
+### `ctx status`
 
-Prints the current active project and task. Run `ctx new` (and choose a different project when prompted) to change them.
+Prints the current active project and task. Run `ctx set` to change the active project and task.
+
+### `ctx set`
+
+Prompts to select a project and a task from the global store, then sets them as active in `.ctxlayer/config.yaml`.
 
 ## Config file
 
@@ -144,7 +149,7 @@ npx skills add /path/to/context-layer -g --skill context-layer -y
 
 ### What the skill teaches the agent
 
-1. **CLI commands** - how to use `ctx new`, `ctx active`, etc.
+1. **CLI commands** - how to use `ctx new`, `ctx status`, `ctx set`, etc.
 2. **Docs convention** - when something meaningful is done (research, plan, implementation), create numbered markdown files (`01-name.md`, `02-name.md`) in the active task's `docs/` folder so later iterations can use that documentation.
 3. **Context convention** - reference material goes in the task's `context/` folder (repos as git submodules). This is the data the agent uses to focus its work.
 
