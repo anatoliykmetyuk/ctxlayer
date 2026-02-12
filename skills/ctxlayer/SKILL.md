@@ -1,6 +1,6 @@
 ---
 name: ctxlayer
-description: Manages context layer projects, tasks, and documentation via the ctx CLI. Use when the user mentions ctx commands, context layer projects or tasks, or requests you to write any form of documentation -- such as documenting implemented features, research findings, or drawing diagrams. Also use when the user asks to clone a repo as context layer context.
+description: Manages context layer projects, tasks, and documentation via the ctx CLI. Use when the user mentions context layer (e.g. "using context layer", "in the context layer", "in the context") ctx commands, context layer projects or tasks, or requests you to write any form of documentation -- such as documenting implemented features, research findings, or drawing diagrams. Also use when the user asks to clone a repo as context layer context or access context layer's "context" folder.
 ---
 
 # Context Layer
@@ -10,8 +10,8 @@ description: Manages context layer projects, tasks, and documentation via the ct
 The `ctx` CLI manages projects and tasks. Available commands:
 
 - `ctx` -- Show help and available commands
-- `ctx init` -- Initialize a project (clone from git, create from scratch, or use existing)
-- `ctx new [name]` -- Create a new task under the active project
+- `ctx set active` -- Select or create project (fetch from git, create from scratch, or use existing), then select or create task
+- `ctx new [name]` -- Create a new task under the active project (prompts to select/create project if config is missing)
 - `ctx import` -- Import a task from any project as a local symlink
 - `ctx git [args...]` -- Run git in the current task directory
 - `ctx drop task [name]` -- Remove a task symlink (with optional task name)
@@ -19,8 +19,6 @@ The `ctx` CLI manages projects and tasks. Available commands:
 - `ctx delete task` -- Delete a task from the context store and remove its symlink
 - `ctx delete project` -- Delete a project from the context store and remove its local directory
 - `ctx active` -- Show the current active project and task
-- `ctx active project` -- Select a different active project (arrow-key menu)
-- `ctx active task` -- Select a different active task (arrow-key menu)
 
 **Git operations on the context layer:** When the user requests any git operations (e.g., status, add, commit, push, pull) on the context layer or task context, perform them via `ctx git <args>` rather than running `git` directly.
 

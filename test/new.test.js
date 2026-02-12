@@ -47,6 +47,8 @@ describe('intel new', () => {
 
   beforeEach(() => {
     process.exit.mock.resetCalls();
+    selectQueue = [];
+    inputQueue = [];
   });
 
   after(() => {
@@ -83,22 +85,36 @@ describe('intel new', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('exits when no config exists', async () => {
+  it('works when no config: prompts for project then creates task', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
+    selectQueue = [PROJECT];
+    inputQueue = ['bootstrap-task'];
 
-    await newTask('x');
+    await newTask('bootstrap-task');
 
-    assert.equal(process.exit.mock.calls.length, 1);
-    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
+    const taskDir = path.join(tmpProjectsRoot, PROJECT, 'bootstrap-task');
+    assert.ok(fs.existsSync(taskDir));
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
+    assert.ok(fs.existsSync(configPath));
+    const config = fs.readFileSync(configPath, 'utf8');
+    assert.ok(config.includes('active-project: my-project'));
+    assert.ok(config.includes('active-task: bootstrap-task'));
+    assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('exits when project dir is missing', async () => {
+  it('works when project dir missing: prompts for project then creates task', async () => {
     createConfig(tmpCwd, 'non-existent-project');
+    selectQueue = [PROJECT];
+    inputQueue = ['recovery-task'];
 
-    await newTask('x');
+    await newTask('recovery-task');
 
-    assert.equal(process.exit.mock.calls.length, 1);
-    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
+    const taskDir = path.join(tmpProjectsRoot, PROJECT, 'recovery-task');
+    assert.ok(fs.existsSync(taskDir));
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-project: my-project'));
+    assert.ok(config.includes('active-task: recovery-task'));
+    assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when task already exists', async () => {

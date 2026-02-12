@@ -57,8 +57,8 @@ npm unlink -g ctx
 | Command | Description |
 |---|---|
 | `ctx` | Show help and available commands |
-| `ctx init` | Initialize a project (clone from git, create from scratch, or use existing) |
-| `ctx new` | Create a new task under the active project |
+| `ctx set active` | Select or create project, then select or create task |
+| `ctx new [name]` | Create a new task under the active project |
 | `ctx import` | Import a task from any project as a local symlink |
 | `ctx git [args...]` | Run git in the current task directory |
 | `ctx drop task [name]` | Remove a task symlink (with optional task name) |
@@ -66,28 +66,23 @@ npm unlink -g ctx
 | `ctx delete task` | Delete a task from the context store and remove its symlink |
 | `ctx delete project` | Delete a project from the context store and remove its local directory |
 | `ctx active` | Show the current active project and task |
-| `ctx active project` | Select a different active project (arrow-key menu) |
-| `ctx active task` | Select a different active task (arrow-key menu) |
 
-### `ctx init`
+### `ctx set active`
 
-Interactive menu with three choices:
+Prompts for project first (choose "+ Fetch from git", "+ Create from scratch", or an existing project), then for task. If the project has no tasks yet, prompts to create one inline.
 
-1. **Fetch from git** -- paste a GitHub URL, name the project (defaults to repo name), clone it into `~/.agents/ctxlayer/projects/`.
-2. **Create from scratch** -- enter a project name, creates the directory and runs `git init`.
-3. **Use existing project** -- pick from existing projects in `~/.agents/ctxlayer/projects/`.
-
-After any choice, local setup runs automatically:
-- Creates `.ctxlayer/` in the current directory.
-- Writes `.ctxlayer/config.yaml` with the active project.
-- Adds `.ctxlayer` to `.gitignore`.
+- Creates `.ctxlayer/` in the current directory when needed.
+- Writes `.ctxlayer/config.yaml` with the active project and task.
+- Adds `.ctxlayer` to `.gitignore` when initializing.
 
 ### `ctx new`
 
-Prompts for a task name, then:
+Prompts for a task name (or use `ctx new [name]`), then:
 - Creates `~/.agents/ctxlayer/projects/<project>/<task>/` with `docs/` and `context/` subdirectories.
-- Creates a symlink `.ctxlayer/<task>` in the local directory pointing to the task folder.
+- Creates a symlink `.ctxlayer/<project>/<task>` in the local directory pointing to the task folder.
 - Sets the new task as the active task in `config.yaml`.
+
+If no config exists or the active project is invalid, prompts to select or create a project first.
 
 ### `ctx import`
 
@@ -119,15 +114,7 @@ Permanently deletes a project from the context store and removes its local direc
 
 ### `ctx active`
 
-Prints the current active project and task, with hints on how to change them.
-
-### `ctx active project`
-
-Arrow-key selector listing all projects. If switching to a different project that has tasks, immediately prompts for an active task. If the project has no tasks, tells you to run `ctx new`.
-
-### `ctx active task`
-
-Arrow-key selector listing all tasks in the active project.
+Prints the current active project and task. Run `ctx set active` to change them.
 
 ## Config file
 
@@ -164,7 +151,7 @@ npx skills add /path/to/context-layer -g --skill context-layer -y
 
 ### What the skill teaches the agent
 
-1. **CLI commands** - how to use `ctx init`, `ctx new`, `ctx active`, etc.
+1. **CLI commands** - how to use `ctx set active`, `ctx new`, `ctx active`, etc.
 2. **Docs convention** - when something meaningful is done (research, plan, implementation), create numbered markdown files (`01-name.md`, `02-name.md`) in the active task's `docs/` folder so later iterations can use that documentation.
 3. **Context convention** - reference material goes in the task's `context/` folder (repos as git submodules). This is the data the agent uses to focus its work.
 

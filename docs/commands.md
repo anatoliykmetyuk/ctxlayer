@@ -383,17 +383,15 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 
 | Command | Handler | Key logic |
 |---------|---------|-----------|
-| `intel init` | `init()` | clone, scratch, or existing; setupLocal |
-| `intel new [name]` | `newTask(name?)` | create task dir, ensureTaskSymlink, writeConfig |
-| `intel import` | `importTask()` | select from PROJECTS_ROOT, ensureTaskSymlink |
-| `intel git [args...]` | `intelGit()` | readConfig, spawnSync('git', args, { cwd: taskDir }) |
-| `intel drop task [name]` | `dropTask(name?)` | getLocalProjectDirs, unlink symlink, rmdir if empty |
-| `intel drop project` | `dropProject()` | getLocalProjectDirs, confirm, rm local dir |
-| `intel delete task` | `deleteTask()` | list from PROJECTS_ROOT, confirm, rm task + symlink |
-| `intel delete project` | `deleteProject()` | list from PROJECTS_ROOT, confirm, rm project + local dir |
-| `intel active` | `activeStatus()` | readConfig, print |
-| `intel active project` | `activeProject()` | select project, selectTaskForProject, ensureTaskSymlink |
-| `intel active task` | `activeTask()` | selectTaskForProject, ensureTaskSymlink, writeConfig |
+| `ctx set active` | `setActive()` | selectOrCreateProject, selectTaskForProject or createTaskInProject if empty |
+| `ctx new [name]` | `newTask(name?)` | ensureActiveProject, createTaskInProject |
+| `ctx import` | `importTask()` | select from PROJECTS_ROOT, ensureTaskSymlink |
+| `ctx git [args...]` | `intelGit()` | readConfig, spawnSync('git', args, { cwd: taskDir }) |
+| `ctx drop task [name]` | `dropTask(name?)` | getLocalProjectDirs, unlink symlink, rmdir if empty |
+| `ctx drop project` | `dropProject()` | getLocalProjectDirs, confirm, rm local dir |
+| `ctx delete task` | `deleteTask()` | list from PROJECTS_ROOT, confirm, rm task + symlink |
+| `ctx delete project` | `deleteProject()` | list from PROJECTS_ROOT, confirm, rm project + local dir |
+| `ctx active` | `activeStatus()` | readConfig, print |
 
 ---
 
@@ -401,14 +399,12 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 
 | File | Command |
 |------|---------|
-| `test/init.test.js` | intel init |
-| `test/new.test.js` | intel new |
-| `test/active.test.js` | intel active |
-| `test/active-task.test.js` | intel active task |
-| `test/active-project.test.js` | intel active project |
-| `test/import.test.js` | intel import |
-| `test/git.test.js` | intel git |
-| `test/drop-task.test.js` | intel drop task |
-| `test/drop-project.test.js` | intel drop project |
-| `test/delete-task.test.js` | intel delete task |
-| `test/delete-project.test.js` | intel delete project |
+| `test/set-active.test.js` | ctx set active |
+| `test/new.test.js` | ctx new |
+| `test/active.test.js` | ctx active |
+| `test/import.test.js` | ctx import |
+| `test/git.test.js` | ctx git |
+| `test/drop-task.test.js` | ctx drop task |
+| `test/drop-project.test.js` | ctx drop project |
+| `test/delete-task.test.js` | ctx delete task |
+| `test/delete-project.test.js` | ctx delete project |
