@@ -49,7 +49,7 @@ export function createConfig(cwd, project, task) {
 
 /**
  * Creates a project directory under projectsRoot with optional task subdirs.
- * Each task gets docs/ and context/ subdirs.
+ * Each task gets docs/ and data/ subdirs.
  *
  * @param {string} projectsRoot
  * @param {string} name - project name
@@ -60,7 +60,7 @@ export function createProject(projectsRoot, name, tasks = []) {
   fs.mkdirSync(projDir, { recursive: true });
   for (const task of tasks) {
     fs.mkdirSync(path.join(projDir, task, 'docs'), { recursive: true });
-    fs.mkdirSync(path.join(projDir, task, 'context'), { recursive: true });
+    fs.mkdirSync(path.join(projDir, task, 'data'), { recursive: true });
   }
 }
 

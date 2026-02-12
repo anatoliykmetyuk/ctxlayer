@@ -343,7 +343,7 @@ async function createTaskInProject(projectName, taskNameArg) {
   }
 
   fs.mkdirSync(path.join(taskDir, 'docs'), { recursive: true });
-  fs.mkdirSync(path.join(taskDir, 'context'), { recursive: true });
+  fs.mkdirSync(path.join(taskDir, 'data'), { recursive: true });
   console.log('Created', taskDir);
 
   ensureTaskSymlink(projectName, taskName);

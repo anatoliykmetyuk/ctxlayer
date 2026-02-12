@@ -55,7 +55,7 @@ describe('ctx set', () => {
       fs.mkdirSync(projDir, { recursive: true });
       for (const task of tasks) {
         fs.mkdirSync(path.join(projDir, task, 'docs'), { recursive: true });
-        fs.mkdirSync(path.join(projDir, task, 'context'), { recursive: true });
+        fs.mkdirSync(path.join(projDir, task, 'data'), { recursive: true });
       }
     }
 

@@ -73,7 +73,7 @@ describe('ctx new', () => {
     const taskDir = path.join(tmpProjectsRoot, PROJECT, 'my-task');
     assert.ok(fs.existsSync(taskDir));
     assert.ok(fs.existsSync(path.join(taskDir, 'docs')));
-    assert.ok(fs.existsSync(path.join(taskDir, 'context')));
+    assert.ok(fs.existsSync(path.join(taskDir, 'data')));
 
     const linkPath = path.join(tmpCwd, '.ctxlayer', PROJECT, 'my-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());

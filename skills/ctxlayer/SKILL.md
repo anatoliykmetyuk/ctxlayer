@@ -1,6 +1,6 @@
 ---
 name: ctxlayer
-description: Manages context layer projects, tasks, and documentation via the ctx CLI. Use when the user mentions context layer (e.g. "using context layer", "in the context layer", "in the context") ctx commands, context layer projects or tasks, or requests you to write any form of documentation -- such as documenting implemented features, research findings, or drawing diagrams. Also use when the user asks to clone a repo as context layer context or access context layer's "context" folder.
+description: Manages context layer projects, tasks, and documentation via the ctx CLI. Use when the user mentions context layer (e.g. "using context layer", "in the context layer", "in the context") ctx commands, context layer projects or tasks, or requests you to write any form of documentation -- such as documenting implemented features, research findings, or drawing diagrams. Also use when the user asks to clone a repo as context layer context or access context layer's "data" folder.
 ---
 
 # Context Layer
@@ -29,7 +29,7 @@ active-project: <project-name>
 active-task: <task-name>
 ```
 
-Projects are stored globally at `~/.agents/ctxlayer/projects/`. Each project contains task folders, and each task folder has `docs/` and `context/` subdirectories.
+Projects are stored globally at `~/.agents/ctxlayer/projects/`. Each project contains task folders, and each task folder has `docs/` and `data/` subdirectories.
 
 ## Docs folder convention
 
@@ -47,16 +47,16 @@ When the user asks to document something -- implemented features, research findi
 
 Each file is a standalone document covering one topic. The docs folder serves as a running report and journal for the task.
 
-## Context folder convention
+## Data folder convention
 
-The context folder at `~/.agents/ctxlayer/projects/<active-project>/<active-task>/context/` holds reference material for the task: sample data, configuration snippets, external repositories, and anything else useful as a reference during implementation.
+The data folder at `~/.agents/ctxlayer/projects/<active-project>/<active-task>/data/` holds reference material for the task: sample data, configuration snippets, external repositories, and anything else useful as a reference during implementation.
 
 ### Cloning repos as context layer context
 
 When the user asks to "clone a repo as context" or to add a repository to the context layer context, do **NOT** run a regular `git clone`. Instead:
 
-1. Navigate to the task's `context/` folder.
+1. Navigate to the task's `data/` folder.
 2. Run `git submodule add <repo-url>` to add the repository as a git submodule.
 3. Run `git submodule update --init` to initialize and fetch it.
 
-This keeps the context folder lightweight and version-controlled via submodule references rather than full repository copies.
+This keeps the data folder lightweight and version-controlled via submodule references rather than full repository copies.

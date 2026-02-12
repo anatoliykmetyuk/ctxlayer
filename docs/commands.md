@@ -53,7 +53,7 @@ flowchart TB
 
 ```
 ~/.intelligence/projects/           # Global store (PROJECTS_ROOT)
-  <project>/<task>/docs|context/
+  <project>/<task>/docs|data/
 
 <repo>/.intelligence/               # Local (CWD + LOCAL_DIR)
   config.yaml                       # active-project, active-task
@@ -197,7 +197,7 @@ const INTELLIGENCE_HOME = process.env.INTELLIGENCE_HOME || path.join(os.homedir(
 |--------|---------|
 | `createSandbox()` | Creates temp dirs, sets `INTELLIGENCE_HOME` and `INTEL_CWD`, returns `{ tmpDir, tmpHome, tmpProjectsRoot, tmpCwd, cleanup }` |
 | `createConfig(cwd, project, task?)` | Creates `.intelligence/config.yaml` with `active-project` and optional `active-task` |
-| `createProject(projectsRoot, name, tasks?)` | Creates project dir with optional task subdirs, each with `docs/` and `context/` |
+| `createProject(projectsRoot, name, tasks?)` | Creates project dir with optional task subdirs, each with `docs/` and `data/` |
 | `createTaskSymlink(cwd, projectName, taskName, projectsRoot)` | Creates symlink at `.intelligence/<project>/<task>` → task dir in store |
 
 Always use these. Do not inline the logic.

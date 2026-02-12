@@ -7,14 +7,14 @@ A **context layer** used as **context for AI agents** during iterative developme
 - **Project** - Context organization unit. A project can span one or more Git repositories.
 - **Task** - One task within that project. Think of a task like a Git branch: create a new task whenever you start a feature, refactor, or research spike.
 - Inside each task you get:
-  - **`context/`** - All data the agent can use (reference material, repos, sample data).
+  - **`data/`** - All data the agent can use (reference material, repos, sample data).
   - **`docs/`** - Documentation. Whenever something meaningful is done - research, an implementation plan, or the implementation itself - that knowledge is written into the task's `docs/` folder using the naming convention.
-- In later iterations, the relevant Markdown in `docs/` and the contents of `context/` are available so the agent can narrow its focus and work more precisely.
+- In later iterations, the relevant Markdown in `docs/` and the contents of `data/` are available so the agent can narrow its focus and work more precisely.
 
 ## What it does
 
 - Manages a global store at `~/.agents/ctxlayer/projects/` where projects and tasks live.
-- Each task has `docs/` and `context/` for documentation and reference material.
+- Each task has `docs/` and `data/` for documentation and reference material.
 - A local `.ctxlayer/config.yaml` in your repo (or workspace) tracks the active project and task.
 - An agent skill teaches AI coding assistants (Cursor, Claude Code, etc.) how to write documentation and manage context using these conventions.
 
@@ -26,7 +26,7 @@ A **context layer** used as **context for AI agents** during iterative developme
     <project-name>/                       # one per project (can span one or more git repos)
       <task-name>/                        # one per task (think: branch)
         docs/                             # documentation (01-name.md, 02-name.md, ...)
-        context/                          # reference material, git submodules, sample data
+        data/                             # reference material, git submodules, sample data
 
 <your-repo>/
   .ctxlayer/                              # local config (gitignored)
@@ -151,7 +151,7 @@ npx skills add /path/to/context-layer -g --skill context-layer -y
 
 1. **CLI commands** - how to use `ctx new`, `ctx status`, `ctx set`, etc.
 2. **Docs convention** - when something meaningful is done (research, plan, implementation), create numbered markdown files (`01-name.md`, `02-name.md`) in the active task's `docs/` folder so later iterations can use that documentation.
-3. **Context convention** - reference material goes in the task's `context/` folder (repos as git submodules). This is the data the agent uses to focus its work.
+3. **Data convention** - reference material goes in the task's `data/` folder (repos as git submodules). This is the data the agent uses to focus its work.
 
 ## Cursor setup tips
 
