@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="CtxLayer - A context layer for AI agents during iterative development. Gives agents a structured place for documentation and reference material.">
+  <title>CtxLayer - Context Layer for AI agents</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>CtxLayer</h1>
+    <p class="tagline">The Context Layer for AI agents</p>
+    <p>A context layer used as context for AI agents during iterative development. It gives agents a structured place for documentation and reference material so they can focus and operate more precisely across iterations.</p>
+    <a href="https://github.com/anatoliykmetyuk/ctxlayer" class="cta">View on GitHub</a>
+  </header>
+
+  <main>
+    <section>
+      <h2>Intention</h2>
+      <ul>
+        <li><strong>Project</strong> – Context organization unit. A project can span one or more Git repositories.</li>
+        <li><strong>Task</strong> – One task within that project. Think of a task like a Git branch: create a new task whenever you start a feature, refactor, or research spike.</li>
+        <li>Inside each task you get:
+          <ul>
+            <li><code>data/</code> – All data the agent can use (reference material, repos, sample data).</li>
+            <li><code>docs/</code> – Documentation. Whenever something meaningful is done – research, an implementation plan, or the implementation itself – that knowledge is written into the task's <code>docs/</code> folder using the naming convention.</li>
+          </ul>
+        </li>
+        <li>In later iterations, the relevant Markdown in <code>docs/</code> and the contents of <code>data/</code> are available so the agent can narrow its focus and work more precisely.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>What it does</h2>
+      <ul>
+        <li>Manages a global store at <code>~/.agents/ctxlayer/projects/</code> where projects and tasks live.</li>
+        <li>Each task has <code>docs/</code> and <code>data/</code> for documentation and reference material.</li>
+        <li>A local <code>.ctxlayer/config.yaml</code> in your repo (or workspace) tracks the active project and task.</li>
+        <li>An agent skill teaches AI coding assistants (Cursor, Claude Code, etc.) how to write documentation and manage context using these conventions.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Directory layout</h2>
+      <pre><code>~/.agents/ctxlayer/                              # global store (in home dir)
+  projects/
+    &lt;project-name&gt;/                       # one per project (can span one or more git repos)
+      &lt;task-name&gt;/                        # one per task (think: branch)
+        docs/                             # documentation (01-name.md, 02-name.md, ...)
+        data/                             # reference material, git submodules, sample data
+
+&lt;your-repo&gt;/
+  .ctxlayer/                              # local config (gitignored)
+    config.yaml                           # active-project and active-task
+    &lt;task-name&gt; -&gt; symlink               # symlink to the task folder in global store</code></pre>
+    </section>
+
+    <section>
+      <h2>Installing the CLI</h2>
+      <h3>From this repo (local development)</h3>
+      <pre><code>cd /path/to/context-layer
+npm install
+npm link</code></pre>
+      <p>After that, <code>ctx</code> is available globally on your machine. Edits to <code>bin/cli.js</code> take effect immediately.</p>
+      <h3>Uninstalling</h3>
+      <pre><code>npm unlink -g ctx</code></pre>
+    </section>
+
+    <section>
+      <h2>CLI commands</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Command</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><code>ctx</code></td><td>Show help and available commands</td></tr>
+          <tr><td><code>ctx new [name]</code></td><td>Create a new task (initializes workspace, prompts for project if needed)</td></tr>
+          <tr><td><code>ctx import</code></td><td>Import a task from any project as a local symlink</td></tr>
+          <tr><td><code>ctx git [args...]</code></td><td>Run git in the current task directory</td></tr>
+          <tr><td><code>ctx drop task [name]</code></td><td>Remove a task symlink (with optional task name)</td></tr>
+          <tr><td><code>ctx drop project [name]</code></td><td>Remove a project directory from local <code>.ctxlayer/</code> (optional project name)</td></tr>
+          <tr><td><code>ctx delete task</code></td><td>Delete a task from the context store and remove its symlink</td></tr>
+          <tr><td><code>ctx delete project</code></td><td>Delete a project from the context store and remove its local directory</td></tr>
+          <tr><td><code>ctx status</code></td><td>Show the current active project and task</td></tr>
+          <tr><td><code>ctx set</code></td><td>Set active project and task (prompts to select)</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section>
+      <h2>Config file</h2>
+      <p>Located at <code>.ctxlayer/config.yaml</code> in your repo:</p>
+      <pre><code>active-project: my-project
+active-task: my-task</code></pre>
+    </section>
+
+    <section>
+      <h2>Installing the agent skill</h2>
+      <p>The repo includes an agent skill at <code>skills/ctxlayer/SKILL.md</code> that teaches AI coding assistants (Cursor, Claude Code, etc.) how to use the ctx CLI, write documentation in the correct format, and manage context.</p>
+      <h3>Local install via npx skills</h3>
+      <p>Use <a href="https://github.com/vercel-labs/skills">npx skills</a> to install from the local repo:</p>
+      <pre><code>npx skills add /path/to/context-layer -g -a cursor --skill ctxlayer -y</code></pre>
+      <h3>What the skill teaches the agent</h3>
+      <ol>
+        <li><strong>CLI commands</strong> – how to use <code>ctx new</code>, <code>ctx status</code>, <code>ctx set</code>, etc.</li>
+        <li><strong>Docs convention</strong> – when something meaningful is done (research, plan, implementation), create numbered markdown files (<code>01-name.md</code>, <code>02-name.md</code>) in the active task's <code>docs/</code> folder so later iterations can use that documentation.</li>
+        <li><strong>Data convention</strong> – reference material goes in the task's <code>data/</code> folder (repos as git submodules). This is the data the agent uses to focus its work.</li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>License</h2>
+      <p>Apache-2.0. See <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/LICENSE">LICENSE</a> for the full text.</p>
+    </section>
+  </main>
+
+  <footer>
+    <p><a href="https://github.com/anatoliykmetyuk/ctxlayer">CtxLayer</a> – Context layer for AI agents</p>
+  </footer>
+</body>
+</html>
