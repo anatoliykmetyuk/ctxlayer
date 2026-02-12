@@ -2,13 +2,14 @@ import { describe, it, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
-import { createSandbox, createConfig } from './helpers.js';
+import { execSync, spawnSync } from 'node:child_process';
+import { createSandbox, createConfig, createProject } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
 // ---------------------------------------------------------------------------
 
-const { tmpDir, tmpCwd, cleanup } = createSandbox();
+const { tmpDir, tmpCwd, tmpProjectsRoot, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -39,6 +40,7 @@ describe('ctx status', () => {
   const TASK = 'my-task';
 
   before(() => {
+    createProject(tmpProjectsRoot, PROJECT, [TASK]);
     createConfig(tmpCwd, PROJECT, TASK);
   });
 
@@ -61,6 +63,54 @@ describe('ctx status', () => {
     const output = logCalls.join('\n');
     assert.ok(output.includes(`Active project: ${PROJECT}`));
     assert.ok(output.includes(`Active task:    ${TASK}`));
+    assert.ok(output.includes('Project is not synced to git'), 'expected "Project is not synced to git" (project dir exists, no .git)');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('prints reminder when git repo exists but branch is not tracking', () => {
+    const projectDir = path.join(tmpProjectsRoot, PROJECT);
+    execSync('git init', { cwd: projectDir });
+    fs.writeFileSync(path.join(projectDir, 'README'), 'x');
+    execSync('git add README && git commit -m "init"', { cwd: projectDir });
+
+    const logCalls = [];
+    mock.method(console, 'log', (...args) => {
+      logCalls.push(args.join(' '));
+    });
+
+    status();
+
+    const output = logCalls.join('\n');
+    assert.ok(output.includes('Push your branch to set up tracking'), output);
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('prints git branch, repo name, and remote URL when tracking', () => {
+    const projectDir = path.join(tmpProjectsRoot, PROJECT);
+    if (!fs.existsSync(path.join(projectDir, '.git'))) {
+      execSync('git init', { cwd: projectDir });
+      fs.writeFileSync(path.join(projectDir, 'README'), 'x');
+      execSync('git add README && git commit -m "init"', { cwd: projectDir });
+    }
+    execSync('git remote add origin https://github.com/user/my-repo.git', { cwd: projectDir });
+    const branch = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+      cwd: projectDir,
+      encoding: 'utf8',
+    }).stdout.trim();
+    execSync(`git config branch.${branch}.remote origin`, { cwd: projectDir });
+    execSync(`git config branch.${branch}.merge refs/heads/${branch}`, { cwd: projectDir });
+
+    const logCalls = [];
+    mock.method(console, 'log', (...args) => {
+      logCalls.push(args.join(' '));
+    });
+
+    status();
+
+    const output = logCalls.join('\n');
+    assert.ok(output.includes(`Git branch: ${branch}`), output);
+    assert.ok(output.includes('Repo:       my-repo'), output);
+    assert.ok(output.includes('Remote:     https://github.com/user/my-repo.git'), output);
     assert.equal(process.exit.mock.calls.length, 0);
   });
 

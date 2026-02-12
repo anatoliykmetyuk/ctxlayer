@@ -455,7 +455,55 @@ function status() {
     const task = config['active-task'] || '(none)';
 
     console.log(`\nActive project: ${project}`);
-    console.log(`Active task:    ${task}\n`);
+    console.log(`Active task:    ${task}`);
+
+    // Git tracking info — project directory in context layer home (system-wide)
+    if (config['active-project']) {
+      const projectDir = path.join(PROJECTS_ROOT, project);
+      if (fs.existsSync(projectDir)) {
+        const gitDir = path.join(projectDir, '.git');
+        if (fs.existsSync(gitDir)) {
+          const noEmit = { stdio: ['ignore', 'pipe', 'pipe'] };
+          try {
+            const headResult = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
+              cwd: projectDir,
+              encoding: 'utf8',
+              ...noEmit,
+            });
+            const branch = (headResult.stdout || '').trim();
+            if (headResult.status !== 0 || !branch) throw new Error('no head');
+            try {
+              const remoteResult = spawnSync('git', ['config', '--get', 'branch.' + branch + '.remote'], {
+                cwd: projectDir,
+                encoding: 'utf8',
+                ...noEmit,
+              });
+              const remote = (remoteResult.stdout || '').trim();
+              if (remoteResult.status !== 0 || !remote) throw new Error('no remote');
+              const urlResult = spawnSync('git', ['remote', 'get-url', remote], {
+                cwd: projectDir,
+                encoding: 'utf8',
+                ...noEmit,
+              });
+              const url = (urlResult.stdout || '').trim();
+              if (urlResult.status !== 0 || !url) throw new Error('no url');
+              const repoName = repoNameFromUrl(url);
+              console.log(`\nGit branch: ${branch}`);
+              console.log(`Repo:       ${repoName}`);
+              console.log(`Remote:     ${url}\n`);
+            } catch {
+              console.log('\nProject is not synced to git. Push your branch to set up tracking.\n');
+            }
+          } catch {
+            console.log('\nProject is not synced to git.\n');
+          }
+        } else {
+          console.log('\nProject is not synced to git.\n');
+        }
+      }
+    } else {
+      console.log('');
+    }
   } catch (err) {
     console.error('Error:', err.message);
     process.exit(1);
