@@ -61,7 +61,7 @@ describe('intel active', () => {
     const output = logCalls.join('\n');
     assert.ok(output.includes(`Active project: ${PROJECT}`));
     assert.ok(output.includes(`Active task:    ${TASK}`));
-    assert.ok(output.includes('ctx set active'));
+    assert.ok(output.includes('ctx new'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 

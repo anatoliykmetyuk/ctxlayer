@@ -154,6 +154,39 @@ function setupLocal(projectName) {
 }
 
 // ---------------------------------------------------------------------------
+// Ensure workspace initialized (creates .ctxlayer and config if missing)
+// ---------------------------------------------------------------------------
+
+function ensureWorkspaceInitialized() {
+  const localDir = path.join(CWD, LOCAL_DIR);
+  const configPath = path.join(localDir, 'config.yaml');
+
+  if (!fs.existsSync(localDir)) {
+    fs.mkdirSync(localDir, { recursive: true });
+    console.log('Created', localDir);
+  }
+
+  if (!fs.existsSync(configPath)) {
+    fs.writeFileSync(configPath, '');
+    console.log('Wrote', configPath);
+  }
+
+  const gitignorePath = path.join(CWD, '.gitignore');
+  const GITIGNORE_ENTRY = '/.ctxlayer/';
+  let content = '';
+  if (fs.existsSync(gitignorePath)) {
+    content = fs.readFileSync(gitignorePath, 'utf8');
+  }
+  const lines = content.split(/\r?\n/);
+  const alreadyListed = lines.some((line) => line.trim() === GITIGNORE_ENTRY);
+  if (!alreadyListed) {
+    const suffix = content.length > 0 && !content.endsWith('\n') ? '\n' : '';
+    fs.appendFileSync(gitignorePath, suffix + GITIGNORE_ENTRY + '\n');
+    console.log('Added', GITIGNORE_ENTRY, 'to .gitignore');
+  }
+}
+
+// ---------------------------------------------------------------------------
 // Choice 1: Fetch from git
 // ---------------------------------------------------------------------------
 
@@ -280,24 +313,7 @@ async function init() {
 }
 
 // ---------------------------------------------------------------------------
-// Ensure we have an active project (prompt to select/create if missing)
-// ---------------------------------------------------------------------------
-
-async function ensureActiveProject() {
-  const config = readConfigOrNull();
-  const projectDir = config
-    ? path.join(PROJECTS_ROOT, config['active-project'])
-    : null;
-
-  if (config && projectDir && fs.existsSync(projectDir)) {
-    return config['active-project'];
-  }
-
-  return await selectOrCreateProject();
-}
-
-// ---------------------------------------------------------------------------
-// Create task in project (shared by newTask and setActive when project empty)
+// Create task in project (shared by newTask)
 // ---------------------------------------------------------------------------
 
 async function createTaskInProject(projectName, taskNameArg) {
@@ -326,12 +342,34 @@ async function createTaskInProject(projectName, taskNameArg) {
 }
 
 // ---------------------------------------------------------------------------
-// New task flow
+// New task flow (single creative entry point)
 // ---------------------------------------------------------------------------
 
 async function newTask(nameArg) {
   try {
-    const projectName = await ensureActiveProject();
+    ensureWorkspaceInitialized();
+
+    const config = readConfigOrNull();
+    const projectDir = config
+      ? path.join(PROJECTS_ROOT, config['active-project'])
+      : null;
+    const hasValidProject = config && projectDir && fs.existsSync(projectDir);
+
+    let projectName;
+    if (!hasValidProject) {
+      projectName = await selectOrCreateProject();
+    } else {
+      const useCurrent = await confirm({
+        message: `Use current active project [${config['active-project']}] for new task?`,
+        default: true,
+      });
+      if (useCurrent) {
+        projectName = config['active-project'];
+      } else {
+        projectName = await selectOrCreateProject();
+      }
+    }
+
     await createTaskInProject(projectName, nameArg);
     console.log('\nDone.');
   } catch (err) {
@@ -344,11 +382,12 @@ async function newTask(nameArg) {
 }
 
 // ---------------------------------------------------------------------------
-// Shared: select or create project (used by setActive and ensureActiveProject)
+// Shared: select or create project (used by newTask)
 // ---------------------------------------------------------------------------
 
 const FETCH_GIT = '__fetch_git__';
 const CREATE_SCRATCH = '__create_scratch__';
+const SELECT_EXISTING = '__select_existing__';
 
 async function selectOrCreateProject() {
   ensureProjectsRoot();
@@ -360,19 +399,17 @@ async function selectOrCreateProject() {
         .map((e) => e.name)
     : [];
 
-  const config = readConfigOrNull();
-  const currentProject = config?.['active-project'];
-
-  const choices = [
-    { name: '+ Fetch from git', value: FETCH_GIT },
-    { name: '+ Create from scratch', value: CREATE_SCRATCH },
-    ...entries.map((name) => ({ name, value: name })),
+  const firstChoices = [
+    { name: 'Fetch from git', value: FETCH_GIT },
+    { name: 'Create from scratch', value: CREATE_SCRATCH },
   ];
+  if (entries.length > 0) {
+    firstChoices.push({ name: 'Select existing project', value: SELECT_EXISTING });
+  }
 
   const selected = await select({
     message: 'Select or create project:',
-    choices,
-    default: currentProject && entries.includes(currentProject) ? currentProject : undefined,
+    choices: firstChoices,
   });
 
   if (selected === FETCH_GIT) {
@@ -382,157 +419,19 @@ async function selectOrCreateProject() {
     return await initFromScratch();
   }
 
-  const projectName = selected;
-  const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
-  if (!fs.existsSync(configPath)) {
-    setupLocal(projectName);
-  }
-  return projectName;
-}
-
-// ---------------------------------------------------------------------------
-// Shared: select a task for a given project
-// ---------------------------------------------------------------------------
-
-async function selectTaskForProject(projectName, currentTask) {
-  const projectDir = path.join(PROJECTS_ROOT, projectName);
-
-  if (!fs.existsSync(projectDir)) {
-    throw new Error('Project directory not found: ' + projectDir);
-  }
-
-  const tasks = fs
-    .readdirSync(projectDir, { withFileTypes: true })
-    .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
-    .map((e) => e.name);
-
-  if (tasks.length === 0) {
-    console.log('\nNo tasks found for this project.');
-    console.log('To create a new task, run: ctx new\n');
-    return '';
-  }
-
-  const selectedTask = await select({
-    message: 'Select active task:',
-    choices: tasks.map((name) => ({ name, value: name })),
-    default: currentTask || undefined,
-  });
-
-  console.log('Active task set to:', selectedTask);
-  return selectedTask;
-}
-
-// ---------------------------------------------------------------------------
-// Active task selector
-// ---------------------------------------------------------------------------
-
-async function activeTask() {
-  try {
-    const config = readConfig();
-    const projectName = config['active-project'];
-
-    const selectedTask = await selectTaskForProject(
-      projectName,
-      config['active-task']
-    );
-
-    // Ensure a symlink for the task exists at .ctxlayer/<projectName>/<task>
-    ensureTaskSymlink(projectName, selectedTask);
-
-    writeConfig({ 'active-project': projectName, 'active-task': selectedTask });
-  } catch (err) {
-    if (err.name === 'ExitPromptError') {
-      process.exit(130);
-    }
-    console.error('Error:', err.message);
-    process.exit(1);
-  }
-}
-
-// ---------------------------------------------------------------------------
-// Active project selector
-// ---------------------------------------------------------------------------
-
-async function activeProject() {
-  try {
-    const config = readConfig();
-
-    if (!fs.existsSync(PROJECTS_ROOT)) {
-      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
-    }
-
-    const entries = fs
-      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name);
-
-    if (entries.length === 0) {
-      throw new Error('No projects found in ' + PROJECTS_ROOT);
-    }
-
-    const currentProject = config['active-project'];
-    const selectedProject = await select({
-      message: 'Select active project:',
+  if (selected === SELECT_EXISTING) {
+    const projectName = await select({
+      message: 'Select project:',
       choices: entries.map((name) => ({ name, value: name })),
-      default: currentProject || undefined,
     });
-
-    console.log('Active project set to:', selectedProject);
-
-    if (selectedProject === currentProject) {
-      ensureTaskSymlink(selectedProject, config['active-task']);
-      writeConfig({
-        'active-project': selectedProject,
-        'active-task': config['active-task'],
-      });
-    } else {
-      const selectedTask = await selectTaskForProject(selectedProject, '');
-      ensureTaskSymlink(selectedProject, selectedTask);
-      writeConfig({
-        'active-project': selectedProject,
-        'active-task': selectedTask,
-      });
+    const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
+    if (!fs.existsSync(configPath)) {
+      setupLocal(projectName);
     }
-  } catch (err) {
-    if (err.name === 'ExitPromptError') {
-      process.exit(130);
-    }
-    console.error('Error:', err.message);
-    process.exit(1);
+    return projectName;
   }
-}
 
-// ---------------------------------------------------------------------------
-// ctx set active - select or create project, then select or create task
-// ---------------------------------------------------------------------------
-
-async function setActive() {
-  try {
-    const config = readConfigOrNull();
-    const currentProject = config?.['active-project'];
-    const currentTask = config?.['active-task'] || '';
-
-    // 1. Project selection (or create)
-    const selectedProject = await selectOrCreateProject();
-
-    // 2. Task selection (or create if project has no tasks)
-    let selectedTask = await selectTaskForProject(selectedProject, currentTask);
-    if (!selectedTask) {
-      console.log('\nNo tasks found for this project. Create one now:\n');
-      selectedTask = await createTaskInProject(selectedProject, undefined);
-    } else {
-      ensureTaskSymlink(selectedProject, selectedTask);
-      writeConfig({ 'active-project': selectedProject, 'active-task': selectedTask });
-    }
-
-    console.log('\nDone.');
-  } catch (err) {
-    if (err.name === 'ExitPromptError') {
-      process.exit(130);
-    }
-    console.error('Error:', err.message);
-    process.exit(1);
-  }
+  throw new Error('Unexpected selection');
 }
 
 // ---------------------------------------------------------------------------
@@ -547,7 +446,7 @@ function activeStatus() {
 
     console.log(`\nActive project: ${project}`);
     console.log(`Active task:    ${task}\n`);
-    console.log('To change the active project and task, run: ctx set active');
+    console.log('To change the active project, run: ctx new (and choose a different project when prompted)');
     console.log('');
   } catch (err) {
     console.error('Error:', err.message);
@@ -566,7 +465,7 @@ function intelGit() {
     const taskName = config['active-task'];
 
     if (!taskName) {
-      throw new Error('No active task set. Run "ctx set active" to select a task.');
+      throw new Error('No active task set. Run "ctx new" to create a task.');
     }
 
     const taskDir = path.join(PROJECTS_ROOT, projectName, taskName);
@@ -846,8 +745,9 @@ async function deleteProject() {
 
 async function importTask() {
   try {
-    // Verify local setup exists
-    readConfig();
+    ensureWorkspaceInitialized();
+
+    const config = readConfigOrNull();
 
     if (!fs.existsSync(PROJECTS_ROOT)) {
       throw new Error('No projects directory found at ' + PROJECTS_ROOT);
@@ -886,6 +786,14 @@ async function importTask() {
 
     ensureTaskSymlink(selectedProject, selectedTask);
 
+    const shouldSetActive =
+      !config ||
+      !config['active-project'] ||
+      !config['active-task'];
+    if (shouldSetActive) {
+      writeConfig({ 'active-project': selectedProject, 'active-task': selectedTask });
+    }
+
     console.log('\nDone.');
   } catch (err) {
     if (err.name === 'ExitPromptError') {
@@ -916,24 +824,23 @@ if (command === 'git' || command.startsWith('git ')) {
   await newTask(command.slice(4) || undefined);
 } else if (command === 'import') {
   await importTask();
-} else if (command === 'set active') {
-  await setActive();
 } else if (command === 'active') {
   activeStatus();
 } else {
   console.log(`
 Usage: ctx <command>
 
-Commands:
-  set active        Select or create project, then select or create task
-  new [name]        Create a new task under the current project
+Main Commands:
+  new [name]        Create a new task (prompts for project if needed)
   import            Import a task from any project as a symlink
+  active            Show the current active project and task
+
+Convenience Commands:
   git [args...]     Run git in the current task directory
   drop task [name]  Remove a task symlink (with optional task name)
   drop project      Remove a project directory from local .ctxlayer/
   delete task       Delete a task from the context store and remove its symlink
   delete project    Delete a project from the context store and remove its local directory
-  active            Show the current active project and task
 `);
 }
 
@@ -944,7 +851,6 @@ Commands:
 export {
   newTask,
   activeStatus,
-  setActive,
   importTask,
   intelGit,
   dropTask,

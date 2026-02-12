@@ -73,6 +73,7 @@ describe('intel import', () => {
 
   beforeEach(() => {
     process.exit.mock.resetCalls();
+    selectQueue = [];
   });
 
   after(() => {
@@ -135,5 +136,50 @@ describe('intel import', () => {
       // Restore so after() cleanup works
       fs.renameSync(backup, tmpProjectsRoot);
     }
+  });
+
+  it('works when uninitialized: creates workspace and sets imported as active', async () => {
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
+    selectQueue = ['project-beta', 'task-three'];
+
+    await importTask();
+
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
+    assert.ok(fs.existsSync(configPath));
+    const config = fs.readFileSync(configPath, 'utf8');
+    assert.ok(config.includes('active-project: project-beta'));
+    assert.ok(config.includes('active-task: task-three'));
+
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-beta', 'task-three');
+    assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('works when config has empty active-project: sets imported as active', async () => {
+    const localDir = path.join(tmpCwd, '.ctxlayer');
+    fs.mkdirSync(localDir, { recursive: true });
+    fs.writeFileSync(path.join(localDir, 'config.yaml'), '');
+    selectQueue = ['project-alpha', 'task-one'];
+
+    await importTask();
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-project: project-alpha'));
+    assert.ok(config.includes('active-task: task-one'));
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('works when config has empty active-task: sets imported as active', async () => {
+    const localDir = path.join(tmpCwd, '.ctxlayer');
+    fs.mkdirSync(localDir, { recursive: true });
+    fs.writeFileSync(path.join(localDir, 'config.yaml'), 'active-project: project-alpha\n');
+    selectQueue = ['project-beta', 'task-three'];
+
+    await importTask();
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-project: project-beta'));
+    assert.ok(config.includes('active-task: task-three'));
+    assert.equal(process.exit.mock.calls.length, 0);
   });
 });

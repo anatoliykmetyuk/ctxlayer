@@ -383,9 +383,8 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 
 | Command | Handler | Key logic |
 |---------|---------|-----------|
-| `ctx set active` | `setActive()` | selectOrCreateProject, selectTaskForProject or createTaskInProject if empty |
-| `ctx new [name]` | `newTask(name?)` | ensureActiveProject, createTaskInProject |
-| `ctx import` | `importTask()` | select from PROJECTS_ROOT, ensureTaskSymlink |
+| `ctx new [name]` | `newTask(name?)` | ensureWorkspaceInitialized, confirm use current project or selectOrCreateProject, createTaskInProject |
+| `ctx import` | `importTask()` | ensureWorkspaceInitialized, readConfigOrNull, select from PROJECTS_ROOT, ensureTaskSymlink, set active when config empty/missing |
 | `ctx git [args...]` | `intelGit()` | readConfig, spawnSync('git', args, { cwd: taskDir }) |
 | `ctx drop task [name]` | `dropTask(name?)` | getLocalProjectDirs, unlink symlink, rmdir if empty |
 | `ctx drop project` | `dropProject()` | getLocalProjectDirs, confirm, rm local dir |
@@ -399,7 +398,6 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 
 | File | Command |
 |------|---------|
-| `test/set-active.test.js` | ctx set active |
 | `test/new.test.js` | ctx new |
 | `test/active.test.js` | ctx active |
 | `test/import.test.js` | ctx import |

@@ -57,8 +57,7 @@ npm unlink -g ctx
 | Command | Description |
 |---|---|
 | `ctx` | Show help and available commands |
-| `ctx set active` | Select or create project, then select or create task |
-| `ctx new [name]` | Create a new task under the active project |
+| `ctx new [name]` | Create a new task (initializes workspace, prompts for project if needed) |
 | `ctx import` | Import a task from any project as a local symlink |
 | `ctx git [args...]` | Run git in the current task directory |
 | `ctx drop task [name]` | Remove a task symlink (with optional task name) |
@@ -67,30 +66,24 @@ npm unlink -g ctx
 | `ctx delete project` | Delete a project from the context store and remove its local directory |
 | `ctx active` | Show the current active project and task |
 
-### `ctx set active`
-
-Prompts for project first (choose "+ Fetch from git", "+ Create from scratch", or an existing project), then for task. If the project has no tasks yet, prompts to create one inline.
-
-- Creates `.ctxlayer/` in the current directory when needed.
-- Writes `.ctxlayer/config.yaml` with the active project and task.
-- Adds `.ctxlayer` to `.gitignore` when initializing.
-
 ### `ctx new`
 
-Prompts for a task name (or use `ctx new [name]`), then:
-- Creates `~/.agents/ctxlayer/projects/<project>/<task>/` with `docs/` and `context/` subdirectories.
-- Creates a symlink `.ctxlayer/<project>/<task>` in the local directory pointing to the task folder.
-- Sets the new task as the active task in `config.yaml`.
+Creates a new task. Single entry point for getting started:
 
-If no config exists or the active project is invalid, prompts to select or create a project first.
+1. Ensures workspace is initialized (`.ctxlayer/`, `config.yaml`, `.gitignore`)
+2. If no active project: prompts to create (fetch from git, create from scratch) or select existing
+3. If active project set: asks "Use current active project [X] for new task?" (yes/no); if no, goes to project prompt
+4. Prompts for task name (or use `ctx new [name]`), then creates task dir, symlink, and updates config.
 
 ### `ctx import`
 
-Imports a task from any project into the local `.ctxlayer/` directory as a symlink. Useful for referencing tasks from other projects without switching the active project.
+Imports a task from any project into the local `.ctxlayer/` directory as a symlink. Works on uninitialized workspaces (no `.ctxlayer/` or no `config.yaml`): it initializes the workspace and sets the imported project and task as active. When config already has a valid active project and task, only creates the symlink without changing active.
 
-1. Prompts to select a project (arrow-key menu listing all projects in `~/.agents/ctxlayer/projects/`).
-2. Prompts to select a task from that project.
-3. Creates a symlink at `.ctxlayer/<project>/<task>` pointing to the task folder in the global store.
+1. Ensures workspace is initialized (creates `.ctxlayer/`, `config.yaml`, `.gitignore` if missing).
+2. Prompts to select a project (arrow-key menu listing all projects in `~/.agents/ctxlayer/projects/`).
+3. Prompts to select a task from that project.
+4. Creates a symlink at `.ctxlayer/<project>/<task>` pointing to the task folder in the global store.
+5. Sets the imported project and task as active in config when active was empty or missing.
 
 ### `ctx git [args...]`
 
@@ -114,7 +107,7 @@ Permanently deletes a project from the context store and removes its local direc
 
 ### `ctx active`
 
-Prints the current active project and task. Run `ctx set active` to change them.
+Prints the current active project and task. Run `ctx new` (and choose a different project when prompted) to change them.
 
 ## Config file
 
@@ -151,7 +144,7 @@ npx skills add /path/to/context-layer -g --skill context-layer -y
 
 ### What the skill teaches the agent
 
-1. **CLI commands** - how to use `ctx set active`, `ctx new`, `ctx active`, etc.
+1. **CLI commands** - how to use `ctx new`, `ctx active`, etc.
 2. **Docs convention** - when something meaningful is done (research, plan, implementation), create numbered markdown files (`01-name.md`, `02-name.md`) in the active task's `docs/` folder so later iterations can use that documentation.
 3. **Context convention** - reference material goes in the task's `context/` folder (repos as git submodules). This is the data the agent uses to focus its work.
 

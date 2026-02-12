@@ -10,9 +10,8 @@ description: Manages context layer projects, tasks, and documentation via the ct
 The `ctx` CLI manages projects and tasks. Available commands:
 
 - `ctx` -- Show help and available commands
-- `ctx set active` -- Select or create project (fetch from git, create from scratch, or use existing), then select or create task
-- `ctx new [name]` -- Create a new task under the active project (prompts to select/create project if config is missing)
-- `ctx import` -- Import a task from any project as a local symlink
+- `ctx new [name]` -- Create a new task (single entry point; initializes workspace if needed, prompts to create/select project if missing, and may prompt "use current project?")
+- `ctx import` -- Import a task from any project as a local symlink (works on uninitialized workspaces; sets active when config is empty or missing)
 - `ctx git [args...]` -- Run git in the current task directory
 - `ctx drop task [name]` -- Remove a task symlink (with optional task name)
 - `ctx drop project` -- Remove a project directory from local `.ctxlayer/`
