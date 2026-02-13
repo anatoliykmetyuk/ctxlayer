@@ -23,14 +23,35 @@
   <main id="main">
     <h1 class="sr-only">Context Layer</h1>
     <section class="hero">
-      <h2 class="hero-title">Context Layer</h2>
-      <p class="hero-tagline">Persistent, OS-wide storage for AI-assisted engineering. Knowledge that accumulates.</p>
-      <div class="hero-command">
-        <input type="text" readonly value="git clone https://github.com/anatoliykmetyuk/ctxlayer && cd ctxlayer && npm install && npm link" id="hero-cmd" aria-label="Install command" spellcheck="false" />
-        <button type="button" class="copy-btn" aria-label="Copy to clipboard">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          <span aria-live="polite" aria-atomic="true">Copy</span>
-        </button>
+      <div class="hero-header">
+        <h2 class="hero-title">Context Layer</h2>
+        <p class="hero-tagline">Persistent, OS-wide storage for AI-assisted engineering. Knowledge that accumulates.</p>
+      </div>
+      <div class="hero-split">
+        <div class="hero-command">
+          <input type="text" readonly value="git clone https://github.com/anatoliykmetyuk/ctxlayer && cd ctxlayer && npm install && npm link" id="hero-cmd" aria-label="Install command" spellcheck="false" />
+          <button type="button" class="copy-btn" aria-label="Copy to clipboard">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span aria-live="polite" aria-atomic="true">Copy</span>
+          </button>
+        </div>
+        <div class="hero-dir-tree" aria-label="Project directory structure">
+          <pre><code>my-project/
+├── README.md
+├── ...  <span class="dir-comment"># your project files</span>
+└── <span class="ctx-highlight">.ctxlayer/</span>  <span class="dir-comment"># your domain intelligence</span>
+    └── <span class="ctx-highlight">my-domain/</span>
+        ├── <span class="ctx-highlight">config.yaml</span>
+        ├── <span class="ctx-highlight">task-1/</span>
+        │   ├── <span class="ctx-highlight">docs/</span>
+        │   │   ├── <span class="ctx-highlight">01-initial-research.md</span>
+        │   │   └── <span class="ctx-highlight">02-implementation-notes.md</span>
+        │   └── <span class="ctx-highlight">data/</span>
+        │       └── <span class="ctx-highlight">sample-data.json</span>
+        └── <span class="ctx-highlight">task-2/</span>
+            ├── <span class="ctx-highlight">docs/</span>
+            └── <span class="ctx-highlight">data/</span></code></pre>
+        </div>
       </div>
     </section>
 
@@ -49,13 +70,6 @@
         <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> Use <code>ctx import</code> to link tasks and intelligence from other projects — reuse knowledge across projects</li>
         <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span> Your developer-specific intelligence stays with you, separate from the common repo — it never pollutes version control</li>
       </ul>
-      <div class="dir-tree" aria-label="Task directory structure">
-        <pre><code>my-task/
-├── docs/
-│   ├── 01-initial-research.md
-│   └── 02-implementation-notes.md
-└── data/</code></pre>
-      </div>
     </section>
 
     <section class="cli-commands section-card">
