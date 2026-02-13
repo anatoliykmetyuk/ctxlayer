@@ -52,13 +52,25 @@ html {
 }
 
 body {
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "DM Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 16px;
   line-height: 1.6;
   color: var(--text);
   background: var(--bg);
   margin: 0;
   padding: 0;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60vh;
+  background: radial-gradient(ellipse at top, rgba(20, 184, 166, 0.08) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .skip-link {
@@ -90,13 +102,37 @@ body {
   outline-offset: 2px;
 }
 
+main {
+  position: relative;
+  z-index: 1;
+}
+
 /* Header */
 .header {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   padding: 1rem 1.5rem;
   border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 1;
+}
+
+.header-logo {
+  font-weight: 600;
+  font-size: 1.125rem;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.header-logo:hover,
+.header-logo:focus-visible {
+  color: var(--accent);
+}
+
+.header-logo:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
 
 .header nav a {
@@ -117,19 +153,46 @@ body {
 
 /* Hero */
 .hero {
-  padding: 4rem 1.5rem;
+  padding: 5rem 1.5rem 4rem;
   max-width: 48rem;
   margin: 0 auto;
+}
+
+.hero-title {
+  font-size: clamp(2.5rem, 6vw, 4rem);
+  font-weight: 700;
+  margin: 0 0 1rem;
+  color: var(--text);
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .hero-title {
+    background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
+
+.hero-tagline {
+  font-size: 1.25rem;
+  color: var(--text-muted);
+  margin: 0 0 2rem;
+  line-height: 1.5;
+  max-width: 36rem;
 }
 
 .hero-command {
   display: flex;
   align-items: stretch;
   gap: 0;
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.5rem;
   background: var(--code-bg);
   overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.2);
 }
 
 .hero-command input {
@@ -181,7 +244,108 @@ body {
   outline-offset: 2px;
 }
 
-/* Value props */
+/* Pitch */
+.pitch {
+  padding: 2rem 1.5rem;
+  max-width: 48rem;
+  margin: 0 auto;
+}
+
+.pitch p {
+  margin: 0;
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.pitch::after {
+  content: "";
+  display: block;
+  width: 3rem;
+  height: 2px;
+  background: var(--accent);
+  margin-top: 2rem;
+  opacity: 0.6;
+}
+
+/* Section cards */
+.section-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  margin: 0 1.5rem 2rem;
+  padding: 2rem;
+  max-width: 64rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.quick-start.section-card {
+  margin-top: 2rem;
+}
+
+/* Quick start */
+.quick-start h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+  color: var(--warm);
+  text-wrap: balance;
+}
+
+.quick-start h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.75rem;
+  color: var(--text);
+}
+
+.quick-start p {
+  margin: 0;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.capability-list {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.capability-list li {
+  margin-bottom: 0.5rem;
+}
+
+.capability-list li:last-child {
+  margin-bottom: 0;
+}
+
+.capability-icon {
+  display: inline-flex;
+  align-items: center;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+
+.capability-icon svg {
+  flex-shrink: 0;
+  stroke: var(--accent);
+}
+
+.dir-tree {
+  margin-top: 1.5rem;
+}
+
+.dir-tree pre {
+  margin: 0;
+}
+
+.dir-tree pre code {
+  font-size: 0.8125rem;
+  padding: 1rem;
+}
+
+/* Value props (legacy - kept for any remaining refs) */
 .value-props {
   padding: 3rem 1.5rem;
   max-width: 64rem;
@@ -231,11 +395,108 @@ code {
   border: 1px solid var(--code-border);
 }
 
+/* How it works (collapsible) */
+.how-it-works {
+  cursor: pointer;
+}
+
+.how-it-works summary {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--warm);
+  list-style: none;
+  padding: 0.5rem 0;
+}
+
+.how-it-works summary::-webkit-details-marker {
+  display: none;
+}
+
+.how-it-works summary::before {
+  content: "▶";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--accent);
+  transition: transform 0.2s;
+}
+
+.how-it-works[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.how-it-works-content {
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  margin-top: 0.5rem;
+}
+
+.how-it-works-content h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--text);
+}
+
+.how-it-works-content h3:first-child {
+  margin-top: 0;
+}
+
+/* Algorithm */
+.algorithm h2,
+.principles h2 {
+  font-size: 1.5rem;
+  margin: 0 0 1rem;
+  color: var(--warm);
+  text-wrap: balance;
+}
+
+.algorithm p,
+.principles-list {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
+.algorithm-steps {
+  margin: 0;
+  padding-left: 1.5rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.algorithm-steps li {
+  margin-bottom: 0.5rem;
+}
+
+.algorithm-steps li:last-child {
+  margin-bottom: 0;
+}
+
+.principles-list {
+  list-style: none;
+  padding-left: 0;
+}
+
+.principles-list li {
+  margin-bottom: 0.75rem;
+  padding-left: 1.5rem;
+  position: relative;
+}
+
+.principles-list li::before {
+  content: "—";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+}
+
 /* CLI commands table */
 .cli-commands {
-  padding: 3rem 1.5rem;
+  padding: 2rem 1.5rem;
   max-width: 64rem;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .cli-commands h2 {
@@ -272,9 +533,10 @@ tr:hover td {
 
 /* Config section */
 .config {
-  padding: 3rem 1.5rem;
+  padding: 2rem 1.5rem;
   max-width: 64rem;
-  margin: 0 auto;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .config h2 {
@@ -316,6 +578,8 @@ tr:hover td {
 
 /* Footer */
 .footer {
+  position: relative;
+  z-index: 1;
   padding: 2rem 1.5rem;
   border-top: 1px solid var(--border);
   text-align: center;
@@ -342,7 +606,15 @@ tr:hover td {
 /* Responsive */
 @media (max-width: 640px) {
   .hero {
-    padding: 3rem 1rem;
+    padding: 4rem 1rem 3rem;
+  }
+
+  .hero-title {
+    font-size: 2.25rem;
+  }
+
+  .hero-tagline {
+    font-size: 1.0625rem;
   }
 
   .hero-command input {
@@ -350,10 +622,25 @@ tr:hover td {
     padding: 0.75rem 1rem;
   }
 
+  .pitch {
+    padding: 1.5rem 1rem;
+  }
+
+  .section-card {
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem;
+  }
+
   .value-props,
   .cli-commands,
   .config {
     padding: 2rem 1rem;
+  }
+
+  .capability-list {
+    padding-left: 1.25rem;
   }
 
   th, td {

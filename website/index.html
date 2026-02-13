@@ -3,22 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="CtxLayer - Structured context for AI agents during iterative development. Projects, tasks, docs, and data in one place.">
-  <title>CtxLayer — Context Layer for AI Agents</title>
+  <meta name="description" content="Context Layer - Persistent, OS-wide storage for AI-assisted engineering context. Docs, data, and learnings organized by domain and task.">
+  <title>Context Layer — AI-Assisted Engineering Context</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <a href="#main" class="skip-link">Skip to main content</a>
 
   <header class="header">
+    <a href="#main" class="header-logo">Context Layer</a>
     <nav>
       <a href="https://github.com/anatoliykmetyuk/ctxlayer">GitHub</a>
     </nav>
   </header>
 
   <main id="main">
-    <h1 class="sr-only">CtxLayer</h1>
+    <h1 class="sr-only">Context Layer</h1>
     <section class="hero">
+      <h2 class="hero-title">Context Layer</h2>
+      <p class="hero-tagline">Persistent, OS-wide storage for AI-assisted engineering. Knowledge that accumulates.</p>
       <div class="hero-command">
         <input type="text" readonly value="git clone https://github.com/anatoliykmetyuk/ctxlayer && cd ctxlayer && npm install && npm link" id="hero-cmd" aria-label="Install command" spellcheck="false" />
         <button type="button" class="copy-btn" aria-label="Copy to clipboard">
@@ -28,13 +34,31 @@
       </div>
     </section>
 
-    <section class="value-props">
-      <h2>What it does</h2>
-      <p>Organize context by project and task. A task is like a branch—create one for each feature, refactor, or spike. Each task has <code>docs/</code> for documentation (numbered markdown) and <code>data/</code> for reference material, repos, and sample data.</p>
-      <p>Projects live at <code>~/.agents/ctxlayer/projects/</code>. A local <code>.ctxlayer/config.yaml</code> tracks the active project and task. An agent skill teaches AI coding assistants (Cursor, Claude Code) how to use the ctx CLI, write docs, and manage context.</p>
+    <section class="pitch">
+      <p>For engineers who use AI daily. Accumulate and link domain knowledge to your project via symlinks.</p>
     </section>
 
-    <section class="cli-commands">
+    <section class="quick-start section-card">
+      <h2>Quick start</h2>
+      <p>Run <code>ctx new</code> to create a new domain and a new task within that domain. Tasks live within domains. They live system-wide in <code>~/.agents/ctxlayer/projects/</code>.</p>
+      <h3>What you can do after <code>ctx new</code></h3>
+      <ul class="capability-list">
+        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span> Put reference material in <code>data/</code>, docs and learnings in <code>docs/</code></li>
+        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Ask your agent: &ldquo;in the context layer, read document X&rdquo;</li>
+        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Ask your agent: &ldquo;Please write a report of what you just did to the context layer&rdquo;</li>
+        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> Use <code>ctx import</code> to link tasks and intelligence from other projects — reuse knowledge across projects</li>
+        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span> Your developer-specific intelligence stays with you, separate from the common repo — it never pollutes version control</li>
+      </ul>
+      <div class="dir-tree" aria-label="Task directory structure">
+        <pre><code>my-task/
+├── docs/
+│   ├── 01-initial-research.md
+│   └── 02-implementation-notes.md
+└── data/</code></pre>
+      </div>
+    </section>
+
+    <section class="cli-commands section-card">
       <h2>CLI commands</h2>
       <div class="table-wrap">
         <table>
@@ -56,7 +80,7 @@
       </div>
     </section>
 
-    <section class="config">
+    <section class="config section-card">
       <h2>Config</h2>
       <p><code>.ctxlayer/config.yaml</code> in your repo:</p>
       <div class="config-block">
@@ -68,10 +92,32 @@ active-task: my-task</code></pre>
         </button>
       </div>
     </section>
+
+    <details class="how-it-works section-card">
+      <summary>How it works</summary>
+      <div class="how-it-works-content">
+        <h3>Intended algorithm</h3>
+        <p>For continuous AI-assisted development. Six steps:</p>
+        <ol class="algorithm-steps">
+          <li><strong>Prepare environment</strong> — <code>ctx new</code> to create a task</li>
+          <li><strong>Collect intelligence</strong> — Error messages, issues, sample data, prior work</li>
+          <li><strong>Compile a plan</strong> — Describe the task, produce a plan (AI-assisted)</li>
+          <li><strong>Iterate on the plan</strong> — Review, adjust, refine</li>
+          <li><strong>Execute</strong> — Ask the agent to implement</li>
+          <li><strong>Log the knowledge</strong> — Ask AI to compile learnings into markdown in <code>docs/</code></li>
+        </ol>
+        <h3>Principles</h3>
+        <ul class="principles-list">
+          <li><strong>Garbage in, garbage out</strong> — Collect good data and articulate what you want.</li>
+          <li><strong>AI strengths</strong> — Good at info collection and implementation; weaker at architecture and high-level decisions. Give it clear concepts and data.</li>
+          <li><strong>Core idea</strong> — Collect data continuously as work progresses.</li>
+        </ul>
+      </div>
+    </details>
   </main>
 
   <footer class="footer">
-    <p><a href="https://github.com/anatoliykmetyuk/ctxlayer">CtxLayer</a> — Apache-2.0</p>
+    <p><a href="https://github.com/anatoliykmetyuk/ctxlayer">Context Layer</a> — Apache-2.0</p>
   </footer>
 
   <script>
