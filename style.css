@@ -102,6 +102,16 @@ body::before {
   outline-offset: 2px;
 }
 
+.disclaimer-banner {
+  background: #dc2626;
+  color: #fff;
+  font-size: 0.75rem;
+  padding: 0.35rem 1rem;
+  text-align: center;
+  position: relative;
+  z-index: 10;
+}
+
 main {
   position: relative;
   z-index: 1;
