@@ -64,11 +64,11 @@
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx new [name]</code></td>
-      <td>Create a new task (initializes workspace, prompts for project if needed)</td>
+      <td>Create a new task (initializes workspace, prompts for domain if needed)</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx import</code></td>
-      <td>Import a task from any project as a local symlink</td>
+      <td>Import a task from any domain as a local symlink</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx git [args...]</code></td>
@@ -79,24 +79,24 @@
       <td>Remove a task symlink (with optional task name)</td>
     </tr>
     <tr>
-      <td><code class="language-plaintext highlighter-rouge">ctx drop project [name]</code></td>
-      <td>Remove a project directory from local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code></td>
+      <td><code class="language-plaintext highlighter-rouge">ctx drop domain [name]</code></td>
+      <td>Remove a domain directory from local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code></td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx delete task</code></td>
       <td>Delete a task from the context store and remove its symlink</td>
     </tr>
     <tr>
-      <td><code class="language-plaintext highlighter-rouge">ctx delete project</code></td>
-      <td>Delete a project from the context store</td>
+      <td><code class="language-plaintext highlighter-rouge">ctx delete domain</code></td>
+      <td>Delete a domain from the context store</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx status</code></td>
-      <td>Show the current active project and task</td>
+      <td>Show the current active domain and task</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx set</code></td>
-      <td>Set active project and task (prompts to select)</td>
+      <td>Set active domain and task (prompts to select)</td>
     </tr>
   </tbody>
 </table>
@@ -107,28 +107,28 @@
 
 <ol>
   <li>Ensures workspace is initialized (<code class="language-plaintext highlighter-rouge">.ctxlayer/</code>, <code class="language-plaintext highlighter-rouge">config.yaml</code>, <code class="language-plaintext highlighter-rouge">.gitignore</code>)</li>
-  <li>If no active project: prompts to create (fetch from git, create from scratch) or select existing</li>
-  <li>If active project set: asks “Use current active project [X] for new task?” (yes/no)</li>
+  <li>If no active domain: prompts to create (fetch from git, create from scratch) or select existing</li>
+  <li>If active domain set: asks “Use current active domain [X] for new task?” (yes/no)</li>
   <li>Prompts for task name (or use <code class="language-plaintext highlighter-rouge">ctx new [name]</code>), then creates task dir, symlink, and updates config</li>
 </ol>
 
 <h2 id="ctx-import">ctx import</h2>
 
-<p>Imports a task from any project into the local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> directory as a symlink. Works on uninitialized workspaces.</p>
+<p>Imports a task from any domain into the local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> directory as a symlink. Works on uninitialized workspaces.</p>
 
 <ol>
   <li>Ensures workspace is initialized</li>
-  <li>Prompts to select a project</li>
-  <li>Prompts to select a task from that project</li>
-  <li>Creates a symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;project&gt;/&lt;task&gt;</code></li>
-  <li>Sets the imported project and task as active when config was empty</li>
+  <li>Prompts to select a domain</li>
+  <li>Prompts to select a task from that domain</li>
+  <li>Creates a symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code></li>
+  <li>Sets the imported domain and task as active when config was empty</li>
 </ol>
 
 <h2 id="config-file">Config file</h2>
 
 <p>Located at <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code>:</p>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">active-project</span><span class="pi">:</span> <span class="s">my-project</span>
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">active-domain</span><span class="pi">:</span> <span class="s">my-domain</span>
 <span class="na">active-task</span><span class="pi">:</span> <span class="s">my-task</span>
 </code></pre></div></div>
 
