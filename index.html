@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Context Layer - Persistent, OS-wide storage for AI-assisted engineering context. Docs, data, and learnings organized by domain and task.">
-  <title>Context Layer — AI-Assisted Engineering Context</title>
+  <meta name="description" content="Context Layer — Human-in-the-loop context engineering and curation tool for AI-assisted development. Curate project context, combat context rot, compound insights across builds.">
+  <title>Context Layer — Human-in-the-loop Context Engineering for AI-Assisted Development</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
@@ -19,19 +19,34 @@
 
   <header class="header">
     <a href="#main" class="header-logo">Context Layer</a>
-    <nav>
-      <a href="https://github.com/anatoliykmetyuk/ctxlayer">GitHub</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <nav id="nav-menu" class="nav-menu" aria-label="Main">
+      <a href="#solution">Solution</a>
+      <a href="#how-it-works">How it works</a>
+      <a href="#quick-start">Quick start</a>
+      <a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
     </nav>
   </header>
 
   <main id="main">
-    <h1 class="sr-only">Context Layer</h1>
+    <h1 class="sr-only">Context Layer — Human-in-the-loop context engineering and curation tool for AI-assisted development</h1>
+
+    <!-- Hero -->
     <section class="hero">
       <div class="hero-header">
         <h2 class="hero-title">Context Layer</h2>
-        <p class="hero-tagline">Persistent, OS-wide storage for AI-assisted engineering. Knowledge that accumulates.</p>
+        <p class="hero-tagline">Human-in-the-loop context engineering and curation tool for AI-assisted development</p>
+        <div class="hero-stat-strip" aria-label="Key benefits">
+          <span class="stat-pill"><svg class="stat-pill-icon" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>Persistent</span>
+          <span class="stat-pill"><svg class="stat-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Human-curated</span>
+          <span class="stat-pill"><svg class="stat-pill-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>Tool-agnostic</span>
+        </div>
       </div>
-      <div class="hero-split">
+      <div class="hero-cta">
         <div class="hero-command">
           <input type="text" readonly value="git clone https://github.com/anatoliykmetyuk/ctxlayer && cd ctxlayer && npm install && npm link" id="hero-cmd" aria-label="Install command" spellcheck="false" />
           <button type="button" class="copy-btn" aria-label="Copy to clipboard">
@@ -39,11 +54,105 @@
             <span aria-live="polite" aria-atomic="true">Copy</span>
           </button>
         </div>
-        <div class="hero-dir-tree" aria-label="Project directory structure">
+      </div>
+    </section>
+
+    <!-- Problem -->
+    <section class="problem section-card" id="problem">
+      <h2 class="section-headline">Context engineering makes or breaks your agents</h2>
+      <div class="problem-pains">
+        <div class="problem-pain">
+          <span class="problem-pain-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg></span>
+          <p>Models have no <strong class="problem-keyword">persistent memory</strong> across sessions.</p>
+        </div>
+        <div class="problem-pain">
+          <span class="problem-pain-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg></span>
+          <p><strong class="problem-keyword">Same clarifications</strong>, same architecture, every time.</p>
+        </div>
+        <div class="problem-pain">
+          <span class="problem-pain-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          <p>Redundant context burns the <strong class="problem-keyword">attention budget</strong>.</p>
+        </div>
+        <div class="problem-pain">
+          <span class="problem-pain-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></span>
+          <p>Decisions and intent <strong class="problem-keyword">never persist</strong> for the model.</p>
+        </div>
+        <div class="problem-pain">
+          <span class="problem-pain-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></span>
+          <p>As tokens grow, recall drops — <strong class="problem-keyword">context rot</strong>.</p>
+        </div>
+        <div class="problem-pain">
+          <span class="problem-pain-icon" aria-hidden="true"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v3M12 20v3M4.22 4.22l2.12 2.12M17.66 17.66l2.12 2.12M1 12h3M20 12h3M4.22 19.78l2.12-2.12M17.66 6.34l2.12-2.12"/></svg></span>
+          <p>Automated context management <strong class="problem-keyword">clutters the context</strong>. Curation needs a human.</p>
+        </div>
+      </div>
+      <p class="problem-further-reading">Further reading: <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">Anthropic on effective context engineering</a> · <a href="https://research.trychroma.com/context-rot" target="_blank" rel="noopener noreferrer">Chroma on context rot</a></p>
+    </section>
+
+    <!-- Solution -->
+    <section class="solution section-card" id="solution">
+      <h2 class="section-headline">Meet Context Layer — curated project intelligence for AI agents</h2>
+      <div class="product-cards solution-cards">
+        <div class="product-card">
+          <span class="product-card-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M2 19a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2"/></svg></span>
+          <h3>Simple</h3>
+          <p>No magic, just folders and symlinks.</p>
+        </div>
+        <div class="product-card">
+          <span class="product-card-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span>
+          <h3>Reusable</h3>
+          <p>Reuse the context between projects.</p>
+        </div>
+        <div class="product-card">
+          <span class="product-card-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+          <h3>Clean</h3>
+          <p>Doesn't pollute your repo. Context is stored separately from project code.</p>
+        </div>
+        <div class="product-card">
+          <span class="product-card-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></span>
+          <h3>Agent agnostic</h3>
+          <p>Cursor, Claude, future agents.</p>
+        </div>
+        <div class="product-card">
+          <span class="product-card-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></span>
+          <h3>Persistent</h3>
+          <p>Store the context on your file system or in a dedicated GitHub repository.</p>
+        </div>
+        <div class="product-card">
+          <span class="product-card-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+          <h3>Human-in-the-Loop</h3>
+          <p>You curate your project context.</p>
+        </div>
+        <div class="product-card">
+          <span class="product-card-icon" aria-hidden="true"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span>
+          <h3>High-signal context</h3>
+          <p>Record important decisions and domain knowledge as you develop.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Audience -->
+    <section class="audience section-card" id="audience">
+      <h2 class="section-headline">Built for engineers who treat context as a first-class resource</h2>
+      <div class="audience-pill-strip">
+        <span class="audience-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg>AI-first developers</span>
+        <span class="audience-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Independent builders using LLMs daily</span>
+        <span class="audience-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Engineers automating repeatable work</span>
+        <span class="audience-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>Developers running multi-agent workflows</span>
+        <span class="audience-pill"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>Founders optimizing AI development cost</span>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section class="how-it-works-overview section-card" id="how-it-works">
+      <h2 class="section-headline">How it works</h2>
+      <div class="how-it-works-layout">
+        <div class="how-it-works-dir">
+          <h3>This is how your project directory looks like with the context layer.</h3>
           <pre><code>my-project/
 ├── README.md
 ├── ...  <span class="dir-comment"># your project files</span>
-└── <span class="ctx-highlight">.ctxlayer/</span>  <span class="dir-comment"># your domain intelligence</span>
+└── <span class="ctx-highlight">.ctxlayer/</span>  <span class="dir-comment"># symlink to ~/.agents/ctxlayer/</span>
     └── <span class="ctx-highlight">my-domain/</span>
         ├── <span class="ctx-highlight">config.yaml</span>
         ├── <span class="ctx-highlight">task-1/</span>
@@ -56,28 +165,44 @@
             ├── <span class="ctx-highlight">docs/</span>
             └── <span class="ctx-highlight">data/</span></code></pre>
         </div>
+        <ul class="how-it-works-principles">
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M2 19a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2"/></svg></span><span class="principle-text"><strong class="principle-keyword">Context</strong> lives in a separate <strong class="principle-keyword">folder</strong> on your machine.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span><span class="principle-text">This folder is located at <code>~/.agents/ctxlayer</code> in your user's <strong class="principle-keyword">home directory</strong> and linked in your project as a <strong class="principle-keyword">symbolic link</strong> under the name <code>.ctxlayer</code>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></span><span class="principle-text">The <strong class="principle-keyword">context layer</strong> directory contains context that is logically divided into <strong class="principle-keyword">domains</strong>, and further divided into <strong class="principle-keyword">tasks</strong>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span><span class="principle-text">Whenever you need to start working on a <strong class="principle-keyword">new task</strong>, you create a <strong class="principle-keyword">new folder</strong> for that task with <code>ctx new</code>. A <strong class="principle-keyword">task folder</strong> contains <strong class="principle-keyword">documentation</strong> and <strong class="principle-keyword">data</strong>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M2 19a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2"/></svg></span><span class="principle-text">The <strong class="principle-keyword">data</strong> can be anything—Git repositories, text files, logs, etc.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="principle-text">The <strong class="principle-keyword">documentation</strong> can be markdown files that document task execution, decision points, or other domain-specific knowledge. <strong class="principle-keyword">Markdown files</strong> are <strong class="principle-keyword">numbered</strong> for easy sorting.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span><span class="principle-text">You can easily <strong class="principle-keyword">link</strong> said <strong class="principle-keyword">context</strong> from other projects into the current one with <code>ctx import</code>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text">You can refer to the <strong class="principle-keyword">active task</strong> from your agent by saying <span class="agent-phrase">&quot;in the context layer, …&quot;</span>—e.g. <span class="agent-phrase">&quot;in the context layer, read document number one&quot;</span>. Change the active task via <code>ctx set</code>. This is powered by an <a href="https://agentskill.sh" target="_blank" rel="noopener noreferrer">agent skill</a>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></span><span class="principle-text">The <strong class="principle-keyword">context layer</strong> is not stored in the repo of the project, but if you wish so, you can persist it in a separate <strong class="principle-keyword">GitHub repo</strong> since it is just a <strong class="principle-keyword">directory structure</strong>.</span></li>
+        </ul>
       </div>
     </section>
 
-    <section class="pitch">
-      <p>For engineers who use AI daily. Accumulate and link domain knowledge to your project via symlinks.</p>
+    <!-- Quick start -->
+    <section class="quick-start section-card" id="quick-start">
+      <h2 class="section-headline">Quick start</h2>
+      <ol class="stepped-flow">
+        <li><span class="step-num" aria-hidden="true">1</span><span class="step-content"><code>git clone https://github.com/anatoliykmetyuk/ctxlayer && cd ctxlayer && npm install && npm link</code> — Install the ctx CLI.</span></li>
+        <li><span class="step-num" aria-hidden="true">2</span><span class="step-content">From your project directory, run <code>ctx new</code> — Create a new task to hold the context for the task you are about to do. Initializes the context layer for your project if it was not yet initialized.</span></li>
+        <li><span class="step-num" aria-hidden="true">3</span><span class="step-content">Add docs/data — Add your documentation and reference material to the task's <code>docs/</code> and <code>data/</code> folders.</span></li>
+        <li><span class="step-num" aria-hidden="true">4</span><span class="step-content">Ask agent — From your prompts, say <span class="agent-phrase">&quot;in the context layer, …&quot;</span>. This keyword is understood by the agent and refers to the context layer directory of the active task.</span></li>
+      </ol>
     </section>
 
-    <section class="quick-start section-card">
-      <h2>Quick start</h2>
-      <p>Run <code>ctx new</code> to create a new domain and a new task within that domain. Tasks live within domains. They live system-wide in <code>~/.agents/ctxlayer/projects/</code>.</p>
-      <h3>What you can do after <code>ctx new</code></h3>
-      <ul class="capability-list">
-        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span> Put reference material in <code>data/</code>, docs and learnings in <code>docs/</code></li>
-        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Ask your agent: &ldquo;in the context layer, read document X&rdquo;</li>
-        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span> Ask your agent: &ldquo;Please write a report of what you just did to the context layer&rdquo;</li>
-        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span> Use <code>ctx import</code> to link tasks and intelligence from other projects — reuse knowledge across projects</li>
-        <li><span class="capability-icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></span> Your developer-specific intelligence stays with you, separate from the common repo — it never pollutes version control</li>
+    <!-- Reference the context layer in your prompts -->
+    <section class="prompt-examples-section section-card" id="prompt-examples">
+      <h2 class="section-headline">Reference the context layer in your prompts</h2>
+      <p class="section-subtitle">Here are some examples of usage of the context layer in your prompts.</p>
+      <ul class="prompt-examples-list">
+        <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text prompt-quote"><em>As was previously discussed in document 5 <span class="agent-phrase">in the context layer</span>, please implement the discussed solution to the problem.</em></span></li>
+        <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text prompt-quote"><em>Document the bug fix procedures that you have just followed <span class="agent-phrase">to the context layer</span>.</em></span></li>
+        <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text prompt-quote"><em><span class="agent-phrase">In the context layer</span>, please read the log files that are present there and prepare a report on the discovered failures and write it <span class="agent-phrase">into the context layer</span> as a new file.</em></span></li>
       </ul>
     </section>
 
-    <section class="cli-commands section-card">
-      <h2>CLI commands</h2>
+    <section class="cli-commands section-card" id="commands">
+      <h2 class="section-headline">Commands reference</h2>
       <div class="table-wrap">
         <table>
           <thead>
@@ -97,45 +222,10 @@
         </table>
       </div>
     </section>
-
-    <section class="config section-card">
-      <h2>Config</h2>
-      <p><code>.ctxlayer/config.yaml</code> in your repo:</p>
-      <div class="config-block">
-        <pre><code id="config-code">active-project: my-project
-active-task: my-task</code></pre>
-        <button type="button" class="copy-btn config-copy-btn" aria-label="Copy config">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-          <span aria-live="polite" aria-atomic="true">Copy</span>
-        </button>
-      </div>
-    </section>
-
-    <details class="how-it-works section-card">
-      <summary>How it works</summary>
-      <div class="how-it-works-content">
-        <h3>Intended algorithm</h3>
-        <p>For continuous AI-assisted development. Six steps:</p>
-        <ol class="algorithm-steps">
-          <li><strong>Prepare environment</strong> — <code>ctx new</code> to create a task</li>
-          <li><strong>Collect intelligence</strong> — Error messages, issues, sample data, prior work</li>
-          <li><strong>Compile a plan</strong> — Describe the task, produce a plan (AI-assisted)</li>
-          <li><strong>Iterate on the plan</strong> — Review, adjust, refine</li>
-          <li><strong>Execute</strong> — Ask the agent to implement</li>
-          <li><strong>Log the knowledge</strong> — Ask AI to compile learnings into markdown in <code>docs/</code></li>
-        </ol>
-        <h3>Principles</h3>
-        <ul class="principles-list">
-          <li><strong>Garbage in, garbage out</strong> — Collect good data and articulate what you want.</li>
-          <li><strong>AI strengths</strong> — Good at info collection and implementation; weaker at architecture and high-level decisions. Give it clear concepts and data.</li>
-          <li><strong>Core idea</strong> — Collect data continuously as work progresses.</li>
-        </ul>
-      </div>
-    </details>
   </main>
 
   <footer class="footer">
-    <p><a href="https://github.com/anatoliykmetyuk/ctxlayer">Context Layer</a> — <a href="https://anatoliikmt.me/about">Anatolii Kmetiuk</a> — Apache-2.0</p>
+    <p><a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">Context Layer</a> — <a href="https://anatoliikmt.me/about" target="_blank" rel="noopener noreferrer">Anatolii Kmetiuk</a> — Apache-2.0 — Built for context engineering</p>
   </footer>
 
   <script>
@@ -152,16 +242,27 @@ active-task: my-task</code></pre>
           });
         });
       }
-      // Config copy button
-      var configBtn = document.querySelector('.config-copy-btn');
-      var configCode = document.getElementById('config-code');
-      if (configBtn && configCode) {
-        configBtn.addEventListener('click', function() {
-          navigator.clipboard.writeText(configCode.textContent).then(function() {
-            var span = configBtn.querySelector('span');
-            if (span) { span.textContent = 'Copied!'; }
-            setTimeout(function() { if (span) span.textContent = 'Copy'; }, 1500);
-          });
+
+      // Hamburger menu toggle
+      var navToggle = document.querySelector('.nav-toggle');
+      var navMenu = document.getElementById('nav-menu');
+      if (navToggle && navMenu) {
+        function closeMenu() {
+          navMenu.classList.remove('is-open');
+          navToggle.setAttribute('aria-expanded', 'false');
+        }
+
+        navToggle.addEventListener('click', function() {
+          var isOpen = navMenu.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen);
+        });
+
+        navMenu.querySelectorAll('a[href^="#"]').forEach(function(link) {
+          link.addEventListener('click', closeMenu);
+        });
+
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && navMenu.classList.contains('is-open')) closeMenu();
         });
       }
     })();
