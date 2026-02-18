@@ -61,6 +61,7 @@ body {
   background: var(--bg);
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
 body::before {
@@ -642,9 +643,13 @@ main {
 /* How it works overview — directory + principles */
 .how-it-works-overview .how-it-works-layout {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(32rem, 1.5fr) 1fr;
   gap: 2rem;
   align-items: start;
+}
+
+.how-it-works-overview .how-it-works-dir {
+  min-width: 0;
 }
 
 .how-it-works-overview .how-it-works-dir h3 {
@@ -655,7 +660,14 @@ main {
 
 .how-it-works-overview .how-it-works-dir pre {
   margin: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  max-width: 100%;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
 }
+
 
 .how-it-works-overview .how-it-works-dir pre code {
   display: block;
@@ -663,9 +675,8 @@ main {
   font-size: 0.8125rem;
   line-height: 1.5;
   margin: 0;
-  background: var(--code-bg);
-  border: 1px solid var(--border);
-  border-radius: 0.375rem;
+  white-space: pre;
+  min-width: min-content;
 }
 
 .how-it-works-overview .how-it-works-dir .ctx-highlight {
@@ -1244,6 +1255,125 @@ tr:hover td {
 .footer a:focus-visible {
   outline: 2px solid var(--warm);
   outline-offset: 2px;
+}
+
+/* Docs layout */
+.docs-layout {
+  display: flex;
+  gap: 2rem;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  z-index: 1;
+}
+
+.docs-sidebar {
+  flex-shrink: 0;
+  width: 12rem;
+}
+
+.docs-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.docs-nav-link {
+  color: var(--text-muted);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 0;
+  border-radius: 0.25rem;
+}
+
+.docs-nav-link:hover,
+.docs-nav-link:focus-visible {
+  color: var(--warm);
+}
+
+.docs-nav-link.active {
+  color: var(--warm);
+  font-weight: 600;
+}
+
+.docs-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.docs-content h1 {
+  font-size: 1.75rem;
+  margin: 0 0 1.5rem;
+  color: var(--text);
+}
+
+.docs-content h2 {
+  font-size: 1.25rem;
+  margin: 2rem 0 1rem;
+  color: var(--warm);
+}
+
+.docs-content h3 {
+  font-size: 1.0625rem;
+  margin: 1.5rem 0 0.5rem;
+  color: var(--text);
+}
+
+.docs-content p {
+  margin: 0 0 1rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.docs-content ul,
+.docs-content ol {
+  margin: 0 0 1rem;
+  padding-left: 1.5rem;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.docs-content li {
+  margin-bottom: 0.25rem;
+}
+
+.docs-content a {
+  color: var(--icon-accent);
+  text-decoration: none;
+}
+
+.docs-content a:hover,
+.docs-content a:focus-visible {
+  text-decoration: underline;
+}
+
+.docs-content pre {
+  margin: 1rem 0;
+}
+
+.docs-content .table-wrap {
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+  .docs-layout {
+    flex-direction: column;
+    padding: 1.5rem 1rem 2rem;
+  }
+
+  .docs-sidebar {
+    width: 100%;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1rem;
+  }
+
+  .docs-nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
 }
 
 /* Responsive */
