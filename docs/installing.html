@@ -48,10 +48,10 @@
 
 <p>Installs the CLI (from npm) and the agent skill (from GitHub):</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-fsSL</span> https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh | bash
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-fsSL</span> https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh <span class="nt">-o</span> /tmp/ctxlayer-install.sh <span class="o">&amp;&amp;</span> bash /tmp/ctxlayer-install.sh
 </code></pre></div></div>
 
-<p>Requires Node.js/npm. The script will prompt you to select your IDE when installing the skill.</p>
+<p>Downloads the script first, then runs it — stdin stays connected to your terminal so the skill installer can prompt you to select your IDE. Requires Node.js/npm.</p>
 
 <h2 id="cli-only">CLI only</h2>
 
