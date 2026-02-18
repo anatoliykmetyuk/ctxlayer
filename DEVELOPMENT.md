@@ -101,6 +101,16 @@ npx skills add anatoliykmetyuk/ctxlayer -g -a cursor --skill ctxlayer -y
 
 Or with full URL: `npx skills add https://github.com/anatoliykmetyuk/ctxlayer -g -a cursor --skill ctxlayer -y`
 
+### Install from a specific tag
+
+By default, remote install uses the latest commit. To install from a given tag:
+
+```bash
+npx skills add https://github.com/anatoliykmetyuk/ctxlayer/tree/v1.0.0 -g -a cursor --skill ctxlayer -y
+```
+
+Replace `v1.0.0` with the tag you want. The `/tree/<tag>` pattern works for tags and branches.
+
 ### Switching between local and remote skill
 
 A new install overwrites the existing skill — no uninstall needed. To test remote install from a clean state:
