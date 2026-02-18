@@ -553,6 +553,19 @@ main {
   line-height: 1.4;
 }
 
+/* Benefits section */
+.benefits-lead {
+  margin: 0 0 1.75rem;
+  font-size: 1.0625rem;
+  color: var(--text-muted);
+  line-height: 1.6;
+  max-width: 42rem;
+}
+
+.benefits-cards {
+  margin-top: 0;
+}
+
 /* Audience section — Pill strip */
 .audience-pill-strip {
   display: flex;
@@ -751,6 +764,21 @@ main {
   font-weight: 600;
 }
 
+.how-it-works-overview .how-it-works-cta {
+  margin: 1.5rem 0 0;
+}
+
+.how-it-works-overview .how-it-works-cta a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.how-it-works-overview .how-it-works-cta a:hover,
+.how-it-works-overview .how-it-works-cta a:focus-visible {
+  text-decoration: underline;
+}
+
 @media (max-width: 768px) {
   .how-it-works-overview .how-it-works-layout {
     grid-template-columns: 1fr;
@@ -939,13 +967,28 @@ main {
   color: var(--accent);
 }
 
+.quick-start-docs-link {
+  margin: 1.5rem 0 0;
+}
+
+.quick-start-docs-link a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.quick-start-docs-link a:hover,
+.quick-start-docs-link a:focus-visible {
+  text-decoration: underline;
+}
+
 .quick-start-block p {
   margin: 0;
   color: var(--text-muted);
   line-height: 1.6;
 }
 
-/* Section cards — no borders/backgrounds */
+/* Section cards — alternating backgrounds for visual hierarchy */
 .section-card {
   background: transparent;
   border: none;
@@ -958,7 +1001,24 @@ main {
   box-shadow: none;
 }
 
+/* Horizontal dividers between sections */
+.section-card + .section-card {
+  position: relative;
+  padding-top: 2.5rem;
+}
 
+.section-card + .section-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--border);
+  opacity: 0.6;
+}
+
+/* Alternating section backgrounds for scannability */
 .capability-list {
   margin: 0;
   padding-left: 1.5rem;
@@ -1158,6 +1218,21 @@ code {
   margin: 0 0 1rem;
   color: var(--warm);
   text-wrap: balance;
+}
+
+.cli-commands-link {
+  margin: 0;
+}
+
+.cli-commands-link a {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.cli-commands-link a:hover,
+.cli-commands-link a:focus-visible {
+  text-decoration: underline;
 }
 
 .table-wrap {

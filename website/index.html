@@ -167,16 +167,12 @@
             └── <span class="ctx-highlight">data/</span></code></pre>
         </div>
         <ul class="how-it-works-principles">
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M2 19a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2"/></svg></span><span class="principle-text"><strong class="principle-keyword">Context</strong> lives in a separate <strong class="principle-keyword">folder</strong> on your machine.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span><span class="principle-text">This folder is located at <code>~/.agents/ctxlayer</code> in your user's <strong class="principle-keyword">home directory</strong> and linked in your project as a <strong class="principle-keyword">symbolic link</strong> under the name <code>.ctxlayer</code>.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/></svg></span><span class="principle-text">The <strong class="principle-keyword">context layer</strong> directory contains context that is logically divided into <strong class="principle-keyword">domains</strong>, and further divided into <strong class="principle-keyword">tasks</strong>.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span><span class="principle-text">Whenever you need to start working on a <strong class="principle-keyword">new task</strong>, you create a <strong class="principle-keyword">new folder</strong> for that task with <code>ctx new</code>. A <strong class="principle-keyword">task folder</strong> contains <strong class="principle-keyword">documentation</strong> and <strong class="principle-keyword">data</strong>.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M2 19a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2"/></svg></span><span class="principle-text">The <strong class="principle-keyword">data</strong> can be anything—Git repositories, text files, logs, etc.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span><span class="principle-text">The <strong class="principle-keyword">documentation</strong> can be markdown files that document task execution, decision points, or other domain-specific knowledge. <strong class="principle-keyword">Markdown files</strong> are <strong class="principle-keyword">numbered</strong> for easy sorting.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span><span class="principle-text">You can easily <strong class="principle-keyword">link</strong> said <strong class="principle-keyword">context</strong> from other projects into the current one with <code>ctx import</code>.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text">You can refer to the <strong class="principle-keyword">active task</strong> from your agent by saying <span class="agent-phrase">&quot;in the context layer, …&quot;</span>—e.g. <span class="agent-phrase">&quot;in the context layer, read document number one&quot;</span>. Change the active task via <code>ctx set</code>. This is powered by an <a href="https://agentskill.sh" target="_blank" rel="noopener noreferrer">agent skill</a>.</span></li>
-          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></span><span class="principle-text">The <strong class="principle-keyword">context layer</strong> is not stored in the repo of the project, but if you wish so, you can persist it in a separate <strong class="principle-keyword">GitHub repo</strong> since it is just a <strong class="principle-keyword">directory structure</strong>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><path d="M2 19a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2"/></svg></span><span class="principle-text">The context layer is a <strong class="principle-keyword">directory structure</strong> on your machine.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></span><span class="principle-text">Reference project intelligence across projects via <strong class="principle-keyword">symlinks</strong>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg></span><span class="principle-text">The context layer is not stored in the project repo, but can be persisted in a dedicated <strong class="principle-keyword">GitHub repo</strong>.</span></li>
+          <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text">Reference the context from agent prompts by saying <span class="agent-phrase">&quot;in the context layer&quot;</span>.</span></li>
         </ul>
+        <p class="how-it-works-cta"><a href="docs/how-it-works.html">See full explanation →</a></p>
       </div>
     </section>
 
@@ -189,39 +185,7 @@
         <li><span class="step-num" aria-hidden="true">3</span><span class="step-content">Add docs/data — Add your documentation and reference material to the task's <code>docs/</code> and <code>data/</code> folders.</span></li>
         <li><span class="step-num" aria-hidden="true">4</span><span class="step-content">Ask agent — From your prompts, say <span class="agent-phrase">&quot;in the context layer, …&quot;</span>. This keyword is understood by the agent and refers to the context layer directory of the active task.</span></li>
       </ol>
-    </section>
-
-    <!-- Reference the context layer in your prompts -->
-    <section class="prompt-examples-section section-card" id="prompt-examples">
-      <h2 class="section-headline">Reference the context layer in your prompts</h2>
-      <p class="section-subtitle">Here are some examples of usage of the context layer in your prompts.</p>
-      <ul class="prompt-examples-list">
-        <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text prompt-quote"><em>As was previously discussed in document 5 <span class="agent-phrase">in the context layer</span>, please implement the discussed solution to the problem.</em></span></li>
-        <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text prompt-quote"><em>Document the bug fix procedures that you have just followed <span class="agent-phrase">to the context layer</span>.</em></span></li>
-        <li><span class="principle-icon" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></span><span class="principle-text prompt-quote"><em><span class="agent-phrase">In the context layer</span>, please read the log files that are present there and prepare a report on the discovered failures and write it <span class="agent-phrase">into the context layer</span> as a new file.</em></span></li>
-      </ul>
-    </section>
-
-    <section class="cli-commands section-card" id="commands">
-      <h2 class="section-headline">Commands reference</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Command</th>
-              <th>Description</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td><code>ctx</code></td><td>Show help</td></tr>
-            <tr><td><code>ctx new [name]</code></td><td>Create a new task</td></tr>
-            <tr><td><code>ctx import</code></td><td>Import a task as local symlink</td></tr>
-            <tr><td><code>ctx git [args...]</code></td><td>Run git in current task</td></tr>
-            <tr><td><code>ctx status</code></td><td>Show active project and task</td></tr>
-            <tr><td><code>ctx set</code></td><td>Set active project and task</td></tr>
-          </tbody>
-        </table>
-      </div>
+      <p class="quick-start-docs-link"><a href="docs/">Read more in the docs →</a></p>
     </section>
   </main>
 
