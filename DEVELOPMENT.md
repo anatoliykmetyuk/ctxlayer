@@ -54,6 +54,8 @@ npm install
 npm link
 ```
 
+Or run `./install-cli-locally.sh` — it uninstalls/unlinks any existing `ctx`, then installs and links from the local source.
+
 After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immediately.
 
 ### Uninstall
