@@ -1,0 +1,9 @@
+test/
+skills/
+docs/
+website/
+.github/
+.ctxlayer/
+DEVELOPMENT.md
+*.md
+!README.md

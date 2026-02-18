@@ -59,7 +59,7 @@ After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immed
 ### Uninstall
 
 ```bash
-npm unlink -g ctx
+npm unlink -g @anatoliikmt/ctxlayer
 ```
 
 ## Tests
@@ -67,3 +67,35 @@ npm unlink -g ctx
 ```bash
 npm test
 ```
+
+## Release
+
+Publishing to npm is triggered by pushing a version tag. The package is `@anatoliikmt/ctxlayer` (CLI command: `ctx`).
+
+### Steps
+
+1. **Bump version** in `package.json` (e.g. `1.0.0` → `1.0.1`).
+2. **Commit and push:**
+
+   ```bash
+   git add package.json
+   git commit -m "chore: release v1.0.1"
+   git push origin main
+   ```
+
+3. **Create and push the tag:**
+
+   ```bash
+   git tag v1.0.1
+   git push origin v1.0.1
+   ```
+
+The GitHub Actions workflow (`.github/workflows/publish.yml`) runs on tag push: it runs tests and publishes to npm. Check the [Actions tab](https://github.com/anatoliykmetyuk/ctxlayer/actions) to confirm.
+
+### Verify
+
+```bash
+npx @anatoliikmt/ctxlayer
+```
+
+Or after global install: `npm install -g @anatoliikmt/ctxlayer`, then `ctx`.
