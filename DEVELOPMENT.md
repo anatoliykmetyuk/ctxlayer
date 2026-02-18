@@ -62,6 +62,55 @@ After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immed
 npm unlink -g @anatoliikmt/ctxlayer
 ```
 
+(If you linked when the package had a different name, use that name: `npm unlink -g ctx` or whatever it was.)
+
+### Switching between local and published version
+
+**Use the published npm version:**
+
+```bash
+npm uninstall -g @anatoliikmt/ctxlayer   # remove local link if present
+npm install -g @anatoliikmt/ctxlayer
+```
+
+**Switch back to local development:**
+
+```bash
+npm uninstall -g @anatoliikmt/ctxlayer
+cd /path/to/ctxlayer
+npm link
+```
+
+## Agent skill
+
+The project includes an agent skill at `skills/ctxlayer/SKILL.md` for Cursor (and other AI coding assistants).
+
+### Install from local path
+
+```bash
+npx skills add /path/to/ctxlayer -g -a cursor --skill ctxlayer -y
+```
+
+Or use `install-skill-locally.sh` (edits the path for your machine).
+
+### Install from remote repository
+
+```bash
+npx skills add anatoliykmetyuk/ctxlayer -g -a cursor --skill ctxlayer -y
+```
+
+Or with full URL: `npx skills add https://github.com/anatoliykmetyuk/ctxlayer -g -a cursor --skill ctxlayer -y`
+
+### Switching between local and remote skill
+
+A new install overwrites the existing skill — no uninstall needed. To test remote install from a clean state:
+
+```bash
+rm -rf ~/.agents/skills/ctxlayer
+rm -rf ~/.cursor/skills/ctxlayer
+npx skills add anatoliykmetyuk/ctxlayer -g -a cursor --skill ctxlayer -y
+```
+
 ## Tests
 
 ```bash
