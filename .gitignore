@@ -10,6 +10,10 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
+# Jekyll
+website/_site/
+website/.jekyll-cache/
+
 # IDE
 .idea/
 .vscode/
