@@ -27,7 +27,7 @@ Or run without installing: `npx @anatoliikmt/ctxlayer`
 
 ## Local development
 
-Run `./install-cli-locally.sh` from the repo root — it uninstalls any existing `ctx`, then installs and links from local source.
+Run `./install-locally.sh` from the repo root — it uninstalls any existing `ctx` and skill, then installs both from local source.
 
 Or manually:
 

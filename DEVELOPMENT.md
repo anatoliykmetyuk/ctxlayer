@@ -54,7 +54,7 @@ npm install
 npm link
 ```
 
-Or run `./install-cli-locally.sh` — it uninstalls/unlinks any existing `ctx`, then installs and links from the local source.
+Or run `./install-locally.sh` — it uninstalls any existing `ctx` and skill, then installs both from local source.
 
 After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immediately.
 
@@ -80,7 +80,7 @@ npm install -g @anatoliikmt/ctxlayer
 ```bash
 npm uninstall -g @anatoliikmt/ctxlayer
 cd /path/to/ctxlayer
-npm link
+./install-locally.sh
 ```
 
 ## Agent skill
@@ -93,7 +93,7 @@ The project includes an agent skill at `skills/ctxlayer/SKILL.md` for Cursor (an
 npx skills add /path/to/ctxlayer -g -a cursor --skill ctxlayer -y
 ```
 
-Or use `install-skill-locally.sh` (edits the path for your machine).
+Or use `./install-locally.sh` to install both CLI and skill from local source.
 
 ### Install from remote repository
 

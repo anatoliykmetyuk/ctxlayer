@@ -48,7 +48,7 @@ Downloads the script first, then runs it — stdin stays connected to your termi
 
 ```bash
 cd /path/to/ctxlayer
-./install-cli-locally.sh
+./install-locally.sh
 ```
 
 Or manually: `npm install` then `npm link`. After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immediately.
@@ -136,7 +136,7 @@ active-task: my-task
 
 The one-liner installer above installs both the CLI and the skill. The skill lives at `skills/ctxlayer/SKILL.md` and teaches AI coding assistants (Cursor, Claude Code, etc.) how to use the ctx CLI and manage context.
 
-For local development, use `install-skill-locally.sh` or:
+For local development, `./install-locally.sh` installs both the CLI and skill. Or install the skill only:
 
 ```bash
 npx skills add /path/to/ctxlayer -g -a cursor --skill ctxlayer -y
@@ -164,7 +164,8 @@ ctxlayer/
   skills/
     ctxlayer/
       SKILL.md            # Agent skill definition
-  install.sh              # One-liner installer script
+  install.sh              # One-liner installer (curl)
+  install-locally.sh      # Local development installer
   package.json
   .gitignore
   README.md
