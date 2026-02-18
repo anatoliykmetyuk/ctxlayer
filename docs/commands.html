@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Context Layer documentation">
+  <title>Commands — Context Layer Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="docs-page">
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <div class="disclaimer-banner">
+    Currently the project has not been released yet and is experimental. Play with it at your own risk.
+  </div>
+
+  <header class="header">
+    <a href="/" class="header-logo">Context Layer</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <nav id="nav-menu" class="nav-menu" aria-label="Main">
+      <a href="/#solution">Solution</a>
+      <a href="/#how-it-works">How it works</a>
+      <a href="/#quick-start">Quick start</a>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar" aria-label="Docs navigation">
+      <nav class="docs-nav">
+        <a href="/docs/" class="docs-nav-link ">Docs</a>
+        <a href="/docs/overview.html" class="docs-nav-link ">Overview</a>
+        <a href="/docs/commands.html" class="docs-nav-link active">Commands</a>
+        <a href="/docs/installing.html" class="docs-nav-link ">Installing</a>
+      </nav>
+    </aside>
+
+    <main id="main" class="docs-main">
+      <article class="docs-content">
+        <h1 id="commands">Commands</h1>
+
+<h2 id="reference">Reference</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>Command</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx</code></td>
+      <td>Show help and available commands</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx new [name]</code></td>
+      <td>Create a new task (initializes workspace, prompts for project if needed)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx import</code></td>
+      <td>Import a task from any project as a local symlink</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx git [args...]</code></td>
+      <td>Run git in the current task directory</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx drop task [name]</code></td>
+      <td>Remove a task symlink (with optional task name)</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx drop project [name]</code></td>
+      <td>Remove a project directory from local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx delete task</code></td>
+      <td>Delete a task from the context store and remove its symlink</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx delete project</code></td>
+      <td>Delete a project from the context store</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx status</code></td>
+      <td>Show the current active project and task</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx set</code></td>
+      <td>Set active project and task (prompts to select)</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="ctx-new">ctx new</h2>
+
+<p>Creates a new task. Single entry point for getting started:</p>
+
+<ol>
+  <li>Ensures workspace is initialized (<code class="language-plaintext highlighter-rouge">.ctxlayer/</code>, <code class="language-plaintext highlighter-rouge">config.yaml</code>, <code class="language-plaintext highlighter-rouge">.gitignore</code>)</li>
+  <li>If no active project: prompts to create (fetch from git, create from scratch) or select existing</li>
+  <li>If active project set: asks “Use current active project [X] for new task?” (yes/no)</li>
+  <li>Prompts for task name (or use <code class="language-plaintext highlighter-rouge">ctx new [name]</code>), then creates task dir, symlink, and updates config</li>
+</ol>
+
+<h2 id="ctx-import">ctx import</h2>
+
+<p>Imports a task from any project into the local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> directory as a symlink. Works on uninitialized workspaces.</p>
+
+<ol>
+  <li>Ensures workspace is initialized</li>
+  <li>Prompts to select a project</li>
+  <li>Prompts to select a task from that project</li>
+  <li>Creates a symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;project&gt;/&lt;task&gt;</code></li>
+  <li>Sets the imported project and task as active when config was empty</li>
+</ol>
+
+<h2 id="config-file">Config file</h2>
+
+<p>Located at <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code>:</p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">active-project</span><span class="pi">:</span> <span class="s">my-project</span>
+<span class="na">active-task</span><span class="pi">:</span> <span class="s">my-task</span>
+</code></pre></div></div>
+
+      </article>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p><a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">Context Layer</a> — <a href="https://anatoliikmt.me/about" target="_blank" rel="noopener noreferrer">Anatolii Kmetiuk</a> — Apache-2.0 — Built for context engineering</p>
+  </footer>
+
+  <script>
+    (function() {
+      var navToggle = document.querySelector('.nav-toggle');
+      var navMenu = document.getElementById('nav-menu');
+      if (navToggle && navMenu) {
+        function closeMenu() {
+          navMenu.classList.remove('is-open');
+          navToggle.setAttribute('aria-expanded', 'false');
+        }
+        navToggle.addEventListener('click', function() {
+          var isOpen = navMenu.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen);
+        });
+        navMenu.querySelectorAll('a').forEach(function(link) {
+          link.addEventListener('click', closeMenu);
+        });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && navMenu.classList.contains('is-open')) closeMenu();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

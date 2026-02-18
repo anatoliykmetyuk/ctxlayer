@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Context Layer documentation">
+  <title>Installing — Context Layer Docs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="docs-page">
+  <a href="#main" class="skip-link">Skip to main content</a>
+
+  <div class="disclaimer-banner">
+    Currently the project has not been released yet and is experimental. Play with it at your own risk.
+  </div>
+
+  <header class="header">
+    <a href="/" class="header-logo">Context Layer</a>
+    <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+      <span class="nav-toggle-bar"></span>
+    </button>
+    <nav id="nav-menu" class="nav-menu" aria-label="Main">
+      <a href="/#solution">Solution</a>
+      <a href="/#how-it-works">How it works</a>
+      <a href="/#quick-start">Quick start</a>
+      <a href="/docs/">Docs</a>
+      <a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </nav>
+  </header>
+
+  <div class="docs-layout">
+    <aside class="docs-sidebar" aria-label="Docs navigation">
+      <nav class="docs-nav">
+        <a href="/docs/" class="docs-nav-link ">Docs</a>
+        <a href="/docs/overview.html" class="docs-nav-link ">Overview</a>
+        <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
+        <a href="/docs/installing.html" class="docs-nav-link active">Installing</a>
+      </nav>
+    </aside>
+
+    <main id="main" class="docs-main">
+      <article class="docs-content">
+        <h1 id="installing">Installing</h1>
+
+<h2 id="cli">CLI</h2>
+
+<p>From this repo:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> /path/to/ctxlayer
+npm <span class="nb">install
+</span>npm <span class="nb">link</span>
+</code></pre></div></div>
+
+<p>After that, <code class="language-plaintext highlighter-rouge">ctx</code> is available globally. Edits to <code class="language-plaintext highlighter-rouge">bin/cli.js</code> take effect immediately.</p>
+
+<h3 id="uninstalling">Uninstalling</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">unlink</span> <span class="nt">-g</span> ctx
+</code></pre></div></div>
+
+<h2 id="agent-skill">Agent skill</h2>
+
+<p>The repo includes an agent skill at <code class="language-plaintext highlighter-rouge">skills/context-layer/SKILL.md</code> that teaches AI coding assistants (Cursor, Claude Code, etc.) how to use the ctx CLI and manage context.</p>
+
+<h3 id="local-install-via-npx-skills">Local install via npx skills</h3>
+
+<p>Use <a href="https://github.com/vercel-labs/skills">npx skills</a> to install from the local repo:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx skills add /path/to/ctxlayer <span class="nt">-g</span> <span class="nt">-a</span> cursor <span class="nt">--skill</span> context-layer <span class="nt">-y</span>
+</code></pre></div></div>
+
+<p>This installs the skill globally for Cursor. Re-run after changes to update.</p>
+
+<h3 id="other-agents">Other agents</h3>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Claude Code</span>
+npx skills add /path/to/ctxlayer <span class="nt">-g</span> <span class="nt">-a</span> claude-code <span class="nt">--skill</span> context-layer <span class="nt">-y</span>
+
+<span class="c"># All detected agents</span>
+npx skills add /path/to/ctxlayer <span class="nt">-g</span> <span class="nt">--skill</span> context-layer <span class="nt">-y</span>
+</code></pre></div></div>
+
+      </article>
+    </main>
+  </div>
+
+  <footer class="footer">
+    <p><a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">Context Layer</a> — <a href="https://anatoliikmt.me/about" target="_blank" rel="noopener noreferrer">Anatolii Kmetiuk</a> — Apache-2.0 — Built for context engineering</p>
+  </footer>
+
+  <script>
+    (function() {
+      var navToggle = document.querySelector('.nav-toggle');
+      var navMenu = document.getElementById('nav-menu');
+      if (navToggle && navMenu) {
+        function closeMenu() {
+          navMenu.classList.remove('is-open');
+          navToggle.setAttribute('aria-expanded', 'false');
+        }
+        navToggle.addEventListener('click', function() {
+          var isOpen = navMenu.classList.toggle('is-open');
+          navToggle.setAttribute('aria-expanded', isOpen);
+        });
+        navMenu.querySelectorAll('a').forEach(function(link) {
+          link.addEventListener('click', closeMenu);
+        });
+        document.addEventListener('keydown', function(e) {
+          if (e.key === 'Escape' && navMenu.classList.contains('is-open')) closeMenu();
+        });
+      }
+    })();
+  </script>
+</body>
+</html>

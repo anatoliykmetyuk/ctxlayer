@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="{{ page.description | default: 'Context Layer documentation' }}">
-  <title>{% if page.title %}{{ page.title }} — {% endif %}Context Layer Docs</title>
+  <meta name="description" content="Context Layer documentation">
+  <title>Documentation — Context Layer Docs</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ '/style.css' | relative_url }}">
+  <link rel="stylesheet" href="/style.css">
 </head>
 <body class="docs-page">
   <a href="#main" class="skip-link">Skip to main content</a>
@@ -18,17 +18,17 @@
   </div>
 
   <header class="header">
-    <a href="{{ '/' | relative_url }}" class="header-logo">Context Layer</a>
+    <a href="/" class="header-logo">Context Layer</a>
     <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">
       <span class="nav-toggle-bar"></span>
       <span class="nav-toggle-bar"></span>
       <span class="nav-toggle-bar"></span>
     </button>
     <nav id="nav-menu" class="nav-menu" aria-label="Main">
-      <a href="{{ '/' | relative_url }}#solution">Solution</a>
-      <a href="{{ '/' | relative_url }}#how-it-works">How it works</a>
-      <a href="{{ '/' | relative_url }}#quick-start">Quick start</a>
-      <a href="{{ '/docs/' | relative_url }}">Docs</a>
+      <a href="/#solution">Solution</a>
+      <a href="/#how-it-works">How it works</a>
+      <a href="/#quick-start">Quick start</a>
+      <a href="/docs/">Docs</a>
       <a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">GitHub</a>
     </nav>
   </header>
@@ -36,16 +36,27 @@
   <div class="docs-layout">
     <aside class="docs-sidebar" aria-label="Docs navigation">
       <nav class="docs-nav">
-        <a href="{{ '/docs/' | relative_url }}" class="docs-nav-link {% if page.url == '/docs/' or page.url == '/docs/index.html' %}active{% endif %}">Docs</a>
-        <a href="{{ '/docs/overview.html' | relative_url }}" class="docs-nav-link {% if page.url contains 'overview' %}active{% endif %}">Overview</a>
-        <a href="{{ '/docs/commands.html' | relative_url }}" class="docs-nav-link {% if page.url contains 'commands' %}active{% endif %}">Commands</a>
-        <a href="{{ '/docs/installing.html' | relative_url }}" class="docs-nav-link {% if page.url contains 'installing' %}active{% endif %}">Installing</a>
+        <a href="/docs/" class="docs-nav-link active">Docs</a>
+        <a href="/docs/overview.html" class="docs-nav-link ">Overview</a>
+        <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
+        <a href="/docs/installing.html" class="docs-nav-link ">Installing</a>
       </nav>
     </aside>
 
     <main id="main" class="docs-main">
       <article class="docs-content">
-        {{ content }}
+        <h1 id="documentation">Documentation</h1>
+
+<p>Welcome to the Context Layer documentation.</p>
+
+<h2 id="quick-links">Quick links</h2>
+
+<ul>
+  <li><strong><a href="overview.html">Overview</a></strong> — What Context Layer is and why it exists</li>
+  <li><strong><a href="commands.html">Commands</a></strong> — CLI command reference</li>
+  <li><strong><a href="installing.html">Installing</a></strong> — How to install the CLI and agent skill</li>
+</ul>
+
       </article>
     </main>
   </div>

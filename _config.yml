@@ -1,8 +1,0 @@
-title: Context Layer
-description: Human-in-the-loop context engineering and curation tool for AI-assisted development
-
-# GitHub Pages: set baseurl if site is served from a subdirectory (e.g. /ctxlayer)
-# baseurl: ""
-# url: ""
-
-markdown: kramdown
