@@ -2,13 +2,13 @@ import { describe, it, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
-import { createSandbox, createConfig, createProject, createTaskSymlink } from './helpers.js';
+import { createSandbox, createConfig, createDomain, createTaskSymlink } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
 // ---------------------------------------------------------------------------
 
-const { tmpProjectsRoot, tmpCwd, cleanup } = createSandbox();
+const { tmpDomainsRoot, tmpCwd, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -31,17 +31,17 @@ mock.method(process, 'exit', () => {});
 // Import
 // ---------------------------------------------------------------------------
 
-const { deleteProject } = await import('../bin/cli.js');
+const { deleteDomain } = await import('../bin/cli.js');
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('intel delete project', () => {
+describe('ctx delete domain', () => {
   before(() => {
-    createProject(tmpProjectsRoot, 'project-alpha', ['task-one']);
-    createConfig(tmpCwd, 'project-alpha', 'task-one');
-    createTaskSymlink(tmpCwd, 'project-alpha', 'task-one', tmpProjectsRoot);
+    createDomain(tmpDomainsRoot, 'domain-alpha', ['task-one']);
+    createConfig(tmpCwd, 'domain-alpha', 'task-one');
+    createTaskSymlink(tmpCwd, 'domain-alpha', 'task-one', tmpDomainsRoot);
   });
 
   beforeEach(() => {
@@ -53,39 +53,39 @@ describe('intel delete project', () => {
   });
 
   it('does not delete when user cancels', async () => {
-    selectQueue = ['project-alpha'];
+    selectQueue = ['domain-alpha'];
     confirmQueue = [false];
-    await deleteProject();
+    await deleteDomain();
 
-    const projectDir = path.join(tmpProjectsRoot, 'project-alpha');
-    assert.ok(fs.existsSync(projectDir), 'project dir should remain');
+    const domainDir = path.join(tmpDomainsRoot, 'domain-alpha');
+    assert.ok(fs.existsSync(domainDir), 'domain dir should remain');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('deletes project from store and local dir when confirmed', async () => {
-    selectQueue = ['project-alpha'];
+  it('deletes domain from store and local dir when confirmed', async () => {
+    selectQueue = ['domain-alpha'];
     confirmQueue = [true];
-    await deleteProject();
+    await deleteDomain();
 
-    const projectDir = path.join(tmpProjectsRoot, 'project-alpha');
-    assert.ok(!fs.existsSync(projectDir), 'project dir should be deleted from store');
+    const domainDir = path.join(tmpDomainsRoot, 'domain-alpha');
+    assert.ok(!fs.existsSync(domainDir), 'domain dir should be deleted from store');
 
-    const localProjectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
-    assert.ok(!fs.existsSync(localProjectDir), 'local project dir should be removed');
+    const localDomainDir = path.join(tmpCwd, '.ctxlayer', 'domain-alpha');
+    assert.ok(!fs.existsSync(localDomainDir), 'local domain dir should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('exits when no projects exist', async () => {
-    const backup = tmpProjectsRoot + '-backup';
-    fs.renameSync(tmpProjectsRoot, backup);
+  it('exits when no domains exist', async () => {
+    const backup = tmpDomainsRoot + '-backup';
+    fs.renameSync(tmpDomainsRoot, backup);
 
     try {
-      await deleteProject();
+      await deleteDomain();
       assert.equal(process.exit.mock.calls.length, 1);
       assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
     } finally {
-      fs.renameSync(backup, tmpProjectsRoot);
+      fs.renameSync(backup, tmpDomainsRoot);
     }
   });
 });

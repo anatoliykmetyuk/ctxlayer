@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import * as cp from 'child_process';
-import { createSandbox, createConfig, createProject } from './helpers.js';
+import { createSandbox, createConfig, createDomain } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
 // ---------------------------------------------------------------------------
 
-const { tmpProjectsRoot, tmpCwd, cleanup } = createSandbox();
+const { tmpDomainsRoot, tmpCwd, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
 // Mocks - preserve spawn for inquirer deps, mock spawnSync for git
@@ -40,13 +40,13 @@ const { intelGit } = await import('../bin/cli.js');
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('intel git', () => {
-  const PROJECT = 'my-project';
+describe('ctx git', () => {
+  const DOMAIN = 'my-domain';
   const TASK = 'my-task';
 
   before(() => {
-    createProject(tmpProjectsRoot, PROJECT, [TASK]);
-    createConfig(tmpCwd, PROJECT, TASK);
+    createDomain(tmpDomainsRoot, DOMAIN, [TASK]);
+    createConfig(tmpCwd, DOMAIN, TASK);
   });
 
   beforeEach(() => {
@@ -66,7 +66,7 @@ describe('intel git', () => {
     const [cmd, args, opts] = spawnSyncCalls[0];
     assert.equal(cmd, 'git');
     assert.deepStrictEqual(args, ['status']);
-    assert.equal(opts.cwd, path.join(tmpProjectsRoot, PROJECT, TASK));
+    assert.equal(opts.cwd, path.join(tmpDomainsRoot, DOMAIN, TASK));
     assert.equal(opts.stdio, 'inherit');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -90,7 +90,7 @@ describe('intel git', () => {
     const [cmd, args, opts] = spawnSyncCalls[0];
     assert.equal(cmd, 'git');
     assert.deepStrictEqual(args, []);
-    assert.equal(opts.cwd, path.join(tmpProjectsRoot, PROJECT, TASK));
+    assert.equal(opts.cwd, path.join(tmpDomainsRoot, DOMAIN, TASK));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
@@ -105,7 +105,7 @@ describe('intel git', () => {
   });
 
   it('exits when no active task is set', () => {
-    createConfig(tmpCwd, PROJECT); // no active-task
+    createConfig(tmpCwd, DOMAIN); // no active-task
     process.argv = ['node', 'intel', 'git', 'status'];
 
     intelGit();
@@ -115,7 +115,7 @@ describe('intel git', () => {
   });
 
   it('exits when task directory does not exist', () => {
-    createConfig(tmpCwd, PROJECT, 'non-existent-task');
+    createConfig(tmpCwd, DOMAIN, 'non-existent-task');
     process.argv = ['node', 'intel', 'git', 'status'];
 
     intelGit();

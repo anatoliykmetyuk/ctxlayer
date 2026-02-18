@@ -4,8 +4,8 @@ A **context layer** used as **context for AI agents** during iterative developme
 
 ## Intention
 
-- **Project** - Context organization unit. A project can span one or more Git repositories.
-- **Task** - One task within that project. Think of a task like a Git branch: create a new task whenever you start a feature, refactor, or research spike.
+- **Domain** - Context organization unit. A domain can span one or more Git repositories.
+- **Task** - One task within that domain. Think of a task like a Git branch: create a new task whenever you start a feature, refactor, or research spike.
 - Inside each task you get:
   - **`data/`** - All data the agent can use (reference material, repos, sample data).
   - **`docs/`** - Documentation. Whenever something meaningful is done - research, an implementation plan, or the implementation itself - that knowledge is written into the task's `docs/` folder using the naming convention.
@@ -13,24 +13,24 @@ A **context layer** used as **context for AI agents** during iterative developme
 
 ## What it does
 
-- Manages a global store at `~/.agents/ctxlayer/projects/` where projects and tasks live.
+- Manages a global store at `~/.agents/ctxlayer/domains/` where domains and tasks live.
 - Each task has `docs/` and `data/` for documentation and reference material.
-- A local `.ctxlayer/config.yaml` in your repo (or workspace) tracks the active project and task.
+- A local `.ctxlayer/config.yaml` in your repo (or workspace) tracks the active domain and task.
 - An agent skill teaches AI coding assistants (Cursor, Claude Code, etc.) how to write documentation and manage context using these conventions.
 
 ## Directory layout
 
 ```
 ~/.agents/ctxlayer/                              # global store (in home dir)
-  projects/
-    <project-name>/                       # one per project (can span one or more git repos)
+  domains/
+    <domain-name>/                       # one per domain (can span one or more git repos)
       <task-name>/                        # one per task (think: branch)
         docs/                             # documentation (01-name.md, 02-name.md, ...)
         data/                             # reference material, git submodules, sample data
 
 <your-repo>/
   .ctxlayer/                              # local config (gitignored)
-    config.yaml                           # active-project and active-task
+    config.yaml                           # active-domain and active-task
     <task-name> -> symlink                # symlink to the task folder in global store
 ```
 
@@ -57,23 +57,23 @@ npm unlink -g ctx
 | Command | Description |
 |---|---|
 | `ctx` | Show help and available commands |
-| `ctx new [name]` | Create a new task (initializes workspace, prompts for project if needed) |
-| `ctx import` | Import a task from any project as a local symlink |
+| `ctx new [name]` | Create a new task (initializes workspace, prompts for domain if needed) |
+| `ctx import` | Import a task from any domain as a local symlink |
 | `ctx git [args...]` | Run git in the current task directory |
 | `ctx drop task [name]` | Remove a task symlink (with optional task name) |
-| `ctx drop project [name]` | Remove a project directory from local `.ctxlayer/` (optional project name) |
+| `ctx drop domain [name]` | Remove a domain directory from local `.ctxlayer/` (optional domain name) |
 | `ctx delete task` | Delete a task from the context store and remove its symlink |
-| `ctx delete project` | Delete a project from the context store and remove its local directory |
-| `ctx status` | Show the current active project and task |
-| `ctx set` | Set active project and task (prompts to select) |
+| `ctx delete domain` | Delete a domain from the context store and remove its local directory |
+| `ctx status` | Show the current active domain and task |
+| `ctx set` | Set active domain and task (prompts to select) |
 
 ### `ctx new`
 
 Creates a new task. Single entry point for getting started:
 
 1. Ensures workspace is initialized (`.ctxlayer/`, `config.yaml`, `.gitignore`)
-2. If no active project: prompts to create (fetch from git, create from scratch) or select existing
-3. If active project set: asks "Use current active project [X] for new task?" (yes/no); if no, goes to project prompt
+2. If no active domain: prompts to create (fetch from git, create from scratch) or select existing
+3. If active domain set: asks "Use current active domain [X] for new task?" (yes/no); if no, goes to domain prompt
 4. Prompts for task name (or use `ctx new [name]`), then creates task dir, symlink, and updates config.
 
 ### `ctx import`
@@ -81,45 +81,45 @@ Creates a new task. Single entry point for getting started:
 Imports a task from any project into the local `.ctxlayer/` directory as a symlink. Works on uninitialized workspaces (no `.ctxlayer/` or no `config.yaml`): it initializes the workspace and sets the imported project and task as active. When config already has a valid active project and task, only creates the symlink without changing active.
 
 1. Ensures workspace is initialized (creates `.ctxlayer/`, `config.yaml`, `.gitignore` if missing).
-2. Prompts to select a project (arrow-key menu listing all projects in `~/.agents/ctxlayer/projects/`).
-3. Prompts to select a task from that project.
-4. Creates a symlink at `.ctxlayer/<project>/<task>` pointing to the task folder in the global store.
-5. Sets the imported project and task as active in config when active was empty or missing.
+2. Prompts to select a domain (arrow-key menu listing all domains in `~/.agents/ctxlayer/domains/`).
+3. Prompts to select a task from that domain.
+4. Creates a symlink at `.ctxlayer/<domain>/<task>` pointing to the task folder in the global store.
+5. Sets the imported domain and task as active in config when active was empty or missing.
 
 ### `ctx git [args...]`
 
-Runs `git` with the given arguments in the current task directory. Requires an active task to be set. Example: `ctx git status` runs `git status` in `~/.agents/ctxlayer/projects/<project>/<task>/`.
+Runs `git` with the given arguments in the current task directory. Requires an active task to be set. Example: `ctx git status` runs `git status` in `~/.agents/ctxlayer/domains/<domain>/<task>/`.
 
 ### `ctx drop task [name]`
 
-Removes a task symlink from the local `.ctxlayer/` directory. Prompts to select a project, then a task (or use the optional task name with the active project). If the project directory is left empty, it is removed.
+Removes a task symlink from the local `.ctxlayer/` directory. Prompts to select a domain, then a task (or use the optional task name with the active domain). If the domain directory is left empty, it is removed.
 
 ### `ctx drop project [name]`
 
-Removes an entire project directory from the local `.ctxlayer/` directory. Pass an optional project name to drop it directly; otherwise prompts to select a project. Asks for confirmation before removing.
+Removes an entire domain directory from the local `.ctxlayer/` directory. Pass an optional domain name to drop it directly; otherwise prompts to select a domain. Asks for confirmation before removing.
 
 ### `ctx delete task`
 
-Permanently deletes a task from the context store (`~/.agents/ctxlayer/projects/`) and removes its symlink from the local directory. Prompts to select a project and task, then asks for confirmation.
+Permanently deletes a task from the context store (`~/.agents/ctxlayer/domains/`) and removes its symlink from the local directory. Prompts to select a domain and task, then asks for confirmation.
 
 ### `ctx delete project`
 
-Permanently deletes a project from the context store and removes its local directory from `.ctxlayer/`. Prompts to select a project and asks for confirmation.
+Permanently deletes a domain from the context store and removes its local directory from `.ctxlayer/`. Prompts to select a domain and asks for confirmation.
 
 ### `ctx status`
 
-Prints the current active project and task. Run `ctx set` to change the active project and task.
+Prints the current active domain and task. Run `ctx set` to change the active domain and task.
 
 ### `ctx set`
 
-Prompts to select a project and a task from the global store, then sets them as active in `.ctxlayer/config.yaml`.
+Prompts to select a domain and a task from the global store, then sets them as active in `.ctxlayer/config.yaml`.
 
 ## Config file
 
 Located at `.ctxlayer/config.yaml` in your repo:
 
 ```yaml
-active-project: my-project
+active-domain: my-domain
 active-task: my-task
 ```
 

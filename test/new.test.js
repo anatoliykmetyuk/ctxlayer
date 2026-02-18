@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import * as cp from 'child_process';
-import { createSandbox, createConfig, createProject } from './helpers.js';
+import { createSandbox, createConfig, createDomain } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup -- must happen before importing cli.js
 // ---------------------------------------------------------------------------
 
-const { tmpProjectsRoot, tmpCwd, cleanup } = createSandbox();
+const { tmpDomainsRoot, tmpCwd, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
 // Mocks - execSync no-op for git clone / git init
@@ -48,11 +48,11 @@ const { newTask } = await import('../bin/cli.js');
 // ---------------------------------------------------------------------------
 
 describe('ctx new', () => {
-  const PROJECT = 'my-project';
+  const DOMAIN = 'my-domain';
 
   before(() => {
-    createProject(tmpProjectsRoot, PROJECT, []);
-    createConfig(tmpCwd, PROJECT);
+    createDomain(tmpDomainsRoot, DOMAIN, []);
+    createConfig(tmpCwd, DOMAIN);
   });
 
   beforeEach(() => {
@@ -70,17 +70,17 @@ describe('ctx new', () => {
     confirmQueue = [true];
     await newTask('my-task');
 
-    const taskDir = path.join(tmpProjectsRoot, PROJECT, 'my-task');
+    const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'my-task');
     assert.ok(fs.existsSync(taskDir));
     assert.ok(fs.existsSync(path.join(taskDir, 'docs')));
     assert.ok(fs.existsSync(path.join(taskDir, 'data')));
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', PROJECT, 'my-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', DOMAIN, 'my-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(fs.readlinkSync(linkPath), path.resolve(taskDir));
 
     const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
-    assert.ok(config.includes('active-project: my-project'));
+    assert.ok(config.includes('active-domain: my-domain'));
     assert.ok(config.includes('active-task: my-task'));
 
     assert.equal(process.exit.mock.calls.length, 0);
@@ -91,119 +91,119 @@ describe('ctx new', () => {
     inputQueue = ['prompted-task'];
     await newTask();
 
-    const taskDir = path.join(tmpProjectsRoot, PROJECT, 'prompted-task');
+    const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'prompted-task');
     assert.ok(fs.existsSync(taskDir));
-    const linkPath = path.join(tmpCwd, '.ctxlayer', PROJECT, 'prompted-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', DOMAIN, 'prompted-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('active project set, answer no: goes to project prompt then creates task', async () => {
-    createProject(tmpProjectsRoot, 'project-a', ['task-a1']);
-    createProject(tmpProjectsRoot, 'project-b', ['task-b1']);
-    createConfig(tmpCwd, 'project-a', 'task-a1');
+  it('active domain set, answer no: goes to domain prompt then creates task', async () => {
+    createDomain(tmpDomainsRoot, 'domain-a', ['task-a1']);
+    createDomain(tmpDomainsRoot, 'domain-b', ['task-b1']);
+    createConfig(tmpCwd, 'domain-a', 'task-a1');
     confirmQueue = [false];
-    selectQueue = ['__select_existing__', 'project-b'];
+    selectQueue = ['__select_existing__', 'domain-b'];
     await newTask('switched-task');
 
     const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
-    assert.ok(config.includes('active-project: project-b'));
+    assert.ok(config.includes('active-domain: domain-b'));
     assert.ok(config.includes('active-task: switched-task'));
-    const taskDir = path.join(tmpProjectsRoot, 'project-b', 'switched-task');
+    const taskDir = path.join(tmpDomainsRoot, 'domain-b', 'switched-task');
     assert.ok(fs.existsSync(taskDir));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('works when no config: ensures init, prompts for project then creates task', async () => {
+  it('works when no config: ensures init, prompts for domain then creates task', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
-    selectQueue = ['__select_existing__', PROJECT];
+    selectQueue = ['__select_existing__', DOMAIN];
     await newTask('bootstrap-task');
 
-    const taskDir = path.join(tmpProjectsRoot, PROJECT, 'bootstrap-task');
+    const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'bootstrap-task');
     assert.ok(fs.existsSync(taskDir));
     const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
-    assert.ok(config.includes('active-project: my-project'));
+    assert.ok(config.includes('active-domain: my-domain'));
     assert.ok(config.includes('active-task: bootstrap-task'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('works when project dir missing: prompts for project then creates task', async () => {
-    createConfig(tmpCwd, 'non-existent-project');
-    selectQueue = ['__select_existing__', PROJECT];
+  it('works when domain dir missing: prompts for domain then creates task', async () => {
+    createConfig(tmpCwd, 'non-existent-domain');
+    selectQueue = ['__select_existing__', DOMAIN];
     await newTask('recovery-task');
 
-    const taskDir = path.join(tmpProjectsRoot, PROJECT, 'recovery-task');
+    const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'recovery-task');
     assert.ok(fs.existsSync(taskDir));
     const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
-    assert.ok(config.includes('active-project: my-project'));
+    assert.ok(config.includes('active-domain: my-domain'));
     assert.ok(config.includes('active-task: recovery-task'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('create from scratch: creates project dir, config, task, and updates .gitignore', async () => {
+  it('create from scratch: creates domain dir, config, task, and updates .gitignore', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
-    for (const name of fs.readdirSync(tmpProjectsRoot)) {
-      fs.rmSync(path.join(tmpProjectsRoot, name), { recursive: true, force: true });
+    for (const name of fs.readdirSync(tmpDomainsRoot)) {
+      fs.rmSync(path.join(tmpDomainsRoot, name), { recursive: true, force: true });
     }
     selectQueue = ['__create_scratch__'];
-    inputQueue = ['scratch-project'];
+    inputQueue = ['scratch-domain'];
 
     await newTask('first-task');
 
-    const projectDir = path.join(tmpProjectsRoot, 'scratch-project');
-    assert.ok(fs.existsSync(projectDir));
+    const domainDir = path.join(tmpDomainsRoot, 'scratch-domain');
+    assert.ok(fs.existsSync(domainDir));
     const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
-    assert.ok(config.includes('active-project: scratch-project'));
+    assert.ok(config.includes('active-domain: scratch-domain'));
     assert.ok(config.includes('active-task: first-task'));
     const gitignorePath = path.join(tmpCwd, '.gitignore');
     assert.ok(fs.existsSync(gitignorePath));
     assert.ok(fs.readFileSync(gitignorePath, 'utf8').includes('.ctxlayer'));
-    const taskDir = path.join(projectDir, 'first-task');
+    const taskDir = path.join(domainDir, 'first-task');
     assert.ok(fs.existsSync(taskDir));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('use existing project when not initialized: selects project and creates task', async () => {
+  it('use existing domain when not initialized: selects domain and creates task', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
-    createProject(tmpProjectsRoot, 'existing-project', []);
-    selectQueue = ['__select_existing__', 'existing-project'];
+    createDomain(tmpDomainsRoot, 'existing-domain', []);
+    selectQueue = ['__select_existing__', 'existing-domain'];
     await newTask('first-task');
 
     const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
-    assert.ok(config.includes('active-project: existing-project'));
+    assert.ok(config.includes('active-domain: existing-domain'));
     assert.ok(config.includes('active-task: first-task'));
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'existing-project', 'first-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'existing-domain', 'first-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('works when project list empty: create from scratch', async () => {
+  it('works when domain list empty: create from scratch', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
-    for (const name of fs.readdirSync(tmpProjectsRoot)) {
-      fs.rmSync(path.join(tmpProjectsRoot, name), { recursive: true, force: true });
+    for (const name of fs.readdirSync(tmpDomainsRoot)) {
+      fs.rmSync(path.join(tmpDomainsRoot, name), { recursive: true, force: true });
     }
     selectQueue = ['__create_scratch__'];
-    inputQueue = ['new-project'];
+    inputQueue = ['new-domain'];
 
     await newTask('initial-task');
 
     const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
-    assert.ok(config.includes('active-project: new-project'));
+    assert.ok(config.includes('active-domain: new-domain'));
     assert.ok(config.includes('active-task: initial-task'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when task already exists', async () => {
-    createConfig(tmpCwd, PROJECT);
-    createProject(tmpProjectsRoot, PROJECT, ['existing-task']);
+    createConfig(tmpCwd, DOMAIN);
+    createDomain(tmpDomainsRoot, DOMAIN, ['existing-task']);
     confirmQueue = [true];
 
     await newTask('existing-task');
@@ -213,7 +213,7 @@ describe('ctx new', () => {
   });
 
   it('exits when task name is empty (from prompt)', async () => {
-    createConfig(tmpCwd, PROJECT);
+    createConfig(tmpCwd, DOMAIN);
     confirmQueue = [true];
     inputQueue = [''];
 
@@ -223,11 +223,11 @@ describe('ctx new', () => {
     assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
-  it('exits when project already exists (create from scratch)', async () => {
+  it('exits when domain already exists (create from scratch)', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
-    createProject(tmpProjectsRoot, 'dup-project', []);
+    createDomain(tmpDomainsRoot, 'dup-domain', []);
     selectQueue = ['__create_scratch__'];
-    inputQueue = ['dup-project'];
+    inputQueue = ['dup-domain'];
 
     await newTask('x');
 
@@ -235,20 +235,20 @@ describe('ctx new', () => {
     assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
-  it('exits when projects root missing and select existing', async () => {
-    createProject(tmpProjectsRoot, 'some-project', ['task-a']);
-    createConfig(tmpCwd, 'some-project', 'task-a');
-    const backup = tmpProjectsRoot + '-backup';
-    fs.renameSync(tmpProjectsRoot, backup);
+  it('exits when domains root missing and select existing', async () => {
+    createDomain(tmpDomainsRoot, 'some-domain', ['task-a']);
+    createConfig(tmpCwd, 'some-domain', 'task-a');
+    const backup = tmpDomainsRoot + '-backup';
+    fs.renameSync(tmpDomainsRoot, backup);
     confirmQueue = [false];
-    selectQueue = ['__select_existing__', 'some-project'];
+    selectQueue = ['__select_existing__', 'some-domain'];
 
     try {
       await newTask('x');
       assert.equal(process.exit.mock.calls.length, 1);
       assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
     } finally {
-      fs.renameSync(backup, tmpProjectsRoot);
+      fs.renameSync(backup, tmpDomainsRoot);
     }
   });
 });

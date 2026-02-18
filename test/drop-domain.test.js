@@ -2,13 +2,13 @@ import { describe, it, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
-import { createSandbox, createConfig, createProject, createTaskSymlink } from './helpers.js';
+import { createSandbox, createConfig, createDomain, createTaskSymlink } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
 // ---------------------------------------------------------------------------
 
-const { tmpProjectsRoot, tmpCwd, cleanup } = createSandbox();
+const { tmpDomainsRoot, tmpCwd, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -31,19 +31,19 @@ mock.method(process, 'exit', () => {});
 // Import
 // ---------------------------------------------------------------------------
 
-const { dropProject } = await import('../bin/cli.js');
+const { dropDomain } = await import('../bin/cli.js');
 
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('intel drop project', () => {
+describe('ctx drop domain', () => {
   before(() => {
-    createProject(tmpProjectsRoot, 'project-alpha', ['task-one']);
-    createProject(tmpProjectsRoot, 'project-beta', ['task-three']);
-    createConfig(tmpCwd, 'project-alpha', 'task-one');
-    createTaskSymlink(tmpCwd, 'project-alpha', 'task-one', tmpProjectsRoot);
-    createTaskSymlink(tmpCwd, 'project-beta', 'task-three', tmpProjectsRoot);
+    createDomain(tmpDomainsRoot, 'domain-alpha', ['task-one']);
+    createDomain(tmpDomainsRoot, 'domain-beta', ['task-three']);
+    createConfig(tmpCwd, 'domain-alpha', 'task-one');
+    createTaskSymlink(tmpCwd, 'domain-alpha', 'task-one', tmpDomainsRoot);
+    createTaskSymlink(tmpCwd, 'domain-beta', 'task-three', tmpDomainsRoot);
   });
 
   beforeEach(() => {
@@ -57,55 +57,55 @@ describe('intel drop project', () => {
   });
 
   it('does not remove when user cancels', async () => {
-    selectQueue = ['project-alpha'];
+    selectQueue = ['domain-alpha'];
     confirmQueue = [false];
-    await dropProject();
+    await dropDomain();
 
-    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
-    assert.ok(fs.existsSync(projectDir), 'project dir should remain');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-alpha');
+    assert.ok(fs.existsSync(domainDir), 'domain dir should remain');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('removes project directory when name arg provided and confirmed', async () => {
+  it('removes domain directory when name arg provided and confirmed', async () => {
     confirmQueue = [true];
-    await dropProject('project-alpha');
+    await dropDomain('domain-alpha');
 
-    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-alpha');
-    assert.ok(!fs.existsSync(projectDir), 'project dir should be removed');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-alpha');
+    assert.ok(!fs.existsSync(domainDir), 'domain dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('does not remove when name arg provided but user cancels', async () => {
     confirmQueue = [false];
-    await dropProject('project-beta');
+    await dropDomain('domain-beta');
 
-    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-beta');
-    assert.ok(fs.existsSync(projectDir), 'project dir should remain');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-beta');
+    assert.ok(fs.existsSync(domainDir), 'domain dir should remain');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('exits when name arg refers to nonexistent project', async () => {
-    await dropProject('nonexistent');
+  it('exits when name arg refers to nonexistent domain', async () => {
+    await dropDomain('nonexistent');
 
     assert.equal(process.exit.mock.calls.length, 1);
     assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
-  it('removes project directory when confirmed', async () => {
-    selectQueue = ['project-beta'];
+  it('removes domain directory when confirmed', async () => {
+    selectQueue = ['domain-beta'];
     confirmQueue = [true];
-    await dropProject();
+    await dropDomain();
 
-    const projectDir = path.join(tmpCwd, '.ctxlayer', 'project-beta');
-    assert.ok(!fs.existsSync(projectDir), 'project dir should be removed');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-beta');
+    assert.ok(!fs.existsSync(domainDir), 'domain dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('exits when no project directories exist', async () => {
-    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'project-alpha'), { recursive: true, force: true });
-    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'project-beta'), { recursive: true, force: true });
+  it('exits when no domain directories exist', async () => {
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'domain-alpha'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'domain-beta'), { recursive: true, force: true });
 
-    await dropProject();
+    await dropDomain();
 
     assert.equal(process.exit.mock.calls.length, 1);
     assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
@@ -114,7 +114,7 @@ describe('intel drop project', () => {
   it('exits when no config exists', async () => {
     fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
-    await dropProject();
+    await dropDomain();
 
     assert.equal(process.exit.mock.calls.length, 1);
     assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);

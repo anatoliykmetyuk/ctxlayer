@@ -1,7 +1,7 @@
 {
   "name": "@anatoliikmt/ctxlayer",
   "version": "0.1.0",
-  "description": "Context layer CLI for AI agents — manage projects, tasks, and documentation",
+  "description": "Context layer CLI for AI agents — manage domains, tasks, and documentation",
   "type": "module",
   "main": "bin/cli.js",
   "bin": {

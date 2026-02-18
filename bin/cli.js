@@ -10,12 +10,12 @@ import { select, input, confirm } from '@inquirer/prompts';
 // Constants
 // ---------------------------------------------------------------------------
 
-const PROJECTS_DIR = 'projects';
+const DOMAINS_DIR = 'domains';
 const LOCAL_DIR = '.ctxlayer';
 
 const CWD = process.env.CONTEXT_LAYER_CWD || process.cwd();
 const CONTEXT_LAYER_HOME = process.env.CONTEXT_LAYER_HOME || path.join(os.homedir(), '.agents', 'ctxlayer');
-const PROJECTS_ROOT = path.join(CONTEXT_LAYER_HOME, PROJECTS_DIR);
+const DOMAINS_ROOT = path.join(CONTEXT_LAYER_HOME, DOMAINS_DIR);
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -26,14 +26,14 @@ function repoNameFromUrl(url) {
   const lastSegment = cleaned.split('/').pop() || '';
   const name = lastSegment.replace(/\.git$/, '');
   if (!name) {
-    throw new Error('Could not derive project name from URL: ' + url);
+    throw new Error('Could not derive domain name from URL: ' + url);
   }
   return name;
 }
 
-function ensureProjectsRoot() {
-  if (!fs.existsSync(PROJECTS_ROOT)) {
-    fs.mkdirSync(PROJECTS_ROOT, { recursive: true });
+function ensureDomainsRoot() {
+  if (!fs.existsSync(DOMAINS_ROOT)) {
+    fs.mkdirSync(DOMAINS_ROOT, { recursive: true });
   }
 }
 
@@ -46,15 +46,15 @@ function readConfig() {
   }
   const content = fs.readFileSync(configPath, 'utf8');
 
-  const projectMatch = content.match(/^active-project:\s*(.+)$/m);
+  const domainMatch = content.match(/^active-domain:\s*(.+)$/m);
   const taskMatch = content.match(/^active-task:\s*(.+)$/m);
 
-  if (!projectMatch || !projectMatch[1].trim()) {
-    throw new Error('No "active-project" field found in ' + configPath);
+  if (!domainMatch || !domainMatch[1].trim()) {
+    throw new Error('No "active-domain" field found in ' + configPath);
   }
 
   return {
-    'active-project': projectMatch[1].trim(),
+    'active-domain': domainMatch[1].trim(),
     'active-task': taskMatch ? taskMatch[1].trim() : '',
   };
 }
@@ -65,20 +65,20 @@ function readConfigOrNull() {
     return null;
   }
   const content = fs.readFileSync(configPath, 'utf8');
-  const projectMatch = content.match(/^active-project:\s*(.+)$/m);
+  const domainMatch = content.match(/^active-domain:\s*(.+)$/m);
   const taskMatch = content.match(/^active-task:\s*(.+)$/m);
-  if (!projectMatch || !projectMatch[1].trim()) {
+  if (!domainMatch || !domainMatch[1].trim()) {
     return null;
   }
   return {
-    'active-project': projectMatch[1].trim(),
+    'active-domain': domainMatch[1].trim(),
     'active-task': taskMatch ? taskMatch[1].trim() : '',
   };
 }
 
 function writeConfig(config) {
   const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
-  let content = `active-project: ${config['active-project']}\n`;
+  let content = `active-domain: ${config['active-domain']}\n`;
   if (config['active-task']) {
     content += `active-task: ${config['active-task']}\n`;
   }
@@ -86,10 +86,10 @@ function writeConfig(config) {
 }
 
 // ---------------------------------------------------------------------------
-// Ensure a symlink for a task exists at <cwd>/.ctxlayer/<project>/<task>
+// Ensure a symlink for a task exists at <cwd>/.ctxlayer/<domain>/<task>
 // ---------------------------------------------------------------------------
 
-function getLocalProjectDirs() {
+function getLocalDomainDirs() {
   const localDir = path.join(CWD, LOCAL_DIR);
   if (!fs.existsSync(localDir)) {
     return [];
@@ -100,17 +100,17 @@ function getLocalProjectDirs() {
     .map((e) => e.name);
 }
 
-function ensureTaskSymlink(projectName, taskName) {
+function ensureTaskSymlink(domainName, taskName) {
   if (!taskName) return;
 
-  const localProjectDir = path.join(CWD, LOCAL_DIR, projectName);
-  if (!fs.existsSync(localProjectDir)) {
-    fs.mkdirSync(localProjectDir, { recursive: true });
+  const localDomainDir = path.join(CWD, LOCAL_DIR, domainName);
+  if (!fs.existsSync(localDomainDir)) {
+    fs.mkdirSync(localDomainDir, { recursive: true });
   }
 
-  const linkPath = path.join(localProjectDir, taskName);
+  const linkPath = path.join(localDomainDir, taskName);
   if (!fs.existsSync(linkPath)) {
-    const taskDir = path.join(PROJECTS_ROOT, projectName, taskName);
+    const taskDir = path.join(DOMAINS_ROOT, domainName, taskName);
     const target = path.resolve(taskDir);
     const type = process.platform === 'win32' ? 'dir' : undefined;
     fs.symlinkSync(target, linkPath, type);
@@ -119,20 +119,20 @@ function ensureTaskSymlink(projectName, taskName) {
 }
 
 /**
- * Set the active project and task. Call after project and task are selected.
- * 1. Updates config.yaml (active-project, active-task)
- * 2. Ensures workspace structure: project dir under .ctxlayer/<project>/, symlink to task
+ * Set the active domain and task. Call after domain and task are selected.
+ * 1. Updates config.yaml (active-domain, active-task)
+ * 2. Ensures workspace structure: domain dir under .ctxlayer/<domain>/, symlink to task
  */
-function setActiveProjectAndTask(projectName, taskName) {
-  writeConfig({ 'active-project': projectName, 'active-task': taskName });
-  ensureTaskSymlink(projectName, taskName);
+function setActiveDomainAndTask(domainName, taskName) {
+  writeConfig({ 'active-domain': domainName, 'active-task': taskName });
+  ensureTaskSymlink(domainName, taskName);
 }
 
 // ---------------------------------------------------------------------------
 // Local setup (runs after every choice)
 // ---------------------------------------------------------------------------
 
-function setupLocal(projectName) {
+function setupLocal(domainName) {
   // 1. Create .ctxlayer/ in cwd
   const localDir = path.join(CWD, LOCAL_DIR);
   if (!fs.existsSync(localDir)) {
@@ -142,7 +142,7 @@ function setupLocal(projectName) {
 
   // 2. Write config.yaml
   const configPath = path.join(localDir, 'config.yaml');
-  fs.writeFileSync(configPath, `active-project: ${projectName}\n`);
+  fs.writeFileSync(configPath, `active-domain: ${domainName}\n`);
   console.log('Wrote', configPath);
 
   // 3. Add .ctxlayer to .gitignore
@@ -207,41 +207,41 @@ async function initFromGit() {
   }
 
   const defaultName = repoNameFromUrl(url);
-  const projectName =
+  const domainName =
     (await input({
-      message: 'Project name:',
+      message: 'Domain name:',
       default: defaultName,
     })) || defaultName;
 
-  ensureProjectsRoot();
+  ensureDomainsRoot();
 
-  const targetPath = path.join(PROJECTS_ROOT, projectName);
+  const targetPath = path.join(DOMAINS_ROOT, domainName);
   if (fs.existsSync(targetPath)) {
-    throw new Error('Project folder already exists: ' + targetPath);
+    throw new Error('Domain folder already exists: ' + targetPath);
   }
 
   console.log('Cloning', url, 'into', targetPath);
   execSync(`git clone ${url} ${targetPath}`, { stdio: 'inherit' });
 
-  setupLocal(projectName);
-  return projectName;
+  setupLocal(domainName);
+  return domainName;
 }
 
 // ---------------------------------------------------------------------------
-// Choice 2: Create new project from scratch
+// Choice 2: Create new domain from scratch
 // ---------------------------------------------------------------------------
 
 async function initFromScratch() {
-  const projectName = await input({ message: 'Project name:' });
-  if (!projectName) {
-    throw new Error('Project name cannot be empty');
+  const domainName = await input({ message: 'Domain name:' });
+  if (!domainName) {
+    throw new Error('Domain name cannot be empty');
   }
 
-  ensureProjectsRoot();
+  ensureDomainsRoot();
 
-  const targetPath = path.join(PROJECTS_ROOT, projectName);
+  const targetPath = path.join(DOMAINS_ROOT, domainName);
   if (fs.existsSync(targetPath)) {
-    throw new Error('Project folder already exists: ' + targetPath);
+    throw new Error('Domain folder already exists: ' + targetPath);
   }
 
   fs.mkdirSync(targetPath, { recursive: true });
@@ -249,39 +249,39 @@ async function initFromScratch() {
 
   execSync('git init', { cwd: targetPath, stdio: 'inherit' });
 
-  setupLocal(projectName);
-  return projectName;
+  setupLocal(domainName);
+  return domainName;
 }
 
 // ---------------------------------------------------------------------------
-// Choice 3: Use existing project
+// Choice 3: Use existing domain
 // ---------------------------------------------------------------------------
 
 async function initFromExisting() {
-  if (!fs.existsSync(PROJECTS_ROOT)) {
-    throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+  if (!fs.existsSync(DOMAINS_ROOT)) {
+    throw new Error('No domains directory found at ' + DOMAINS_ROOT);
   }
 
   const entries = fs
-    .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+    .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
     .filter((e) => e.isDirectory())
     .map((e) => e.name);
 
   if (entries.length === 0) {
-    throw new Error('No projects found in ' + PROJECTS_ROOT);
+    throw new Error('No domains found in ' + DOMAINS_ROOT);
   }
 
-  const projectName = await select({
-    message: 'Select a project:',
+  const domainName = await select({
+    message: 'Select a domain:',
     choices: entries.map((name) => ({
       name,
       value: name,
     })),
   });
 
-  console.log('Using project:', projectName);
+  console.log('Using domain:', domainName);
 
-  setupLocal(projectName);
+  setupLocal(domainName);
 }
 
 // ---------------------------------------------------------------------------
@@ -291,11 +291,11 @@ async function initFromExisting() {
 async function init() {
   try {
     const choice = await select({
-      message: 'How do you want to initialize the project?',
+      message: 'How do you want to initialize the domain?',
       choices: [
         { name: 'Fetch from git', value: 'git' },
-        { name: 'Create a new project from scratch', value: 'scratch' },
-        { name: 'Use existing project', value: 'existing' },
+        { name: 'Create a new domain from scratch', value: 'scratch' },
+        { name: 'Use existing domain', value: 'existing' },
       ],
     });
 
@@ -323,13 +323,13 @@ async function init() {
 }
 
 // ---------------------------------------------------------------------------
-// Create task in project (shared by newTask)
+// Create task in domain (shared by newTask)
 // ---------------------------------------------------------------------------
 
-async function createTaskInProject(projectName, taskNameArg) {
-  const projectDir = path.join(PROJECTS_ROOT, projectName);
-  if (!fs.existsSync(projectDir)) {
-    throw new Error('Project directory not found: ' + projectDir);
+async function createTaskInDomain(domainName, taskNameArg) {
+  const domainDir = path.join(DOMAINS_ROOT, domainName);
+  if (!fs.existsSync(domainDir)) {
+    throw new Error('Domain directory not found: ' + domainDir);
   }
 
   const taskName = taskNameArg || (await input({ message: 'Task name:' }));
@@ -337,7 +337,7 @@ async function createTaskInProject(projectName, taskNameArg) {
     throw new Error('Task name cannot be empty');
   }
 
-  const taskDir = path.join(projectDir, taskName);
+  const taskDir = path.join(domainDir, taskName);
   if (fs.existsSync(taskDir)) {
     throw new Error('Task folder already exists: ' + taskDir);
   }
@@ -346,8 +346,8 @@ async function createTaskInProject(projectName, taskNameArg) {
   fs.mkdirSync(path.join(taskDir, 'data'), { recursive: true });
   console.log('Created', taskDir);
 
-  ensureTaskSymlink(projectName, taskName);
-  writeConfig({ 'active-project': projectName, 'active-task': taskName });
+  ensureTaskSymlink(domainName, taskName);
+  writeConfig({ 'active-domain': domainName, 'active-task': taskName });
   return taskName;
 }
 
@@ -360,27 +360,27 @@ async function newTask(nameArg) {
     ensureWorkspaceInitialized();
 
     const config = readConfigOrNull();
-    const projectDir = config
-      ? path.join(PROJECTS_ROOT, config['active-project'])
+    const domainDir = config
+      ? path.join(DOMAINS_ROOT, config['active-domain'])
       : null;
-    const hasValidProject = config && projectDir && fs.existsSync(projectDir);
+    const hasValidDomain = config && domainDir && fs.existsSync(domainDir);
 
-    let projectName;
-    if (!hasValidProject) {
-      projectName = await selectOrCreateProject();
+    let domainName;
+    if (!hasValidDomain) {
+      domainName = await selectOrCreateDomain();
     } else {
       const useCurrent = await confirm({
-        message: `Use current active project [${config['active-project']}] for new task?`,
+        message: `Use current active domain [${config['active-domain']}] for new task?`,
         default: true,
       });
       if (useCurrent) {
-        projectName = config['active-project'];
+        domainName = config['active-domain'];
       } else {
-        projectName = await selectOrCreateProject();
+        domainName = await selectOrCreateDomain();
       }
     }
 
-    await createTaskInProject(projectName, nameArg);
+    await createTaskInDomain(domainName, nameArg);
     console.log('\nDone.');
   } catch (err) {
     if (err.name === 'ExitPromptError') {
@@ -392,19 +392,19 @@ async function newTask(nameArg) {
 }
 
 // ---------------------------------------------------------------------------
-// Shared: select or create project (used by newTask)
+// Shared: select or create domain (used by newTask)
 // ---------------------------------------------------------------------------
 
 const FETCH_GIT = '__fetch_git__';
 const CREATE_SCRATCH = '__create_scratch__';
 const SELECT_EXISTING = '__select_existing__';
 
-async function selectOrCreateProject() {
-  ensureProjectsRoot();
+async function selectOrCreateDomain() {
+  ensureDomainsRoot();
 
-  const entries = fs.existsSync(PROJECTS_ROOT)
+  const entries = fs.existsSync(DOMAINS_ROOT)
     ? fs
-        .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+        .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
         .filter((e) => e.isDirectory())
         .map((e) => e.name)
     : [];
@@ -414,11 +414,11 @@ async function selectOrCreateProject() {
     { name: 'Create from scratch', value: CREATE_SCRATCH },
   ];
   if (entries.length > 0) {
-    firstChoices.push({ name: 'Select existing project', value: SELECT_EXISTING });
+    firstChoices.push({ name: 'Select existing domain', value: SELECT_EXISTING });
   }
 
   const selected = await select({
-    message: 'Select or create project:',
+    message: 'Select or create domain:',
     choices: firstChoices,
   });
 
@@ -430,15 +430,15 @@ async function selectOrCreateProject() {
   }
 
   if (selected === SELECT_EXISTING) {
-    const projectName = await select({
-      message: 'Select project:',
+    const domainName = await select({
+      message: 'Select domain:',
       choices: entries.map((name) => ({ name, value: name })),
     });
     const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
     if (!fs.existsSync(configPath)) {
-      setupLocal(projectName);
+      setupLocal(domainName);
     }
-    return projectName;
+    return domainName;
   }
 
   throw new Error('Unexpected selection');
@@ -451,22 +451,22 @@ async function selectOrCreateProject() {
 function status() {
   try {
     const config = readConfig();
-    const project = config['active-project'];
+    const domain = config['active-domain'];
     const task = config['active-task'] || '(none)';
 
-    console.log(`\nActive project: ${project}`);
-    console.log(`Active task:    ${task}`);
+    console.log(`\nActive domain: ${domain}`);
+    console.log(`Active task:   ${task}`);
 
-    // Git tracking info — project directory in context layer home (system-wide)
-    if (config['active-project']) {
-      const projectDir = path.join(PROJECTS_ROOT, project);
-      if (fs.existsSync(projectDir)) {
-        const gitDir = path.join(projectDir, '.git');
+    // Git tracking info — domain directory in context layer home (system-wide)
+    if (config['active-domain']) {
+      const domainDir = path.join(DOMAINS_ROOT, domain);
+      if (fs.existsSync(domainDir)) {
+        const gitDir = path.join(domainDir, '.git');
         if (fs.existsSync(gitDir)) {
           const noEmit = { stdio: ['ignore', 'pipe', 'pipe'] };
           try {
             const headResult = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-              cwd: projectDir,
+              cwd: domainDir,
               encoding: 'utf8',
               ...noEmit,
             });
@@ -474,14 +474,14 @@ function status() {
             if (headResult.status !== 0 || !branch) throw new Error('no head');
             try {
               const remoteResult = spawnSync('git', ['config', '--get', 'branch.' + branch + '.remote'], {
-                cwd: projectDir,
+                cwd: domainDir,
                 encoding: 'utf8',
                 ...noEmit,
               });
               const remote = (remoteResult.stdout || '').trim();
               if (remoteResult.status !== 0 || !remote) throw new Error('no remote');
               const urlResult = spawnSync('git', ['remote', 'get-url', remote], {
-                cwd: projectDir,
+                cwd: domainDir,
                 encoding: 'utf8',
                 ...noEmit,
               });
@@ -492,13 +492,13 @@ function status() {
               console.log(`Repo:       ${repoName}`);
               console.log(`Remote:     ${url}\n`);
             } catch {
-              console.log('\nProject is not synced to git. Push your branch to set up tracking.\n');
+              console.log('\nDomain is not synced to git. Push your branch to set up tracking.\n');
             }
           } catch {
-            console.log('\nProject is not synced to git.\n');
+            console.log('\nDomain is not synced to git.\n');
           }
         } else {
-          console.log('\nProject is not synced to git.\n');
+          console.log('\nDomain is not synced to git.\n');
         }
       }
     } else {
@@ -517,14 +517,14 @@ function status() {
 function intelGit() {
   try {
     const config = readConfig();
-    const projectName = config['active-project'];
+    const domainName = config['active-domain'];
     const taskName = config['active-task'];
 
     if (!taskName) {
       throw new Error('No active task set. Run "ctx new" to create a task.');
     }
 
-    const taskDir = path.join(PROJECTS_ROOT, projectName, taskName);
+    const taskDir = path.join(DOMAINS_ROOT, domainName, taskName);
     if (!fs.existsSync(taskDir)) {
       throw new Error('Task directory not found: ' + taskDir);
     }
@@ -556,39 +556,39 @@ async function dropTask(taskNameArg) {
   try {
     const config = readConfig();
 
-    const projects = getLocalProjectDirs();
-    if (projects.length === 0) {
-      throw new Error('No project directories found in .ctxlayer/. Import a task first.');
+    const domains = getLocalDomainDirs();
+    if (domains.length === 0) {
+      throw new Error('No domain directories found in .ctxlayer/. Import a task first.');
     }
 
-    let selectedProject;
+    let selectedDomain;
     let selectedTask;
 
     if (taskNameArg) {
-      selectedProject = config['active-project'];
-      const projectDir = path.join(CWD, LOCAL_DIR, selectedProject);
-      if (!fs.existsSync(projectDir)) {
-        throw new Error('Project directory not found: ' + projectDir);
+      selectedDomain = config['active-domain'];
+      const domainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
+      if (!fs.existsSync(domainDir)) {
+        throw new Error('Domain directory not found: ' + domainDir);
       }
-      const linkPath = path.join(projectDir, taskNameArg);
+      const linkPath = path.join(domainDir, taskNameArg);
       if (!fs.existsSync(linkPath)) {
         throw new Error('Task symlink not found: ' + linkPath);
       }
       selectedTask = taskNameArg;
     } else {
-      selectedProject = await select({
-        message: 'Select project:',
-        choices: projects.map((name) => ({ name, value: name })),
+      selectedDomain = await select({
+        message: 'Select domain:',
+        choices: domains.map((name) => ({ name, value: name })),
       });
 
-      const projectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+      const domainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
       const entries = fs
-        .readdirSync(projectDir, { withFileTypes: true })
+        .readdirSync(domainDir, { withFileTypes: true })
         .filter((e) => e.isSymbolicLink() || (e.isDirectory() && !e.name.startsWith('.')))
         .map((e) => e.name);
 
       if (entries.length === 0) {
-        throw new Error('No tasks found in project "' + selectedProject + '".');
+        throw new Error('No tasks found in domain "' + selectedDomain + '".');
       }
 
       selectedTask = await select({
@@ -597,15 +597,15 @@ async function dropTask(taskNameArg) {
       });
     }
 
-    const linkPath = path.join(CWD, LOCAL_DIR, selectedProject, selectedTask);
+    const linkPath = path.join(CWD, LOCAL_DIR, selectedDomain, selectedTask);
     fs.unlinkSync(linkPath);
     console.log('Dropped symlink:', linkPath);
 
-    const projectDir = path.join(CWD, LOCAL_DIR, selectedProject);
-    const remaining = fs.readdirSync(projectDir);
+    const domainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
+    const remaining = fs.readdirSync(domainDir);
     if (remaining.length === 0) {
-      fs.rmdirSync(projectDir);
-      console.log('Removed empty project directory:', projectDir);
+      fs.rmdirSync(domainDir);
+      console.log('Removed empty domain directory:', domainDir);
     }
 
     console.log('\nDone.');
@@ -619,35 +619,35 @@ async function dropTask(taskNameArg) {
 }
 
 // ---------------------------------------------------------------------------
-// ctx drop project - remove project directory from local .ctxlayer/
+// ctx drop domain - remove domain directory from local .ctxlayer/
 // ---------------------------------------------------------------------------
 
-async function dropProject(projectNameArg) {
+async function dropDomain(domainNameArg) {
   try {
     readConfig();
 
-    const projects = getLocalProjectDirs();
-    if (projects.length === 0) {
-      throw new Error('No project directories found in .ctxlayer/.');
+    const domains = getLocalDomainDirs();
+    if (domains.length === 0) {
+      throw new Error('No domain directories found in .ctxlayer/.');
     }
 
-    let selectedProject;
-    if (projectNameArg) {
-      if (!projects.includes(projectNameArg)) {
-        const localProjectDir = path.join(CWD, LOCAL_DIR, projectNameArg);
-        throw new Error('Project directory not found: ' + localProjectDir);
+    let selectedDomain;
+    if (domainNameArg) {
+      if (!domains.includes(domainNameArg)) {
+        const localDomainDir = path.join(CWD, LOCAL_DIR, domainNameArg);
+        throw new Error('Domain directory not found: ' + localDomainDir);
       }
-      selectedProject = projectNameArg;
+      selectedDomain = domainNameArg;
     } else {
-      selectedProject = await select({
-        message: 'Select project to drop:',
-        choices: projects.map((name) => ({ name, value: name })),
+      selectedDomain = await select({
+        message: 'Select domain to drop:',
+        choices: domains.map((name) => ({ name, value: name })),
       });
     }
 
-    const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
+    const localDomainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
     const confirmed = await confirm({
-      message: `Remove project directory "${selectedProject}" from .ctxlayer/?`,
+      message: `Remove domain directory "${selectedDomain}" from .ctxlayer/?`,
       default: false,
     });
 
@@ -656,8 +656,8 @@ async function dropProject(projectNameArg) {
       return;
     }
 
-    fs.rmSync(localProjectDir, { recursive: true });
-    console.log('Removed:', localProjectDir);
+    fs.rmSync(localDomainDir, { recursive: true });
+    console.log('Removed:', localDomainDir);
     console.log('\nDone.');
   } catch (err) {
     if (err.name === 'ExitPromptError') {
@@ -676,32 +676,32 @@ async function deleteTask() {
   try {
     readConfig();
 
-    if (!fs.existsSync(PROJECTS_ROOT)) {
-      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    if (!fs.existsSync(DOMAINS_ROOT)) {
+      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
     }
 
-    const projects = fs
-      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+    const domains = fs
+      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
       .filter((e) => e.isDirectory())
       .map((e) => e.name);
 
-    if (projects.length === 0) {
-      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    if (domains.length === 0) {
+      throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedProject = await select({
-      message: 'Select project:',
-      choices: projects.map((name) => ({ name, value: name })),
+    const selectedDomain = await select({
+      message: 'Select domain:',
+      choices: domains.map((name) => ({ name, value: name })),
     });
 
-    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
+    const domainDir = path.join(DOMAINS_ROOT, selectedDomain);
     const tasks = fs
-      .readdirSync(projectDir, { withFileTypes: true })
+      .readdirSync(domainDir, { withFileTypes: true })
       .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
       .map((e) => e.name);
 
     if (tasks.length === 0) {
-      throw new Error('No tasks found in project "' + selectedProject + '".');
+      throw new Error('No tasks found in domain "' + selectedDomain + '".');
     }
 
     const selectedTask = await select({
@@ -710,7 +710,7 @@ async function deleteTask() {
     });
 
     const confirmed = await confirm({
-      message: `Permanently delete task "${selectedTask}" from project "${selectedProject}"?`,
+      message: `Permanently delete task "${selectedTask}" from domain "${selectedDomain}"?`,
       default: false,
     });
 
@@ -719,22 +719,22 @@ async function deleteTask() {
       return;
     }
 
-    const taskDir = path.join(PROJECTS_ROOT, selectedProject, selectedTask);
+    const taskDir = path.join(DOMAINS_ROOT, selectedDomain, selectedTask);
     fs.rmSync(taskDir, { recursive: true });
     console.log('Deleted:', taskDir);
 
-    const linkPath = path.join(CWD, LOCAL_DIR, selectedProject, selectedTask);
+    const linkPath = path.join(CWD, LOCAL_DIR, selectedDomain, selectedTask);
     if (fs.existsSync(linkPath)) {
       fs.unlinkSync(linkPath);
       console.log('Removed symlink:', linkPath);
     }
 
-    const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
-    if (fs.existsSync(localProjectDir)) {
-      const remaining = fs.readdirSync(localProjectDir);
+    const localDomainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
+    if (fs.existsSync(localDomainDir)) {
+      const remaining = fs.readdirSync(localDomainDir);
       if (remaining.length === 0) {
-        fs.rmSync(localProjectDir, { recursive: true });
-        console.log('Removed empty project directory:', localProjectDir);
+        fs.rmSync(localDomainDir, { recursive: true });
+        console.log('Removed empty domain directory:', localDomainDir);
       }
     }
 
@@ -749,33 +749,33 @@ async function deleteTask() {
 }
 
 // ---------------------------------------------------------------------------
-// ctx delete project - remove project from context store and local dir
+// ctx delete domain - remove domain from context store and local dir
 // ---------------------------------------------------------------------------
 
-async function deleteProject() {
+async function deleteDomain() {
   try {
     readConfig();
 
-    if (!fs.existsSync(PROJECTS_ROOT)) {
-      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    if (!fs.existsSync(DOMAINS_ROOT)) {
+      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
     }
 
-    const projects = fs
-      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+    const domains = fs
+      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
       .filter((e) => e.isDirectory())
       .map((e) => e.name);
 
-    if (projects.length === 0) {
-      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    if (domains.length === 0) {
+      throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedProject = await select({
-      message: 'Select project to delete:',
-      choices: projects.map((name) => ({ name, value: name })),
+    const selectedDomain = await select({
+      message: 'Select domain to delete:',
+      choices: domains.map((name) => ({ name, value: name })),
     });
 
     const confirmed = await confirm({
-      message: `Permanently delete project "${selectedProject}" from the context store?`,
+      message: `Permanently delete domain "${selectedDomain}" from the context store?`,
       default: false,
     });
 
@@ -784,14 +784,14 @@ async function deleteProject() {
       return;
     }
 
-    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
-    fs.rmSync(projectDir, { recursive: true });
-    console.log('Deleted:', projectDir);
+    const domainDir = path.join(DOMAINS_ROOT, selectedDomain);
+    fs.rmSync(domainDir, { recursive: true });
+    console.log('Deleted:', domainDir);
 
-    const localProjectDir = path.join(CWD, LOCAL_DIR, selectedProject);
-    if (fs.existsSync(localProjectDir)) {
-      fs.rmSync(localProjectDir, { recursive: true });
-      console.log('Removed local directory:', localProjectDir);
+    const localDomainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
+    if (fs.existsSync(localDomainDir)) {
+      fs.rmSync(localDomainDir, { recursive: true });
+      console.log('Removed local directory:', localDomainDir);
     }
 
     console.log('\nDone.');
@@ -805,7 +805,7 @@ async function deleteProject() {
 }
 
 // ---------------------------------------------------------------------------
-// Set active project and task (ctx set)
+// Set active domain and task (ctx set)
 // ---------------------------------------------------------------------------
 
 async function setActive() {
@@ -813,38 +813,38 @@ async function setActive() {
     ensureWorkspaceInitialized();
     const config = readConfigOrNull();
 
-    if (!fs.existsSync(PROJECTS_ROOT)) {
-      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    if (!fs.existsSync(DOMAINS_ROOT)) {
+      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
     }
 
-    const projects = fs
-      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+    const domains = fs
+      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
       .filter((e) => e.isDirectory())
       .map((e) => e.name);
 
-    if (projects.length === 0) {
-      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    if (domains.length === 0) {
+      throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedProject = await select({
-      message: 'Select a project:',
-      choices: projects.map((name) => ({ name, value: name })),
+    const selectedDomain = await select({
+      message: 'Select a domain:',
+      choices: domains.map((name) => ({ name, value: name })),
       default:
         config &&
-        config['active-project'] &&
-        projects.includes(config['active-project'])
-          ? config['active-project']
+        config['active-domain'] &&
+        domains.includes(config['active-domain'])
+          ? config['active-domain']
           : undefined,
     });
 
-    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
+    const domainDir = path.join(DOMAINS_ROOT, selectedDomain);
     const tasks = fs
-      .readdirSync(projectDir, { withFileTypes: true })
+      .readdirSync(domainDir, { withFileTypes: true })
       .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
       .map((e) => e.name);
 
     if (tasks.length === 0) {
-      throw new Error('No tasks found in project "' + selectedProject + '".');
+      throw new Error('No tasks found in domain "' + selectedDomain + '".');
     }
 
     const selectedTask = await select({
@@ -852,14 +852,14 @@ async function setActive() {
       choices: tasks.map((name) => ({ name, value: name })),
       default:
         config &&
-        selectedProject === config['active-project'] &&
+        selectedDomain === config['active-domain'] &&
         config['active-task'] &&
         tasks.includes(config['active-task'])
           ? config['active-task']
           : undefined,
     });
 
-    setActiveProjectAndTask(selectedProject, selectedTask);
+    setActiveDomainAndTask(selectedDomain, selectedTask);
     console.log('\nDone.');
   } catch (err) {
     if (err.name === 'ExitPromptError') {
@@ -871,7 +871,7 @@ async function setActive() {
 }
 
 // ---------------------------------------------------------------------------
-// Import task from any project
+// Import task from any domain
 // ---------------------------------------------------------------------------
 
 async function importTask() {
@@ -880,32 +880,32 @@ async function importTask() {
 
     const config = readConfigOrNull();
 
-    if (!fs.existsSync(PROJECTS_ROOT)) {
-      throw new Error('No projects directory found at ' + PROJECTS_ROOT);
+    if (!fs.existsSync(DOMAINS_ROOT)) {
+      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
     }
 
-    const projects = fs
-      .readdirSync(PROJECTS_ROOT, { withFileTypes: true })
+    const domains = fs
+      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
       .filter((e) => e.isDirectory())
       .map((e) => e.name);
 
-    if (projects.length === 0) {
-      throw new Error('No projects found in ' + PROJECTS_ROOT);
+    if (domains.length === 0) {
+      throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedProject = await select({
-      message: 'Select a project:',
-      choices: projects.map((name) => ({ name, value: name })),
+    const selectedDomain = await select({
+      message: 'Select a domain:',
+      choices: domains.map((name) => ({ name, value: name })),
     });
 
-    const projectDir = path.join(PROJECTS_ROOT, selectedProject);
+    const domainDir = path.join(DOMAINS_ROOT, selectedDomain);
     const tasks = fs
-      .readdirSync(projectDir, { withFileTypes: true })
+      .readdirSync(domainDir, { withFileTypes: true })
       .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
       .map((e) => e.name);
 
     if (tasks.length === 0) {
-      console.log('\nNo tasks found in project "' + selectedProject + '".');
+      console.log('\nNo tasks found in domain "' + selectedDomain + '".');
       console.log('To create a new task, run: ctx new\n');
       return;
     }
@@ -917,12 +917,12 @@ async function importTask() {
 
     const shouldSetActive =
       !config ||
-      !config['active-project'] ||
+      !config['active-domain'] ||
       !config['active-task'];
     if (shouldSetActive) {
-      setActiveProjectAndTask(selectedProject, selectedTask);
+      setActiveDomainAndTask(selectedDomain, selectedTask);
     } else {
-      ensureTaskSymlink(selectedProject, selectedTask);
+      ensureTaskSymlink(selectedDomain, selectedTask);
     }
 
     console.log('\nDone.');
@@ -943,12 +943,12 @@ const command = process.argv.slice(2).join(' ');
 
 if (command === 'git' || command.startsWith('git ')) {
   intelGit();
-} else if (command === 'drop project' || command.startsWith('drop project ')) {
-  await dropProject(command.slice(12).trim() || undefined);
+} else if (command === 'drop domain' || command.startsWith('drop domain ')) {
+  await dropDomain(command.slice(12).trim() || undefined);
 } else if (command === 'drop task' || command.startsWith('drop task ')) {
   await dropTask(command.slice(10).trim() || undefined);
-} else if (command === 'delete project') {
-  await deleteProject();
+} else if (command === 'delete domain') {
+  await deleteDomain();
 } else if (command === 'delete task') {
   await deleteTask();
 } else if (command === 'new' || command.startsWith('new ')) {
@@ -964,17 +964,17 @@ if (command === 'git' || command.startsWith('git ')) {
 Usage: ctx <command>
 
 Main Commands:
-  new [name]        Create a new task (prompts for project if needed)
-  import            Import a task from any project as a symlink
-  status            Show the current active project and task
-  set               Set active project and task (prompts to select)
+  new [name]        Create a new task (prompts for domain if needed)
+  import            Import a task from any domain as a symlink
+  status            Show the current active domain and task
+  set               Set active domain and task (prompts to select)
 
 Convenience Commands:
   git [args...]     Run git in the current task directory
   drop task [name]  Remove a task symlink (with optional task name)
-  drop project [name]  Remove a project directory from local .ctxlayer/
+  drop domain [name]  Remove a domain directory from local .ctxlayer/
   delete task       Delete a task from the context store and remove its symlink
-  delete project    Delete a project from the context store and remove its local directory
+  delete domain     Delete a domain from the context store and remove its local directory
 `);
 }
 
@@ -989,7 +989,7 @@ export {
   importTask,
   intelGit,
   dropTask,
-  dropProject,
+  dropDomain,
   deleteTask,
-  deleteProject,
+  deleteDomain,
 };

@@ -3,13 +3,13 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import { execSync, spawnSync } from 'node:child_process';
-import { createSandbox, createConfig, createProject } from './helpers.js';
+import { createSandbox, createConfig, createDomain } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
 // ---------------------------------------------------------------------------
 
-const { tmpDir, tmpCwd, tmpProjectsRoot, cleanup } = createSandbox();
+const { tmpDir, tmpCwd, tmpDomainsRoot, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -36,12 +36,12 @@ const { status } = await import('../bin/cli.js');
 // ---------------------------------------------------------------------------
 
 describe('ctx status', () => {
-  const PROJECT = 'my-project';
+  const DOMAIN = 'my-domain';
   const TASK = 'my-task';
 
   before(() => {
-    createProject(tmpProjectsRoot, PROJECT, [TASK]);
-    createConfig(tmpCwd, PROJECT, TASK);
+    createDomain(tmpDomainsRoot, DOMAIN, [TASK]);
+    createConfig(tmpCwd, DOMAIN, TASK);
   });
 
   beforeEach(() => {
@@ -52,7 +52,7 @@ describe('ctx status', () => {
     cleanup();
   });
 
-  it('prints active project and task', () => {
+  it('prints active domain and task', () => {
     const logCalls = [];
     mock.method(console, 'log', (...args) => {
       logCalls.push(args.join(' '));
@@ -61,17 +61,17 @@ describe('ctx status', () => {
     status();
 
     const output = logCalls.join('\n');
-    assert.ok(output.includes(`Active project: ${PROJECT}`));
-    assert.ok(output.includes(`Active task:    ${TASK}`));
-    assert.ok(output.includes('Project is not synced to git'), 'expected "Project is not synced to git" (project dir exists, no .git)');
+    assert.ok(output.includes(`Active domain: ${DOMAIN}`));
+    assert.ok(output.includes(`Active task:   ${TASK}`));
+    assert.ok(output.includes('Domain is not synced to git'), 'expected "Domain is not synced to git" (domain dir exists, no .git)');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('prints reminder when git repo exists but branch is not tracking', () => {
-    const projectDir = path.join(tmpProjectsRoot, PROJECT);
-    execSync('git init', { cwd: projectDir });
-    fs.writeFileSync(path.join(projectDir, 'README'), 'x');
-    execSync('git add README && git commit -m "init"', { cwd: projectDir });
+    const domainDir = path.join(tmpDomainsRoot, DOMAIN);
+    execSync('git init', { cwd: domainDir });
+    fs.writeFileSync(path.join(domainDir, 'README'), 'x');
+    execSync('git add README && git commit -m "init"', { cwd: domainDir });
 
     const logCalls = [];
     mock.method(console, 'log', (...args) => {
@@ -86,19 +86,19 @@ describe('ctx status', () => {
   });
 
   it('prints git branch, repo name, and remote URL when tracking', () => {
-    const projectDir = path.join(tmpProjectsRoot, PROJECT);
-    if (!fs.existsSync(path.join(projectDir, '.git'))) {
-      execSync('git init', { cwd: projectDir });
-      fs.writeFileSync(path.join(projectDir, 'README'), 'x');
-      execSync('git add README && git commit -m "init"', { cwd: projectDir });
+    const domainDir = path.join(tmpDomainsRoot, DOMAIN);
+    if (!fs.existsSync(path.join(domainDir, '.git'))) {
+      execSync('git init', { cwd: domainDir });
+      fs.writeFileSync(path.join(domainDir, 'README'), 'x');
+      execSync('git add README && git commit -m "init"', { cwd: domainDir });
     }
-    execSync('git remote add origin https://github.com/user/my-repo.git', { cwd: projectDir });
+    execSync('git remote add origin https://github.com/user/my-repo.git', { cwd: domainDir });
     const branch = spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-      cwd: projectDir,
+      cwd: domainDir,
       encoding: 'utf8',
     }).stdout.trim();
-    execSync(`git config branch.${branch}.remote origin`, { cwd: projectDir });
-    execSync(`git config branch.${branch}.merge refs/heads/${branch}`, { cwd: projectDir });
+    execSync(`git config branch.${branch}.remote origin`, { cwd: domainDir });
+    execSync(`git config branch.${branch}.merge refs/heads/${branch}`, { cwd: domainDir });
 
     const logCalls = [];
     mock.method(console, 'log', (...args) => {

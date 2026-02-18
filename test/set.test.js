@@ -8,9 +8,9 @@ import os from 'os';
 // Sandbox setup
 // ---------------------------------------------------------------------------
 
-const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'intel-test-'));
+const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ctxlayer-test-'));
 const tmpHome = path.join(tmpDir, '.ctxlayer');
-const tmpProjectsRoot = path.join(tmpHome, 'projects');
+const tmpDomainsRoot = path.join(tmpHome, 'domains');
 const tmpCwd = path.join(tmpDir, 'repo');
 
 process.env.CONTEXT_LAYER_HOME = tmpHome;
@@ -45,17 +45,17 @@ const { setActive } = await import('../bin/cli.js');
 describe('ctx set', () => {
   before(() => {
     const fixtures = {
-      'project-alpha': ['task-one', 'task-two'],
-      'project-beta': ['task-three'],
-      'empty-project': [],
+      'domain-alpha': ['task-one', 'task-two'],
+      'domain-beta': ['task-three'],
+      'empty-domain': [],
     };
 
-    for (const [project, tasks] of Object.entries(fixtures)) {
-      const projDir = path.join(tmpProjectsRoot, project);
-      fs.mkdirSync(projDir, { recursive: true });
+    for (const [domain, tasks] of Object.entries(fixtures)) {
+      const domainDir = path.join(tmpDomainsRoot, domain);
+      fs.mkdirSync(domainDir, { recursive: true });
       for (const task of tasks) {
-        fs.mkdirSync(path.join(projDir, task, 'docs'), { recursive: true });
-        fs.mkdirSync(path.join(projDir, task, 'data'), { recursive: true });
+        fs.mkdirSync(path.join(domainDir, task, 'docs'), { recursive: true });
+        fs.mkdirSync(path.join(domainDir, task, 'data'), { recursive: true });
       }
     }
 
@@ -63,7 +63,7 @@ describe('ctx set', () => {
     fs.mkdirSync(localDir, { recursive: true });
     fs.writeFileSync(
       path.join(localDir, 'config.yaml'),
-      'active-project: project-alpha\nactive-task: task-one\n'
+      'active-domain: domain-alpha\nactive-task: task-one\n'
     );
   });
 
@@ -78,24 +78,24 @@ describe('ctx set', () => {
     delete process.env.CONTEXT_LAYER_CWD;
   });
 
-  it('sets active project and task and prepares workspace (config + symlink)', async () => {
-    selectQueue = ['project-beta', 'task-three'];
+  it('sets active domain and task and prepares workspace (config + symlink)', async () => {
+    selectQueue = ['domain-beta', 'task-three'];
     await setActive();
 
     const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
-    assert.ok(config.includes('active-project: project-beta'));
+    assert.ok(config.includes('active-domain: domain-beta'));
     assert.ok(config.includes('active-task: task-three'));
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-beta', 'task-three');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-beta', 'task-three');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     const target = fs.readlinkSync(linkPath);
-    assert.equal(target, path.resolve(path.join(tmpProjectsRoot, 'project-beta', 'task-three')));
+    assert.equal(target, path.resolve(path.join(tmpDomainsRoot, 'domain-beta', 'task-three')));
 
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('exits when selected project has no tasks', async () => {
-    selectQueue = ['empty-project'];
+  it('exits when selected domain has no tasks', async () => {
+    selectQueue = ['empty-domain'];
 
     await setActive();
 
@@ -103,22 +103,22 @@ describe('ctx set', () => {
     assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
-  it('exits when no projects directory exists', async () => {
-    const backup = tmpProjectsRoot + '-backup';
-    fs.renameSync(tmpProjectsRoot, backup);
+  it('exits when no domains directory exists', async () => {
+    const backup = tmpDomainsRoot + '-backup';
+    fs.renameSync(tmpDomainsRoot, backup);
 
     try {
       await setActive();
       assert.equal(process.exit.mock.calls.length, 1);
       assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
     } finally {
-      fs.renameSync(backup, tmpProjectsRoot);
+      fs.renameSync(backup, tmpDomainsRoot);
     }
   });
 
-  it('exits when no projects found', async () => {
-    for (const name of fs.readdirSync(tmpProjectsRoot)) {
-      fs.rmSync(path.join(tmpProjectsRoot, name), { recursive: true });
+  it('exits when no domains found', async () => {
+    for (const name of fs.readdirSync(tmpDomainsRoot)) {
+      fs.rmSync(path.join(tmpDomainsRoot, name), { recursive: true });
     }
 
     await setActive();

@@ -2,13 +2,13 @@ import { describe, it, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
-import { createSandbox, createConfig, createProject, createTaskSymlink } from './helpers.js';
+import { createSandbox, createConfig, createDomain, createTaskSymlink } from './helpers.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
 // ---------------------------------------------------------------------------
 
-const { tmpProjectsRoot, tmpCwd, cleanup } = createSandbox();
+const { tmpDomainsRoot, tmpCwd, cleanup } = createSandbox();
 
 // ---------------------------------------------------------------------------
 // Mocks
@@ -37,12 +37,12 @@ const { deleteTask } = await import('../bin/cli.js');
 // Tests
 // ---------------------------------------------------------------------------
 
-describe('intel delete task', () => {
+describe('ctx delete task', () => {
   before(() => {
-    createProject(tmpProjectsRoot, 'project-alpha', ['task-one', 'task-two']);
-    createConfig(tmpCwd, 'project-alpha', 'task-one');
-    createTaskSymlink(tmpCwd, 'project-alpha', 'task-one', tmpProjectsRoot);
-    createTaskSymlink(tmpCwd, 'project-alpha', 'task-two', tmpProjectsRoot);
+    createDomain(tmpDomainsRoot, 'domain-alpha', ['task-one', 'task-two']);
+    createConfig(tmpCwd, 'domain-alpha', 'task-one');
+    createTaskSymlink(tmpCwd, 'domain-alpha', 'task-one', tmpDomainsRoot);
+    createTaskSymlink(tmpCwd, 'domain-alpha', 'task-two', tmpDomainsRoot);
   });
 
   beforeEach(() => {
@@ -54,59 +54,59 @@ describe('intel delete task', () => {
   });
 
   it('does not delete when user cancels', async () => {
-    selectQueue = ['project-alpha', 'task-one'];
+    selectQueue = ['domain-alpha', 'task-one'];
     confirmQueue = [false];
     await deleteTask();
 
-    const taskDir = path.join(tmpProjectsRoot, 'project-alpha', 'task-one');
+    const taskDir = path.join(tmpDomainsRoot, 'domain-alpha', 'task-one');
     assert.ok(fs.existsSync(taskDir), 'task dir should remain');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('deletes task dir and symlink when confirmed', async () => {
-    selectQueue = ['project-alpha', 'task-two'];
+    selectQueue = ['domain-alpha', 'task-two'];
     confirmQueue = [true];
     await deleteTask();
 
-    const taskDir = path.join(tmpProjectsRoot, 'project-alpha', 'task-two');
+    const taskDir = path.join(tmpDomainsRoot, 'domain-alpha', 'task-two');
     assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-alpha', 'task-two');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-alpha', 'task-two');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
-    const taskOneDir = path.join(tmpProjectsRoot, 'project-alpha', 'task-one');
+    const taskOneDir = path.join(tmpDomainsRoot, 'domain-alpha', 'task-one');
     assert.ok(fs.existsSync(taskOneDir), 'other task should remain');
 
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('removes task dir and symlink when last task in project is deleted', async () => {
-    createProject(tmpProjectsRoot, 'project-solo', ['only-task']);
-    createTaskSymlink(tmpCwd, 'project-solo', 'only-task', tmpProjectsRoot);
+  it('removes task dir and symlink when last task in domain is deleted', async () => {
+    createDomain(tmpDomainsRoot, 'domain-solo', ['only-task']);
+    createTaskSymlink(tmpCwd, 'domain-solo', 'only-task', tmpDomainsRoot);
 
-    selectQueue = ['project-solo', 'only-task'];
+    selectQueue = ['domain-solo', 'only-task'];
     confirmQueue = [true];
     await deleteTask();
 
-    const taskDir = path.join(tmpProjectsRoot, 'project-solo', 'only-task');
+    const taskDir = path.join(tmpDomainsRoot, 'domain-solo', 'only-task');
     assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'project-solo', 'only-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-solo', 'only-task');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('exits when no projects exist', async () => {
-    const backup = tmpProjectsRoot + '-backup';
-    fs.renameSync(tmpProjectsRoot, backup);
+  it('exits when no domains exist', async () => {
+    const backup = tmpDomainsRoot + '-backup';
+    fs.renameSync(tmpDomainsRoot, backup);
 
     try {
       await deleteTask();
       assert.equal(process.exit.mock.calls.length, 1);
       assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
     } finally {
-      fs.renameSync(backup, tmpProjectsRoot);
+      fs.renameSync(backup, tmpDomainsRoot);
     }
   });
 });

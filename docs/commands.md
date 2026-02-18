@@ -1,6 +1,6 @@
-# Intel CLI: Commands, Architecture, and Testing
+# Ctx CLI: Commands, Architecture, and Testing
 
-Unified documentation for the `intel` CLI: architecture, command implementation, and testing. **Whenever you create a new command or fix a bug, you must add or update tests.** Untested behavior is not done.
+Unified documentation for the `ctx` CLI: architecture, command implementation, and testing. **Whenever you create a new command or fix a bug, you must add or update tests.** Untested behavior is not done.
 
 ---
 
@@ -15,15 +15,15 @@ flowchart TB
     end
 
     subgraph cli [bin/cli.js]
-        D[Constants CWD PROJECTS_ROOT LOCAL_DIR]
-        E[Helpers readConfig writeConfig ensureTaskSymlink getLocalProjectDirs]
+        D[Constants CWD DOMAINS_ROOT LOCAL_DIR]
+        E[Helpers readConfig writeConfig ensureTaskSymlink getLocalDomainDirs]
         F[Command functions]
     end
 
     subgraph paths [Path resolution]
-        G[CWD = INTEL_CWD or cwd]
-        H[PROJECTS_ROOT = INTELLIGENCE_HOME/projects]
-        I[Local dir = CWD/.intelligence]
+        G[CWD = CONTEXT_LAYER_CWD or cwd]
+        H[DOMAINS_ROOT = CONTEXT_LAYER_HOME/domains]
+        I[Local dir = CWD/.ctxlayer]
     end
 
     subgraph prompts [Prompts]
@@ -44,31 +44,31 @@ flowchart TB
 
 | Constant | Source | Purpose |
 |----------|--------|---------|
-| `CWD` | `INTEL_CWD` env or `process.cwd()` | Current working directory (repo root) |
-| `INTELLIGENCE_HOME` | `INTELLIGENCE_HOME` env or `~/.intelligence` | Global store root |
-| `PROJECTS_ROOT` | `INTELLIGENCE_HOME/projects` | Where projects and tasks live |
-| `LOCAL_DIR` | `.intelligence` | Local config and symlinks |
+| `CWD` | `CONTEXT_LAYER_CWD` env or `process.cwd()` | Current working directory (repo root) |
+| `CONTEXT_LAYER_HOME` | `CONTEXT_LAYER_HOME` env or `~/.agents/ctxlayer` | Global store root |
+| `DOMAINS_ROOT` | `CONTEXT_LAYER_HOME/domains` | Where domains and tasks live |
+| `LOCAL_DIR` | `.ctxlayer` | Local config and symlinks |
 
 ### Path layout
 
 ```
-~/.intelligence/projects/           # Global store (PROJECTS_ROOT)
-  <project>/<task>/docs|data/
+~/.agents/ctxlayer/domains/         # Global store (DOMAINS_ROOT)
+  <domain>/<task>/docs|data/
 
-<repo>/.intelligence/               # Local (CWD + LOCAL_DIR)
-  config.yaml                       # active-project, active-task
-  <project>/<task> -> symlink       # Points to global store
+<repo>/.ctxlayer/                   # Local (CWD + LOCAL_DIR)
+  config.yaml                       # active-domain, active-task
+  <domain>/<task> -> symlink       # Points to global store
 ```
 
 ### Available helpers
 
 | Helper | Purpose |
 |--------|---------|
-| `readConfig()` | Returns `{ 'active-project', 'active-task' }` from `.intelligence/config.yaml`; throws if missing |
-| `writeConfig(config)` | Writes active-project and active-task to config |
-| `ensureProjectsRoot()` | Creates `PROJECTS_ROOT` if missing |
-| `ensureTaskSymlink(project, task)` | Creates symlink at `.intelligence/<project>/<task>` → task dir in store |
-| `getLocalProjectDirs()` | Returns project names under `.intelligence/` (excludes config.yaml) |
+| `readConfig()` | Returns `{ 'active-domain', 'active-task' }` from `.ctxlayer/config.yaml`; throws if missing |
+| `writeConfig(config)` | Writes active-domain and active-task to config |
+| `ensureDomainsRoot()` | Creates `DOMAINS_ROOT` if missing |
+| `ensureTaskSymlink(domain, task)` | Creates symlink at `.ctxlayer/<domain>/<task>` → task dir in store |
+| `getLocalDomainDirs()` | Returns domain names under `.ctxlayer/` (excludes config.yaml) |
 
 ---
 
@@ -76,23 +76,23 @@ flowchart TB
 
 - **Single file:** All commands live in `bin/cli.js`. No separate router or subcommand loader.
 - **Flat string match:** `process.argv.slice(2).join(' ')` produces a single string (e.g. `active task`).
-- **Routing order:** More specific commands must appear before general ones. Example: `drop project` before `drop task` before any `drop` prefix.
+- **Routing order:** More specific commands must appear before general ones. Example: `drop domain` before `drop task` before any `drop` prefix.
 
 ### Data source patterns
 
 | Command type | Where to list items | Example |
 |--------------|---------------------|---------|
-| Global store | `PROJECTS_ROOT` | `delete task`, `delete project`, `import` |
-| Local symlinks | `getLocalProjectDirs()` + `.intelligence/<project>/` | `drop task`, `drop project` |
-| Active context | `readConfig()` | `intel git`, `drop task <name>` (with arg) |
+| Global store | `DOMAINS_ROOT` | `delete task`, `delete domain`, `import` |
+| Local symlinks | `getLocalDomainDirs()` + `.ctxlayer/<domain>/` | `drop task`, `drop domain` |
+| Active context | `readConfig()` | `ctx git`, `drop task <name>` (with arg) |
 
 ### Prompt patterns
 
 | Pattern | Use case | Example |
 |---------|----------|---------|
-| `select()` | Choose from list | Project, task |
-| `input()` | Free text | Task name, URL, project name |
-| `confirm()` | Destructive action | Delete, drop project |
+| `select()` | Choose from list | Domain, task |
+| `input()` | Free text | Task name, URL, domain name |
+| `confirm()` | Destructive action | Delete, drop domain |
 
 **Queue order in tests:** Prompts are consumed in call order. If a command uses `select` then `confirm`, set `selectQueue` and `confirmQueue` in that order.
 
@@ -195,10 +195,10 @@ const INTELLIGENCE_HOME = process.env.INTELLIGENCE_HOME || path.join(os.homedir(
 
 | Helper | Purpose |
 |--------|---------|
-| `createSandbox()` | Creates temp dirs, sets `INTELLIGENCE_HOME` and `INTEL_CWD`, returns `{ tmpDir, tmpHome, tmpProjectsRoot, tmpCwd, cleanup }` |
-| `createConfig(cwd, project, task?)` | Creates `.intelligence/config.yaml` with `active-project` and optional `active-task` |
-| `createProject(projectsRoot, name, tasks?)` | Creates project dir with optional task subdirs, each with `docs/` and `data/` |
-| `createTaskSymlink(cwd, projectName, taskName, projectsRoot)` | Creates symlink at `.intelligence/<project>/<task>` → task dir in store |
+| `createSandbox()` | Creates temp dirs, sets `CONTEXT_LAYER_HOME` and `CONTEXT_LAYER_CWD`, returns `{ tmpDir, tmpHome, tmpDomainsRoot, tmpCwd, cleanup }` |
+| `createConfig(cwd, domain, task?)` | Creates `.ctxlayer/config.yaml` with `active-domain` and optional `active-task` |
+| `createDomain(domainsRoot, name, tasks?)` | Creates domain dir with optional task subdirs, each with `docs/` and `data/` |
+| `createTaskSymlink(cwd, domainName, taskName, domainsRoot)` | Creates symlink at `.ctxlayer/<domain>/<task>` → task dir in store |
 
 Always use these. Do not inline the logic.
 
@@ -219,9 +219,9 @@ Create `test/<command>.test.js` (e.g. `test/foobar.test.js` for `intel foobar`).
 ### 3. Set up sandbox (before any import of cli.js)
 
 ```js
-import { createSandbox, createConfig, createProject } from './helpers.js';
+import { createSandbox, createConfig, createDomain } from './helpers.js';
 
-const { tmpProjectsRoot, tmpCwd, cleanup } = createSandbox();
+const { tmpDomainsRoot, tmpCwd, cleanup } = createSandbox();
 ```
 
 ### 4. Register mocks (before importing cli.js)
@@ -276,7 +276,7 @@ The order of `select()`, `input()`, and `confirm()` calls determines the queue o
 
 ### 7. Build fixtures with helpers
 
-Use `createConfig`, `createProject`, and `createTaskSymlink`. Do not manually write config or create project dirs.
+Use `createConfig`, `createDomain`, and `createTaskSymlink`. Do not manually write config or create domain dirs.
 
 ### 8. Cover corner cases
 
@@ -286,9 +286,9 @@ Every command should have tests for:
 |------|---------|-----------|
 | Happy path | Full valid setup | Correct filesystem state, no `process.exit` |
 | No config | Remove `.intelligence/` | `process.exit(1)` |
-| Missing project dir | Config points to non-existent project | `process.exit(1)` |
-| Missing projects root | Rename/remove `projects/` | `process.exit(1)` |
-| Empty list | Empty `projects/` or empty tasks | `process.exit(1)` or early return |
+| Missing domain dir | Config points to non-existent domain | `process.exit(1)` |
+| Missing domains root | Rename/remove `domains/` | `process.exit(1)` |
+| Empty list | Empty `domains/` or empty tasks | `process.exit(1)` or early return |
 | Already exists | Pre-create target dir/file | `process.exit(1)` |
 | Invalid input | Empty string from prompt | `process.exit(1)` |
 | User cancels | `confirm` returns false | No mutation, no `process.exit` |
@@ -302,13 +302,13 @@ Tests run in sequence and can mutate shared state. If a test removes `.intellige
 When a test temporarily removes or renames a directory, always restore in `finally` so `after()` cleanup works:
 
 ```js
-const backup = tmpProjectsRoot + '-backup';
-fs.renameSync(tmpProjectsRoot, backup);
+const backup = tmpDomainsRoot + '-backup';
+fs.renameSync(tmpDomainsRoot, backup);
 try {
   await commandUnderTest();
   assert.equal(process.exit.mock.calls.length, 1);
 } finally {
-  fs.renameSync(backup, tmpProjectsRoot);
+  fs.renameSync(backup, tmpDomainsRoot);
 }
 ```
 
@@ -333,7 +333,7 @@ after(() => {
 ### Verifying symlinks
 
 ```js
-const linkPath = path.join(tmpCwd, '.intelligence', project, task);
+const linkPath = path.join(tmpCwd, '.ctxlayer', domain, task);
 assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
 assert.equal(fs.readlinkSync(linkPath), path.resolve(expectedTarget));
 ```
@@ -371,7 +371,7 @@ When mocking `child_process`, the mock must provide every export that `bin/cli.j
 
 ### Test order and shared state
 
-Tests within a file run in sequence. If one test deletes a project or task, the next test may see an empty list. Fix by either: (a) reordering tests so destructive ones run last, or (b) restoring fixtures in `beforeEach` when needed.
+Tests within a file run in sequence. If one test deletes a domain or task, the next test may see an empty list. Fix by either: (a) reordering tests so destructive ones run last, or (b) restoring fixtures in `beforeEach` when needed.
 
 ### confirm in prompts mock
 
@@ -383,15 +383,15 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 
 | Command | Handler | Key logic |
 |---------|---------|-----------|
-| `ctx new [name]` | `newTask(name?)` | ensureWorkspaceInitialized, confirm use current project or selectOrCreateProject, createTaskInProject |
-| `ctx import` | `importTask()` | ensureWorkspaceInitialized, readConfigOrNull, select from PROJECTS_ROOT, ensureTaskSymlink, set active when config empty/missing |
+| `ctx new [name]` | `newTask(name?)` | ensureWorkspaceInitialized, confirm use current domain or selectOrCreateDomain, createTaskInDomain |
+| `ctx import` | `importTask()` | ensureWorkspaceInitialized, readConfigOrNull, select from DOMAINS_ROOT, ensureTaskSymlink, set active when config empty/missing |
 | `ctx git [args...]` | `intelGit()` | readConfig, spawnSync('git', args, { cwd: taskDir }) |
-| `ctx drop task [name]` | `dropTask(name?)` | getLocalProjectDirs, unlink symlink, rmdir if empty |
-| `ctx drop project [name]` | `dropProject(name?)` | getLocalProjectDirs, optional name skips select, confirm, rm local dir |
-| `ctx delete task` | `deleteTask()` | list from PROJECTS_ROOT, confirm, rm task + symlink |
-| `ctx delete project` | `deleteProject()` | list from PROJECTS_ROOT, confirm, rm project + local dir |
+| `ctx drop task [name]` | `dropTask(name?)` | getLocalDomainDirs, unlink symlink, rmdir if empty |
+| `ctx drop domain [name]` | `dropDomain(name?)` | getLocalDomainDirs, optional name skips select, confirm, rm local dir |
+| `ctx delete task` | `deleteTask()` | list from DOMAINS_ROOT, confirm, rm task + symlink |
+| `ctx delete domain` | `deleteDomain()` | list from DOMAINS_ROOT, confirm, rm domain + local dir |
 | `ctx status` | `status()` | readConfig, print |
-| `ctx set` | `setActive()` | ensureWorkspaceInitialized, select project + task from PROJECTS_ROOT, writeConfig |
+| `ctx set` | `setActive()` | ensureWorkspaceInitialized, select domain + task from DOMAINS_ROOT, writeConfig |
 
 ---
 
@@ -405,6 +405,6 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 | `test/import.test.js` | ctx import |
 | `test/git.test.js` | ctx git |
 | `test/drop-task.test.js` | ctx drop task |
-| `test/drop-project.test.js` | ctx drop project |
+| `test/drop-domain.test.js` | ctx drop domain |
 | `test/delete-task.test.js` | ctx delete task |
-| `test/delete-project.test.js` | ctx delete project |
+| `test/delete-domain.test.js` | ctx delete domain |
