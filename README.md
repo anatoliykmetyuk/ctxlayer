@@ -39,10 +39,10 @@ A **context layer** used as **context for AI agents** during iterative developme
 One command installs the CLI (from npm) and the agent skill (from GitHub):
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh && bash /tmp/ctxlayer-install.sh
 ```
 
-Requires Node.js/npm. The script will prompt you to select your IDE when installing the skill.
+Downloads the script first, then runs it — stdin stays connected to your terminal so the skill installer can prompt you to select your IDE. Requires Node.js/npm.
 
 ### Local development
 

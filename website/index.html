@@ -45,7 +45,7 @@
       </div>
       <div class="hero-cta">
         <div class="hero-command">
-          <input type="text" readonly value="curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh | bash" id="hero-cmd" aria-label="Install command" spellcheck="false" />
+          <input type="text" readonly value="curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh && bash /tmp/ctxlayer-install.sh" id="hero-cmd" aria-label="Install command" spellcheck="false" />
           <button type="button" class="copy-btn" aria-label="Copy to clipboard">
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
             <span aria-live="polite" aria-atomic="true">Copy</span>
@@ -176,7 +176,7 @@
     <section class="quick-start section-card" id="quick-start">
       <h2 class="section-headline">Quick start</h2>
       <ol class="stepped-flow">
-        <li><span class="step-num" aria-hidden="true">1</span><span class="step-content"><code>curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh | bash</code> — Install the ctx CLI and agent skill.</span></li>
+        <li><span class="step-num" aria-hidden="true">1</span><span class="step-content"><code>curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh &amp;&amp; bash /tmp/ctxlayer-install.sh</code> — Install the ctx CLI and agent skill.</span></li>
         <li><span class="step-num" aria-hidden="true">2</span><span class="step-content">From your project directory, run <code>ctx new</code> — Create a new task to hold the context for the task you are about to do. Initializes the context layer for your domain if it was not yet initialized.</span></li>
         <li><span class="step-num" aria-hidden="true">3</span><span class="step-content">Add docs/data — Add your documentation and reference material to the task's <code>docs/</code> and <code>data/</code> folders.</span></li>
         <li><span class="step-num" aria-hidden="true">4</span><span class="step-content">Ask agent — From your prompts, say <span class="agent-phrase">&quot;in the context layer, …&quot;</span>. This keyword is understood by the agent and refers to the context layer directory of the active task.</span></li>
