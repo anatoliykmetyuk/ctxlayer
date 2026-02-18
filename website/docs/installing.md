@@ -5,9 +5,31 @@ title: Installing
 
 # Installing
 
-## CLI
+## One-liner
 
-From this repo:
+Installs the CLI (from npm) and the agent skill (from GitHub):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh | bash
+```
+
+Requires Node.js/npm. The script will prompt you to select your IDE when installing the skill.
+
+## CLI only
+
+From npm:
+
+```bash
+npm install -g @anatoliikmt/ctxlayer
+```
+
+Or run without installing: `npx @anatoliikmt/ctxlayer`
+
+## Local development
+
+Run `./install-cli-locally.sh` from the repo root — it uninstalls any existing `ctx`, then installs and links from local source.
+
+Or manually:
 
 ```bash
 cd /path/to/ctxlayer
@@ -20,29 +42,21 @@ After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immed
 ### Uninstalling
 
 ```bash
-npm unlink -g ctx
+npm unlink -g @anatoliikmt/ctxlayer
 ```
+
+(If you linked when the package had a different name, use that name: `npm unlink -g ctx`.)
 
 ## Agent skill
 
-The repo includes an agent skill at `skills/context-layer/SKILL.md` that teaches AI coding assistants (Cursor, Claude Code, etc.) how to use the ctx CLI and manage context.
-
-### Local install via npx skills
-
-Use [npx skills](https://github.com/vercel-labs/skills) to install from the local repo:
+The one-liner above installs both the CLI and the skill. To install the skill only:
 
 ```bash
-npx skills add /path/to/ctxlayer -g -a cursor --skill context-layer -y
+npx skills add anatoliykmetyuk/ctxlayer -g --skill ctxlayer
 ```
 
-This installs the skill globally for Cursor. Re-run after changes to update.
-
-### Other agents
+From local path:
 
 ```bash
-# Claude Code
-npx skills add /path/to/ctxlayer -g -a claude-code --skill context-layer -y
-
-# All detected agents
-npx skills add /path/to/ctxlayer -g --skill context-layer -y
+npx skills add /path/to/ctxlayer -g -a cursor --skill ctxlayer -y
 ```

@@ -34,23 +34,32 @@ A **context layer** used as **context for AI agents** during iterative developme
     <task-name> -> symlink                # symlink to the task folder in global store
 ```
 
-## Installing the CLI
+## Installing
 
-### From this repo (local development)
+One command installs the CLI (from npm) and the agent skill (from GitHub):
 
 ```bash
-cd /path/to/context-layer
-npm install
-npm link
+curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh | bash
 ```
 
-After that, `ctx` is available globally on your machine. Edits to `bin/cli.js` take effect immediately.
+Requires Node.js/npm. The script will prompt you to select your IDE when installing the skill.
+
+### Local development
+
+```bash
+cd /path/to/ctxlayer
+./install-cli-locally.sh
+```
+
+Or manually: `npm install` then `npm link`. After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immediately.
 
 ### Uninstalling
 
 ```bash
-npm unlink -g ctx
+npm unlink -g @anatoliikmt/ctxlayer
 ```
+
+(If you linked when the package had a different name, use that name: `npm unlink -g ctx`.)
 
 ## CLI commands
 
@@ -123,28 +132,14 @@ active-domain: my-domain
 active-task: my-task
 ```
 
-## Installing the agent skill
+## Agent skill
 
-The repo includes an agent skill at `skills/context-layer/SKILL.md` that teaches AI coding assistants (Cursor, Claude Code, Codex, etc.) how to use the ctx CLI, write documentation in the correct format, and manage context.
+The one-liner installer above installs both the CLI and the skill. The skill lives at `skills/ctxlayer/SKILL.md` and teaches AI coding assistants (Cursor, Claude Code, etc.) how to use the ctx CLI and manage context.
 
-### Local install via npx skills
-
-Use [npx skills](https://github.com/vercel-labs/skills) to install from the local repo:
+For local development, use `install-skill-locally.sh` or:
 
 ```bash
-npx skills add /path/to/context-layer -g -a cursor --skill context-layer -y
-```
-
-This installs the skill globally for Cursor. Re-run the same command after making changes to update.
-
-### Install for other agents
-
-```bash
-# For Claude Code
-npx skills add /path/to/context-layer -g -a claude-code --skill context-layer -y
-
-# For all detected agents
-npx skills add /path/to/context-layer -g --skill context-layer -y
+npx skills add /path/to/ctxlayer -g -a cursor --skill ctxlayer -y
 ```
 
 ### What the skill teaches the agent
@@ -163,13 +158,14 @@ Optional: disable external and dot files protection for added convenience so you
 ## Project structure
 
 ```
-context-layer/
+ctxlayer/
   bin/
     cli.js                # CLI entry point (ES module)
   skills/
-    context-layer/
+    ctxlayer/
       SKILL.md            # Agent skill definition
-  package.json            # ESM package with @inquirer/prompts dependency
+  install.sh              # One-liner installer script
+  package.json
   .gitignore
   README.md
 ```
