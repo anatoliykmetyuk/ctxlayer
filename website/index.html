@@ -203,18 +203,20 @@
 
   <script>
     (function() {
-      // Hero copy button
-      var heroBtn = document.querySelector('.hero-command .copy-btn');
-      var cmdEl = document.getElementById('hero-cmd');
-      if (heroBtn && cmdEl) {
-        heroBtn.addEventListener('click', function() {
-          navigator.clipboard.writeText(cmdEl.value).then(function() {
-            var span = heroBtn.querySelector('span');
-            if (span) { span.textContent = 'Copied!'; }
-            setTimeout(function() { if (span) span.textContent = 'Copy'; }, 1500);
+      // Copy buttons (hero + quick start) — identical logic for both
+      document.querySelectorAll('.hero-command').forEach(function(block) {
+        var btn = block.querySelector('.copy-btn');
+        var input = block.querySelector('input[type="text"]');
+        if (btn && input) {
+          btn.addEventListener('click', function() {
+            navigator.clipboard.writeText(input.value).then(function() {
+              var span = btn.querySelector('span');
+              if (span) { span.textContent = 'Copied!'; }
+              setTimeout(function() { if (span) span.textContent = 'Copy'; }, 1500);
+            });
           });
-        });
-      }
+        }
+      });
 
       // Hamburger menu toggle
       var navToggle = document.querySelector('.nav-toggle');
