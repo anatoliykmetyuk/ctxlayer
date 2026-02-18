@@ -850,6 +850,14 @@ main {
   min-width: 0;
 }
 
+.stepped-flow .step-desc {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.stepped-flow .install-command-block {
+  margin-top: 0;
+}
 
 .step-num {
   display: inline-flex;
