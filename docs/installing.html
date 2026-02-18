@@ -13,10 +13,6 @@
 <body class="docs-page">
   <a href="#main" class="skip-link">Skip to main content</a>
 
-  <div class="disclaimer-banner">
-    Currently the project has not been released yet and is experimental. Play with it at your own risk.
-  </div>
-
   <header class="header">
     <a href="/" class="header-logo">Context Layer</a>
     <button class="nav-toggle" aria-label="Toggle navigation" aria-expanded="false" aria-controls="nav-menu">
@@ -48,9 +44,29 @@
       <article class="docs-content">
         <h1 id="installing">Installing</h1>
 
-<h2 id="cli">CLI</h2>
+<h2 id="one-liner">One-liner</h2>
 
-<p>From this repo:</p>
+<p>Installs the CLI (from npm) and the agent skill (from GitHub):</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>curl <span class="nt">-fsSL</span> https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh | bash
+</code></pre></div></div>
+
+<p>Requires Node.js/npm. The script will prompt you to select your IDE when installing the skill.</p>
+
+<h2 id="cli-only">CLI only</h2>
+
+<p>From npm:</p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">install</span> <span class="nt">-g</span> @anatoliikmt/ctxlayer
+</code></pre></div></div>
+
+<p>Or run without installing: <code class="language-plaintext highlighter-rouge">npx @anatoliikmt/ctxlayer</code></p>
+
+<h2 id="local-development">Local development</h2>
+
+<p>Run <code class="language-plaintext highlighter-rouge">./install-cli-locally.sh</code> from the repo root — it uninstalls any existing <code class="language-plaintext highlighter-rouge">ctx</code>, then installs and links from local source.</p>
+
+<p>Or manually:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> /path/to/ctxlayer
 npm <span class="nb">install
@@ -61,29 +77,21 @@ npm <span class="nb">install
 
 <h3 id="uninstalling">Uninstalling</h3>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">unlink</span> <span class="nt">-g</span> ctx
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npm <span class="nb">unlink</span> <span class="nt">-g</span> @anatoliikmt/ctxlayer
 </code></pre></div></div>
+
+<p>(If you linked when the package had a different name, use that name: <code class="language-plaintext highlighter-rouge">npm unlink -g ctx</code>.)</p>
 
 <h2 id="agent-skill">Agent skill</h2>
 
-<p>The repo includes an agent skill at <code class="language-plaintext highlighter-rouge">skills/context-layer/SKILL.md</code> that teaches AI coding assistants (Cursor, Claude Code, etc.) how to use the ctx CLI and manage context.</p>
+<p>The one-liner above installs both the CLI and the skill. To install the skill only:</p>
 
-<h3 id="local-install-via-npx-skills">Local install via npx skills</h3>
-
-<p>Use <a href="https://github.com/vercel-labs/skills">npx skills</a> to install from the local repo:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx skills add /path/to/ctxlayer <span class="nt">-g</span> <span class="nt">-a</span> cursor <span class="nt">--skill</span> context-layer <span class="nt">-y</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx skills add anatoliykmetyuk/ctxlayer <span class="nt">-g</span> <span class="nt">--skill</span> ctxlayer
 </code></pre></div></div>
 
-<p>This installs the skill globally for Cursor. Re-run after changes to update.</p>
+<p>From local path:</p>
 
-<h3 id="other-agents">Other agents</h3>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># Claude Code</span>
-npx skills add /path/to/ctxlayer <span class="nt">-g</span> <span class="nt">-a</span> claude-code <span class="nt">--skill</span> context-layer <span class="nt">-y</span>
-
-<span class="c"># All detected agents</span>
-npx skills add /path/to/ctxlayer <span class="nt">-g</span> <span class="nt">--skill</span> context-layer <span class="nt">-y</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>npx skills add /path/to/ctxlayer <span class="nt">-g</span> <span class="nt">-a</span> cursor <span class="nt">--skill</span> ctxlayer <span class="nt">-y</span>
 </code></pre></div></div>
 
       </article>
