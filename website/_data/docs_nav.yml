@@ -1,0 +1,12 @@
+- title: Overview
+  url: /docs/
+  is_index: true
+- title: How it works
+  url: /docs/how-it-works.html
+  slug: how-it-works
+- title: Commands
+  url: /docs/commands.html
+  slug: commands
+- title: Installing
+  url: /docs/installing.html
+  slug: installing
