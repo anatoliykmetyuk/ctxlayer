@@ -1490,6 +1490,16 @@ tr:hover td {
   line-height: 1.7;
 }
 
+.docs-content strong {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.docs-content em {
+  color: var(--accent);
+  font-style: italic;
+}
+
 .docs-content ul,
 .docs-content ol {
   margin: 0 0 1rem;
@@ -1527,7 +1537,7 @@ tr:hover td {
 /* Code block scroll on mobile — outer div scrolls, inner content can grow */
 .docs-content .highlighter-rouge {
   margin: 1rem 0;
-  overflow-x: scroll;
+  overflow-x: auto;
   -webkit-overflow-scrolling: touch;
   overflow-y: visible;
   width: 100%;
