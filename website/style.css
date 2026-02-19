@@ -1729,10 +1729,6 @@ tr:hover td {
     max-width: 100%;
   }
 
-  body.docs-page {
-    /* overflow-x: hidden; */
-  }
-
   .docs-sidebar {
     width: 100%;
     max-height: 0;
