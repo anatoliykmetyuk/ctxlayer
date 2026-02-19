@@ -49,6 +49,17 @@
   });
 
   tocNav.appendChild(ul);
+
+  var toTopLi = document.createElement('li');
+  toTopLi.className = 'docs-toc-to-top';
+  var toTopLink = document.createElement('a');
+  toTopLink.href = '#';
+  toTopLink.textContent = 'To top';
+  toTopLink.className = 'docs-toc-link docs-to-top';
+  toTopLink.setAttribute('aria-label', 'Scroll to top');
+  toTopLi.appendChild(toTopLink);
+  ul.appendChild(toTopLi);
+
   tocWrapper.classList.remove('is-empty');
 
   if (tocToggle) {
@@ -59,7 +70,7 @@
   }
 
   function updateActive() {
-    var links = tocNav.querySelectorAll('.docs-toc-link');
+    var links = tocNav.querySelectorAll('.docs-toc-link[data-heading-id]');
     var headerHeight = document.querySelector('.header') ? document.querySelector('.header').offsetHeight : 60;
     var threshold = headerHeight + 80;
 

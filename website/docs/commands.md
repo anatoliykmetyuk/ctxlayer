@@ -19,8 +19,6 @@ The `ctx` CLI manages domains and tasks in your context layer. Run `ctx` with no
 | `ctx delete task` | Permanently delete a task from the context store |
 | `ctx delete domain` | Permanently delete a domain from the context store |
 
----
-
 ## ctx new [name]
 
 Creates a new task. This is the main entry point for getting started.
@@ -45,8 +43,6 @@ ctx new
 ctx new my-feature-branch
 ```
 
----
-
 ## ctx import
 
 Imports an existing task from any domain into your project as a symlink.
@@ -61,8 +57,6 @@ Imports an existing task from any domain into your project as a symlink.
 
 Use this when you want to work on a task that already exists in another domain or was created elsewhere.
 
----
-
 ## ctx status
 
 Shows the current active domain and task, plus git tracking information when the domain is version-controlled.
@@ -72,8 +66,6 @@ Shows the current active domain and task, plus git tracking information when the
 - Active domain and task from `config.yaml`
 - If the domain directory has a `.git` folder: current branch, repo name, and remote URL
 - If not synced to git: a short note
-
----
 
 ## ctx set
 
@@ -88,8 +80,6 @@ Interactively select and set the active domain and task.
 5. Ensures the symlink exists at `.ctxlayer/<domain>/<task>`
 
 Use this to switch context when working with multiple domains or tasks.
-
----
 
 ## ctx git [args...]
 
@@ -106,8 +96,6 @@ ctx git commit -m "Update docs"
 ctx git push
 ```
 
----
-
 ## ctx drop task [name]
 
 Removes the symlink to a task from `.ctxlayer/`. The task data in the context store is **not** deleted.
@@ -120,8 +108,6 @@ Removes the symlink to a task from `.ctxlayer/`. The task data in the context st
 
 Use **drop** when you no longer need a task linked in this project but want to keep the task in the context store.
 
----
-
 ## ctx drop domain [name]
 
 Removes a domain directory from `.ctxlayer/`. The domain and its tasks in the context store are **not** deleted.
@@ -133,8 +119,6 @@ Removes a domain directory from `.ctxlayer/`. The domain and its tasks in the co
 - Asks for confirmation before removing
 
 Use **drop** when you no longer need a domain linked in this project.
-
----
 
 ## ctx delete task
 
@@ -151,8 +135,6 @@ Use **drop** when you no longer need a domain linked in this project.
 
 This cannot be undone.
 
----
-
 ## ctx delete domain
 
 **Permanently** deletes a domain from the context store and removes its local directory.
@@ -166,25 +148,4 @@ This cannot be undone.
 
 This cannot be undone. All tasks in the domain are deleted.
 
----
-
-## Config file
-
-The config is stored at `.ctxlayer/config.yaml`:
-
-```yaml
-active-domain: my-domain
-active-task: my-task
-```
-
-- **active-domain** — The domain used by the agent skill and by commands like `ctx git`
-- **active-task** — The task directory used when running `ctx git`; may be empty if no task is active
-
----
-
-## Environment variables
-
-| Variable | Description |
-|----------|-------------|
-| `CONTEXT_LAYER_HOME` | Override the context store location (default: `~/.agents/ctxlayer`) |
-| `CONTEXT_LAYER_CWD` | Override the working directory (default: current directory) |
+For config file and environment variables, see [Context Structure](/docs/context-structure.html).

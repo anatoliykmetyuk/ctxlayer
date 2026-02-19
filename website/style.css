@@ -1768,7 +1768,10 @@ tr:hover td {
   .docs-toc.is-expanded #docs-toc-nav {
     max-height: 50vh;
     overflow-y: auto;
-    padding-top: 0.5rem;
+  }
+
+  .docs-toc-to-top {
+    display: none;
   }
 }
 
