@@ -1806,10 +1806,8 @@ tr:hover td {
   }
 
   /* Inline code: wrap long paths (e.g. ~/.agents/ctxlayer/domains/<domain>/<task>/) so they don't overflow */
-  .docs-content p code,
-  .docs-content li code {
-    word-break: break-all;
-    overflow-wrap: anywhere;
+  .docs-content code {
+    overflow-wrap: break-word;
   }
 }
 
