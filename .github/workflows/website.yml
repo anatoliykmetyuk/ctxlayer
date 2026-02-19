@@ -1,4 +1,4 @@
-name: Website tests
+name: Website
 
 on:
   push:
@@ -44,3 +44,29 @@ jobs:
           name: playwright-report
           path: website/playwright-report/
           retention-days: 30
+
+  deploy:
+    needs: website-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          working-directory: website
+
+      - name: Build Jekyll site
+        run: bundle exec jekyll build
+        working-directory: website
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./website/_site
