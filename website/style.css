@@ -1390,6 +1390,10 @@ tr:hover td {
   min-width: 0;
 }
 
+.docs-content {
+  min-width: 0;
+}
+
 .docs-content h1 {
   font-size: 1.75rem;
   margin: 0 0 1.5rem;
@@ -1446,6 +1450,27 @@ tr:hover td {
 .docs-content .highlight .cm {
   color: var(--text-muted);
   font-style: italic;
+}
+
+/* Code block scroll on mobile — outer div scrolls, inner content can grow */
+.docs-content .highlighter-rouge {
+  margin: 1rem 0;
+  overflow-x: scroll;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: visible;
+  width: 100%;
+  max-width: 100%;
+}
+
+.docs-content .highlighter-rouge .highlight {
+  display: block;
+  width: max-content;
+  min-width: 100%;
+}
+
+.docs-content .highlighter-rouge pre {
+  margin: 0;
+  overflow: visible;
 }
 
 .docs-content .table-wrap {
