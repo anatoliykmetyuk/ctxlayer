@@ -27,7 +27,12 @@
     <aside id="docs-nav-menu" class="docs-sidebar" aria-label="Docs navigation">
       <nav class="docs-nav">
         {% for item in site.data.docs_nav %}
-        <a href="{{ item.url | relative_url }}" class="docs-nav-link {% if item.is_index %}{% if page.url == '/docs/' or page.url == '/docs/index.html' %}active{% endif %}{% elsif item.slug %}{% if page.url contains item.slug %}active{% endif %}{% endif %}">{{ item.title }}</a>
+        {% if item.url == '/docs/' %}
+          {% if page.url == '/docs/' or page.url == '/docs/index.html' %}{% assign is_active = true %}{% else %}{% assign is_active = false %}{% endif %}
+        {% else %}
+          {% if page.url == item.url %}{% assign is_active = true %}{% else %}{% assign is_active = false %}{% endif %}
+        {% endif %}
+        <a href="{{ item.url | relative_url }}" class="docs-nav-link {% if is_active %}active{% endif %}">{{ item.title }}</a>
         {% endfor %}
       </nav>
     </aside>
