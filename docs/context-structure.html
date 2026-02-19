@@ -34,22 +34,13 @@
         <a href="/docs/getting-started.html" class="docs-nav-link ">Getting Started</a>
         
         
+        <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
+        
+        
         <a href="/docs/context-structure.html" class="docs-nav-link active">Context Structure</a>
         
         
         <a href="/docs/prompting-guide.html" class="docs-nav-link ">Prompting Guide</a>
-        
-        
-        <a href="/docs/how-it-works.html" class="docs-nav-link ">How it works</a>
-        
-        
-        <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
-        
-        
-        <a href="/docs/development-model.html" class="docs-nav-link ">Development Model</a>
-        
-        
-        <a href="/docs/vision.html" class="docs-nav-link ">Vision</a>
         
       </nav>
     </aside>
@@ -57,14 +48,128 @@
     <main id="main" class="docs-main">
       <article class="docs-content">
         <h1>Context Structure</h1>
-        <p>directory, accessible from any workspace of your OS user. It exists in the form of a directory structure and logically divided into <em>domains</em> and <em>tasks</em>.</p>
+        <p>The context layer is the corpus of knowledge and context you curate for AI-assisted development. It lives on your operating system as a directory structure and is linked into your software projects via symlinks.</p>
 
-<p><strong>Domains</strong> are context organization units. Contains some domain knowledge that may be applicable to multiple software projects. In the most general case, you will have one domain per software project. However, in more complex cases, you may have several projects united by the same purpose, in which case it is possible to use a single domain for all of them. A domain lives in a form of separate folder under <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/</code>.</p>
+<h2 id="location">Location</h2>
 
-<p>Each domain also have a git repository initialized in its folder. Note that this repository is separate form the software project repository, and is used to version-control the domain knowledge and context only. If you feel the need to persist your domain knowledge, you can use the git repository to e.g. push the context to a dedicated github repo.</p>
+<p>The context layer is stored in a centralized location on your machine. By default, it is located at <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/</code>. You can change this location by setting the <code class="language-plaintext highlighter-rouge">CONTEXT_LAYER_HOME</code> environment variable. Each software project links to the tasks on the context layer through a local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder.</p>
 
-<p><strong>Tasks</strong> are one unit of work within a domain (like a branch). They exist in a form of separate folders, one per task, under a domain folder: <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code>. Each task has <code class="language-plaintext highlighter-rouge">docs/</code> and <code class="language-plaintext highlighter-rouge">data/</code> folders for documentation and reference material.</p>
+<p><strong>Global store (system-wide):</strong></p>
 
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>~/.agents/ctxlayer/
+└── domains/
+    └── my-domain/
+        ├── .git/
+        ├── task-1/
+        │   ├── docs/
+        │   │   ├── 01-initial-research.md
+        │   │   └── 02-implementation-notes.md
+        │   └── data/
+        │       └── sample-data.json
+        └── task-2/
+            ├── docs/
+            └── data/
+</code></pre></div></div>
+
+<p><strong>Local link (in your project):</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-project/
+├── README.md
+├── ...                    <span class="c"># your project files</span>
+└── .ctxlayer/             <span class="c"># gitignored</span>
+    ├── config.yaml        <span class="c"># active-domain, active-task</span>
+    └── my-domain/
+        ├── task-1/        <span class="c"># symlink → ~/.agents/ctxlayer/domains/my-domain/task-1/</span>
+        └── task-2/        <span class="c"># symlink → ~/.agents/ctxlayer/domains/my-domain/task-2/</span>
+</code></pre></div></div>
+
+<p>The global store lives in your home directory (<code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/</code>) and is independent of any single repo. Each project’s <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> contains <code class="language-plaintext highlighter-rouge">config.yaml</code> and symlinks to tasks in that store. The <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder is added to <code class="language-plaintext highlighter-rouge">.gitignore</code> so it is not committed to your project.</p>
+
+<h2 id="conceptual-structure">Conceptual structure</h2>
+
+<p>The context layer is organized into <strong>domains</strong> and <strong>tasks</strong>.</p>
+
+<h3 id="domains">Domains</h3>
+
+<p>A <strong>domain</strong> is a context organization unit. It holds knowledge that may apply to one or more software projects.</p>
+
+<ul>
+  <li><strong>Location:</strong> <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain-name&gt;/</code></li>
+  <li><strong>Git:</strong> Each domain is initialized as a separate git repository. Use it to version-control domain knowledge and push to a dedicated GitHub repo if needed.</li>
+  <li><strong>Scope:</strong> For a simple project, use one domain per project (e.g. <code class="language-plaintext highlighter-rouge">my-project</code> or <code class="language-plaintext highlighter-rouge">my-project-ctx</code>). For multiple projects sharing purpose or context, use a single domain for all of them.</li>
+</ul>
+
+<h3 id="tasks">Tasks</h3>
+
+<p>A <strong>task</strong> is one unit of work within a domain (similar to a branch).</p>
+
+<ul>
+  <li><strong>Location:</strong> <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code></li>
+  <li><strong>Structure:</strong> Each task has:
+    <ul>
+      <li><strong><code class="language-plaintext highlighter-rouge">docs/</code></strong> — Markdown documentation (research, plans, decisions, procedures)</li>
+      <li><strong><code class="language-plaintext highlighter-rouge">data/</code></strong> — Reference material (logs, sample data, external repos, config snippets)</li>
+    </ul>
+  </li>
+</ul>
+
+<p>Tasks are created with <code class="language-plaintext highlighter-rouge">ctx new</code> and linked into projects via symlinks under <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;/</code>.</p>
+
+<h2 id="config-file">Config file</h2>
+
+<p>This file lives in the <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder in your project root: <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code>. It contains the active domain and task that will be used by default by the agent skill and commands like <code class="language-plaintext highlighter-rouge">ctx git</code>.</p>
+
+<p><strong>Format:</strong></p>
+
+<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">active-domain</span><span class="pi">:</span> <span class="s">my-domain</span>
+<span class="na">active-task</span><span class="pi">:</span> <span class="s">my-task</span>
+</code></pre></div></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>Field</th>
+      <th>Description</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">active-domain</code></td>
+      <td>The domain used by the agent skill and by commands like <code class="language-plaintext highlighter-rouge">ctx git</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">active-task</code></td>
+      <td>The task directory used when running <code class="language-plaintext highlighter-rouge">ctx git</code>; may be omitted if no task is active</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>The agent skill reads this file to know where to write documentation and which task’s <code class="language-plaintext highlighter-rouge">docs/</code> and <code class="language-plaintext highlighter-rouge">data/</code> to access when you say “in the context layer”. Commands like <code class="language-plaintext highlighter-rouge">ctx git</code> run in the active task directory.</p>
+
+<h2 id="docs-folder-convention">Docs folder convention</h2>
+
+<p>Markdown files in <code class="language-plaintext highlighter-rouge">docs/</code> are <strong>numbered</strong> for sorting and to support “document number N” references in prompts.</p>
+
+<p><strong>Naming:</strong> <code class="language-plaintext highlighter-rouge">NN-descriptive-name.md</code></p>
+
+<ul>
+  <li><strong>Prefix:</strong> Two-digit incrementing number (<code class="language-plaintext highlighter-rouge">01</code>, <code class="language-plaintext highlighter-rouge">02</code>, <code class="language-plaintext highlighter-rouge">03</code>, …) based on existing files</li>
+  <li><strong>Separator:</strong> Single dash</li>
+  <li><strong>Name:</strong> Descriptive kebab-case summary</li>
+  <li><strong>Extension:</strong> <code class="language-plaintext highlighter-rouge">.md</code></li>
+</ul>
+
+<p><strong>Examples:</strong> <code class="language-plaintext highlighter-rouge">01-initial-research.md</code>, <code class="language-plaintext highlighter-rouge">02-feature-implementation.md</code>, <code class="language-plaintext highlighter-rouge">03-architecture-diagram.md</code></p>
+
+<p>Each file is a standalone document. The docs folder acts as a running report and journal for the task. When you ask the agent to “read document number 1”, it refers to the first file when sorted by name (e.g. <code class="language-plaintext highlighter-rouge">01-...</code>).</p>
+
+<h2 id="data-folder-convention">Data folder convention</h2>
+
+<p>The <code class="language-plaintext highlighter-rouge">data/</code> folder holds reference material: sample data, config snippets, logs, external repositories, and anything the agent needs during implementation.</p>
+
+<p><strong>Adding external repos:</strong> Use <code class="language-plaintext highlighter-rouge">git submodule add &lt;repo-url&gt;</code> inside the task’s <code class="language-plaintext highlighter-rouge">data/</code> folder (not a plain <code class="language-plaintext highlighter-rouge">git clone</code>), so the domain repo stays lightweight and version-controlled via submodule references.</p>
+
+<p>Use these to override paths for testing or custom setups.</p>
 
       </article>
       <aside class="docs-toc" aria-label="On this page" id="docs-toc-wrapper">

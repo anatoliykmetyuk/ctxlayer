@@ -1625,6 +1625,15 @@ tr:hover td {
   margin: 1rem 0;
 }
 
+.docs-content blockquote {
+  margin: 1rem 0;
+  padding: 0.75rem 0 0.75rem 1rem;
+  border-left: 3px solid var(--icon-accent);
+  font-style: italic;
+  color: var(--text-muted);
+  line-height: 1.6;
+}
+
 /* Rouge syntax highlighting — comments */
 .docs-content .highlight .c,
 .docs-content .highlight .c1,
@@ -1768,7 +1777,10 @@ tr:hover td {
   .docs-toc.is-expanded #docs-toc-nav {
     max-height: 50vh;
     overflow-y: auto;
-    padding-top: 0.5rem;
+  }
+
+  .docs-toc-to-top {
+    display: none;
   }
 }
 

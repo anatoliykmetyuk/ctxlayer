@@ -34,22 +34,13 @@
         <a href="/docs/getting-started.html" class="docs-nav-link ">Getting Started</a>
         
         
+        <a href="/docs/commands.html" class="docs-nav-link active">Commands</a>
+        
+        
         <a href="/docs/context-structure.html" class="docs-nav-link ">Context Structure</a>
         
         
         <a href="/docs/prompting-guide.html" class="docs-nav-link ">Prompting Guide</a>
-        
-        
-        <a href="/docs/how-it-works.html" class="docs-nav-link ">How it works</a>
-        
-        
-        <a href="/docs/commands.html" class="docs-nav-link active">Commands</a>
-        
-        
-        <a href="/docs/development-model.html" class="docs-nav-link ">Development Model</a>
-        
-        
-        <a href="/docs/vision.html" class="docs-nav-link ">Vision</a>
         
       </nav>
     </aside>
@@ -57,9 +48,9 @@
     <main id="main" class="docs-main">
       <article class="docs-content">
         <h1>Commands</h1>
-        <h1 id="commands">Commands</h1>
+        <p>The <code class="language-plaintext highlighter-rouge">ctx</code> CLI manages domains and tasks in your context layer. Run <code class="language-plaintext highlighter-rouge">ctx</code> with no arguments to see help.</p>
 
-<h2 id="reference">Reference</h2>
+<h2 id="quick-reference">Quick reference</h2>
 
 <table>
   <thead>
@@ -70,16 +61,20 @@
   </thead>
   <tbody>
     <tr>
-      <td><code class="language-plaintext highlighter-rouge">ctx</code></td>
-      <td>Show help and available commands</td>
-    </tr>
-    <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx new [name]</code></td>
-      <td>Create a new task (initializes workspace, prompts for domain if needed)</td>
+      <td>Create a new task (prompts for domain if needed)</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx import</code></td>
-      <td>Import a task from any domain as a local symlink</td>
+      <td>Import a task from any domain as a symlink into <code class="language-plaintext highlighter-rouge">.ctxlayer/</code></td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx status</code></td>
+      <td>Show the active domain and task, plus git tracking info</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">ctx set</code></td>
+      <td>Set active domain and task (interactive)</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx git [args...]</code></td>
@@ -87,61 +82,170 @@
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx drop task [name]</code></td>
-      <td>Remove a task symlink (with optional task name)</td>
+      <td>Remove a task symlink from <code class="language-plaintext highlighter-rouge">.ctxlayer/</code></td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx drop domain [name]</code></td>
-      <td>Remove a domain directory from local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code></td>
+      <td>Remove a domain directory from <code class="language-plaintext highlighter-rouge">.ctxlayer/</code></td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx delete task</code></td>
-      <td>Delete a task from the context store and remove its symlink</td>
+      <td>Permanently delete a task from the context store</td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx delete domain</code></td>
-      <td>Delete a domain from the context store</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">ctx status</code></td>
-      <td>Show the current active domain and task</td>
-    </tr>
-    <tr>
-      <td><code class="language-plaintext highlighter-rouge">ctx set</code></td>
-      <td>Set active domain and task (prompts to select)</td>
+      <td>Permanently delete a domain from the context store</td>
     </tr>
   </tbody>
 </table>
 
-<h2 id="ctx-new">ctx new</h2>
+<h2 id="ctx-new-name">ctx new [name]</h2>
 
-<p>Creates a new task. Single entry point for getting started:</p>
+<p>Creates a new task. This is the main entry point for getting started.</p>
+
+<p><strong>What it does:</strong></p>
 
 <ol>
-  <li>Ensures workspace is initialized (<code class="language-plaintext highlighter-rouge">.ctxlayer/</code>, <code class="language-plaintext highlighter-rouge">config.yaml</code>, <code class="language-plaintext highlighter-rouge">.gitignore</code>)</li>
-  <li>If no active domain: prompts to create (fetch from git, create from scratch) or select existing</li>
-  <li>If active domain set: asks “Use current active domain [X] for new task?” (yes/no)</li>
-  <li>Prompts for task name (or use <code class="language-plaintext highlighter-rouge">ctx new [name]</code>), then creates task dir, symlink, and updates config</li>
+  <li>Ensures the workspace is initialized: creates <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> and <code class="language-plaintext highlighter-rouge">config.yaml</code>, adds <code class="language-plaintext highlighter-rouge">/.ctxlayer/</code> to <code class="language-plaintext highlighter-rouge">.gitignore</code> if missing</li>
+  <li>If no valid active domain exists, prompts you to:
+    <ul>
+      <li><strong>Fetch from git</strong> — clone a repo into <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/</code></li>
+      <li><strong>Create from scratch</strong> — create a new domain directory and run <code class="language-plaintext highlighter-rouge">git init</code></li>
+      <li><strong>Select existing domain</strong> — pick from domains already in the context store</li>
+    </ul>
+  </li>
+  <li>If a domain is active, asks: “Use current active domain [X] for new task?” (yes/no)</li>
+  <li>Prompts for task name (or use <code class="language-plaintext highlighter-rouge">ctx new my-task</code> to pass it)</li>
+  <li>Creates the task directory under <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code> with <code class="language-plaintext highlighter-rouge">docs/</code> and <code class="language-plaintext highlighter-rouge">data/</code> subfolders</li>
+  <li>Creates a symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code> pointing to the task</li>
+  <li>Writes <code class="language-plaintext highlighter-rouge">active-domain</code> and <code class="language-plaintext highlighter-rouge">active-task</code> to <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code></li>
 </ol>
+
+<p><strong>Example:</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx new
+ctx new my-feature-branch
+</code></pre></div></div>
 
 <h2 id="ctx-import">ctx import</h2>
 
-<p>Imports a task from any domain into the local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> directory as a symlink. Works on uninitialized workspaces.</p>
+<p>Imports an existing task from any domain into your project as a symlink.</p>
+
+<p><strong>What it does:</strong></p>
+
+<ol>
+  <li>Ensures the workspace is initialized</li>
+  <li>Prompts you to select a domain</li>
+  <li>Prompts you to select a task from that domain</li>
+  <li>Creates a symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code> pointing to the task in the context store</li>
+  <li>If <code class="language-plaintext highlighter-rouge">config.yaml</code> has no active domain/task, sets the imported domain and task as active; otherwise only creates the symlink</li>
+</ol>
+
+<p>Use this when you want to work on a task that already exists in another domain or was created elsewhere.</p>
+
+<h2 id="ctx-status">ctx status</h2>
+
+<p>Shows the current active domain and task, plus git tracking information when the domain is version-controlled.</p>
+
+<p><strong>Output:</strong></p>
+
+<ul>
+  <li>Active domain and task from <code class="language-plaintext highlighter-rouge">config.yaml</code></li>
+  <li>If the domain directory has a <code class="language-plaintext highlighter-rouge">.git</code> folder: current branch, repo name, and remote URL</li>
+  <li>If not synced to git: a short note</li>
+</ul>
+
+<h2 id="ctx-set">ctx set</h2>
+
+<p>Interactively select and set the active domain and task.</p>
+
+<p><strong>What it does:</strong></p>
 
 <ol>
   <li>Ensures workspace is initialized</li>
-  <li>Prompts to select a domain</li>
-  <li>Prompts to select a task from that domain</li>
-  <li>Creates a symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code></li>
-  <li>Sets the imported domain and task as active when config was empty</li>
+  <li>Lists domains in <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/</code> and prompts you to pick one</li>
+  <li>Lists tasks in the selected domain and prompts you to pick one</li>
+  <li>Writes <code class="language-plaintext highlighter-rouge">active-domain</code> and <code class="language-plaintext highlighter-rouge">active-task</code> to <code class="language-plaintext highlighter-rouge">config.yaml</code></li>
+  <li>Ensures the symlink exists at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code></li>
 </ol>
 
-<h2 id="config-file">Config file</h2>
+<p>Use this to switch context when working with multiple domains or tasks.</p>
 
-<p>Located at <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code>:</p>
+<h2 id="ctx-git-args">ctx git [args…]</h2>
 
-<div class="language-yaml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="na">active-domain</span><span class="pi">:</span> <span class="s">my-domain</span>
-<span class="na">active-task</span><span class="pi">:</span> <span class="s">my-task</span>
+<p>Runs <code class="language-plaintext highlighter-rouge">git</code> in the directory of the <strong>current active task</strong>. Pass any arguments as you would to <code class="language-plaintext highlighter-rouge">git</code>.</p>
+
+<p><strong>Requirements:</strong> An active task must be set. Run <code class="language-plaintext highlighter-rouge">ctx new</code> or <code class="language-plaintext highlighter-rouge">ctx set</code> first.</p>
+
+<p><strong>Examples:</strong></p>
+
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx git status
+ctx git add <span class="nb">.</span>
+ctx git commit <span class="nt">-m</span> <span class="s2">"Update docs"</span>
+ctx git push
 </code></pre></div></div>
+
+<h2 id="ctx-drop-task-name">ctx drop task [name]</h2>
+
+<p>Removes the symlink to a task from <code class="language-plaintext highlighter-rouge">.ctxlayer/</code>. The task data in the context store is <strong>not</strong> deleted.</p>
+
+<p><strong>What it does:</strong></p>
+
+<ul>
+  <li>With <code class="language-plaintext highlighter-rouge">ctx drop task my-task</code>: removes the symlink for <code class="language-plaintext highlighter-rouge">my-task</code> in the active domain</li>
+  <li>Without a name: prompts you to select a domain, then a task</li>
+  <li>If the domain directory becomes empty, removes it</li>
+</ul>
+
+<p>Use <strong>drop</strong> when you no longer need a task linked in this project but want to keep the task in the context store.</p>
+
+<h2 id="ctx-drop-domain-name">ctx drop domain [name]</h2>
+
+<p>Removes a domain directory from <code class="language-plaintext highlighter-rouge">.ctxlayer/</code>. The domain and its tasks in the context store are <strong>not</strong> deleted.</p>
+
+<p><strong>What it does:</strong></p>
+
+<ul>
+  <li>With <code class="language-plaintext highlighter-rouge">ctx drop domain my-domain</code>: removes <code class="language-plaintext highlighter-rouge">.ctxlayer/my-domain/</code> (after confirmation)</li>
+  <li>Without a name: prompts you to select a domain</li>
+  <li>Asks for confirmation before removing</li>
+</ul>
+
+<p>Use <strong>drop</strong> when you no longer need a domain linked in this project.</p>
+
+<h2 id="ctx-delete-task">ctx delete task</h2>
+
+<p><strong>Permanently</strong> deletes a task from the context store and removes its symlink.</p>
+
+<p><strong>What it does:</strong></p>
+
+<ol>
+  <li>Prompts you to select a domain</li>
+  <li>Prompts you to select a task</li>
+  <li>Asks for confirmation</li>
+  <li>Deletes the task directory from <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code></li>
+  <li>Removes the symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code> if it exists</li>
+  <li>Removes the local domain directory if it becomes empty</li>
+</ol>
+
+<p>This cannot be undone.</p>
+
+<h2 id="ctx-delete-domain">ctx delete domain</h2>
+
+<p><strong>Permanently</strong> deletes a domain from the context store and removes its local directory.</p>
+
+<p><strong>What it does:</strong></p>
+
+<ol>
+  <li>Prompts you to select a domain</li>
+  <li>Asks for confirmation</li>
+  <li>Deletes the domain from <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/</code></li>
+  <li>Removes <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/</code> from your project</li>
+</ol>
+
+<p>This cannot be undone. All tasks in the domain are deleted.</p>
+
+<p>For config file and environment variables, see <a href="/docs/context-structure.html">Context Structure</a>.</p>
 
       </article>
       <aside class="docs-toc" aria-label="On this page" id="docs-toc-wrapper">
