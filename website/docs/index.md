@@ -3,111 +3,43 @@ layout: docs
 title: Overview
 ---
 
-Context Layer is a **context layer** used as **context for AI agents** during iterative development. It gives agents a
-structured place for documentation and reference material so they can focus and operate more precisely across iterations.
+Context Layer is a tool for organizing and managing agents' context during iterative development.
+It provides a structured place for documentation and reference material so agents can operate more precisely across iterations.
 
-It comes in a form of a CLI and an agent skill, operating over a plain old directory structure.
+It comes in a form of a CLI and an agent skill, operating over a plain old directory structure. It is designed to be used with AI coding tools, such as Cursor and Claude Code.
 
 ## Motivation
 
-AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. When you open a new chat, you need to explain the architecture, intent, and conventions every time. Context Layer stores project context in the format of plain folders and files, curated by the developer, so it can be reused across tools and sessions.
+AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. When you open a new chat, you need to explain the architecture, intent, and conventions every time. This reduces the development speed and enjoyment of the process. Moreover, human memory is also limited, so one may need to use agent to repeat exploration of the codebase, to e.g. recall why a certain decision was made. This wastes token budget and time. All in all, statelessness wastes cognitive resources of the agent and the developer alike. See [Effective Context Engineering for AI Agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) by Anthropic for further reading on the topic.
 
-## What it does
+A number of attempts have been made by the community to solve this. Automatic approaches, such as automatic logging of the context, usually lead to context clutter and [context rot](https://research.trychroma.com/context-rot). Manually logging documentation to markdown files is a common approach, but it is often developer- or task-specific. The context generated in such a way often does not belong to the codebase, and poses difficulies for version control.
 
-- **Stores structured context** at `~/.agents/ctxlayer/domains/` (outside the codebase).
-- **Provides a CLI** to manage the context: link it to existing projects via symlinks, create new tasks, and more.
-- **Provides an Agent Skill** so Cursor/Claude Code can read and write context.
+Further, context comes in different shape, not always human-readable markdown files. Sometimes it is an external git repo, a sample dataset, a log of a failed CI, examples of well-designed websites, etc. All of those are critical for the agent to do its job well but have no place in the codebase, as they are more of a raw material than an end product.
 
-## Conceptual Model
+## The Concept
 
-The Context Layer is organized into _domains_ and _tasks_.
+The Context Layer tool is built around the principles of **simplicity** and **human-in-the-loop**. It does not make an attempt to automate your development cycle or context management. Rather than being an automation, it is a tool for a skilled developer to conveniently sculpt the context before doing the work with an agent.
 
-- **Domain** — Context organization unit. Contains some domain knowledge that may be applicable to multiple repos. Is represented by a folder in `~/.agents/ctxlayer/domains/`.
-- **Task** — One unit of work within a domain (like a branch). Is represented by a folder in `~/.agents/ctxlayer/domains/
+Rather than trying to replace the developer with an agent or commoditize software engineering, the tool assumes **the developer to be an essential part of the development process** which brings **expertise, taste and the knowledge** of the big picture to the table, while the agent is a tool to automate mechanical work and translate intent into result. The agent is assumed to be a tool to automate mechanical work and to speed up the translation of the developer's intent into result. But it is the role of the developer to specify their intent precisely.
 
-Each task has `docs/` and `data/` for documentation and reference material.
-The active domain and task are tracked in `.ctxlayer/config.yaml` in your repo. When prompted to interact with the context layer, the agent skill will default to the active domain and task.
+The tool is aimed at an **AI power-user developer** - a kind of developer who prefers to use AI to generate >80% of their code. Such a developer is expected to think at the level of concepts, architecture, intent and constraints rather than precise code statements that express that code.
 
-- **Context store** — `~/.agents/ctxlayer/domains/`; holds domains and tasks.
-- **Human-in-the-loop** — Context is curated by the developer, not auto-generated.
-- **Agent skill** — Teaches Cursor/Claude Code how to use `ctx` and the docs convention. Is installed as a skill in `~/.agents/skills/ctxlayer/`.
+Rather than expecting the developer to do less work due to AI automation, the tool assumes the developer to be doing a new kind of work, shifting their attention focus from the implementation details to the architecture and intent-shaping.
 
-## When to use
+The developer is expected to exercise discipline in their context curation and management to get the most value of the tool.
 
-- Repetitive AI-assisted workflows across sessions
-- Projects where architectural context matters
-- Multi-session work where you need to persist decisions and research across sessions
+## The Solution
 
-[Next: Getting Started](getting-started.html)
+The Context Layer exists on your machine in a form of a **directory structure that contains files and folders**. The structure is logically organized into **domains** and **tasks**. Domains are intended to track domain knowledge across one or more software projects, while tasks exist as part of a domain are are used to store the context for a specific unit of work, similarly to how you would use a branch in a git repository.
 
+Context may be linked across projects with task-wise granularity. So, from any project you are working on, you may link a task from another domain to your project via a symlink. Link only what you need to get the job done, so you don't have to worry about cluttering your project with irrelevant context.
 
-## Core concepts
+A CLI tool is provided to easily perform the operations above, such as creating new tasks, linking tasks from other domains, and more.
 
+Your agent of choice (such as Cursor, Claude Code, etc.) is made aware of the context layer of your project via an [agent skill](https://github.com/anatoliykmetyuk/ctxlayer/blob/main/SKILL.md) (see the [Skills standard specification](https://github.com/anatoliykmetyuk/skills-spec)). So, whenever you mention "context layer" in your prompts, your agent will know where to look.
 
-## Usage
+The intended outcome is an ever-growing corpus of domain knowledge, where every task you do is documented in a human-driven way, separately from the codebase, readily accessible during future work across projects. As a result, the developer saves time, token budget and cognitive resources, speeds up the development process, makes it more enjoyable and predictable.
 
-This page provides a quick overview of the usage. For a full documentation, see the [Docs](https://ctxlayer.dev/docs).
+If the above resonates with you, try it out on your own project:
 
-```bash
-ctx new
-```
-
-The above command will prompt you to create a new domain folder and a task folder within it. It will do several things:
-
-- Create the new task folder in the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory.
-- Create the `docs/` and `data/` folders within the task folder.
-- Link the task folder to the current working directory as a symlink under `.ctxlayer/`, so it is accessible to the agent skill.
-- Update `.gitignore` to ignore `.ctxlayer/`.
-- Initialize a separate domain repo under `~/.agents/ctxlayer/domains/<domain>/`, so the domain is version-controlled.
-
-### Reference Material Curation
-
-You can put any reference material needed for the task execution in the `data/` folder. These may be, for example:
-
-- Log files from a failed CI - in case if you want an agent to debug an issue.
-- Examples of well-designed websites - in case if you want an agent to design a new UI.
-- A CSV file - in case you're making a dashboard for a data analysis and need an agent to design the data access layer against a specific example dataset.
-- A Git repository - in case you want an agent to refer to an existing library code or another project. It is recommended to use a `git submodule` when cloning the repository, as every domain is also initialized as a git repository.
-
-The agent may later access the reference material from an agent session using e.g. the following prompt:
-
-> "in the context layer, the reference material folder contains an example dataset. Please read it and ...".
-
-### Documentation Curation
-
-The `docs/` folder is intended to be an ongoing journal of the task execution. It is intended to be written by the agent itself, but the write is not automatic and must be triggered by the developer. It is expected that the developer will review the documentation and work with the agent to get it to a high quality standard.
-
-The documentation is written in Markdown and is numbered for easy sorting, for example:
-
-```bash
-# In the docs/ folder
-01-initial-research.md
-02-feature-implementation.md
-03-architecture-diagram.md
-```
-
-With the installed skill, use the prompt as follows to write documentation:
-
-> "in the context layer, write a document about what you just did. The documentation must include information on X, Y and Z."
-
-You will later be able to access the documentation from an agent session using e.g. the following prompt:
-
-> "in the context layer, the document number 1 specifies initial research findings. Please read it and ...".
-
-### Other Capabilities
-
-Please refer to the [Docs](https://ctxlayer.dev/docs) for the full documentation. The following are some other capabilities that are not covered here:
-
-- Importing (linking) context from other domains.
-- Git operations on the context layer.
-- Deleting domains and tasks.
-- Switching the active domain and task.
-- Importing tasks from other domains.
-
-## Contributing
-
-This project is open for contributions. Suggested areas: CLI improvements, agent skill enhancements, context import/export utilities, documentation conventions. See [DEVELOPMENT.md](DEVELOPMENT.md) for local setup.
-
-## License
-
-Apache-2.0. See [LICENSE](LICENSE) for the full text.
+[→ Get started](/docs/getting-started.html)
