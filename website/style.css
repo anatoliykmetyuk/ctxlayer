@@ -1645,7 +1645,7 @@ tr:hover td {
 }
 
 /* Code block scroll — grid forces child to not stretch parent, overflow scrolls */
-.docs-content .highlighter-rouge {
+.docs-content div.highlighter-rouge {
   margin: 1rem 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -1653,13 +1653,13 @@ tr:hover td {
   -webkit-overflow-scrolling: touch;
 }
 
-.docs-content .highlighter-rouge .highlight {
+.docs-content div.highlighter-rouge .highlight {
   display: block;
   width: max-content;
   min-width: 100%;
 }
 
-.docs-content .highlighter-rouge pre {
+.docs-content div.highlighter-rouge pre {
   margin: 0;
   overflow: visible;
 }
@@ -1715,21 +1715,21 @@ tr:hover td {
   .docs-layout {
     flex-direction: column;
     padding: 1.5rem 1rem 2rem;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
   }
 
   .docs-main {
     min-width: 0;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
   }
 
   .docs-content {
     min-width: 0;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
   }
 
   body.docs-page {
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
   }
 
   .docs-sidebar {
