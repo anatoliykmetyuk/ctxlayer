@@ -26,27 +26,35 @@
   <div class="docs-layout">
     <aside id="docs-nav-menu" class="docs-sidebar" aria-label="Docs navigation">
       <nav class="docs-nav">
+        
+        
         <a href="/docs/" class="docs-nav-link ">Overview</a>
+        
+        
+        <a href="/docs/getting-started.html" class="docs-nav-link ">Getting Started</a>
+        
+        
         <a href="/docs/how-it-works.html" class="docs-nav-link active">How it works</a>
+        
+        
         <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
-        <a href="/docs/installing.html" class="docs-nav-link ">Installing</a>
+        
       </nav>
     </aside>
 
     <main id="main" class="docs-main">
       <article class="docs-content">
-        <h1 id="how-it-works">How it works</h1>
-
-<p>This page explains the mechanics of Context Layer in detail.</p>
+        <h1>How it works</h1>
+        <p>This page explains the mechanics of Context Layer in detail.</p>
 
 <h2 id="directory-structure">Directory structure</h2>
 
 <p>Your project directory looks like this with the context layer:</p>
 
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-project/
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-project/
 ├── README.md
-├── ...  # your project files
-└── .ctxlayer/  # symlink to ~/.agents/ctxlayer/
+├── ...  <span class="c"># your project files</span>
+└── .ctxlayer/  <span class="c"># symlink to ~/.agents/ctxlayer/</span>
     └── my-domain/
         ├── config.yaml
         ├── task-1/
