@@ -2,8 +2,16 @@
   url: /docs/
 - title: Getting Started
   url: /docs/getting-started.html
+- title: Context Structure
+  url: /docs/context-structure.html
+- title: Prompting Guide
+  url: /docs/prompting-guide.html
 - title: How it works
   url: /docs/how-it-works.html
 - title: Commands
   url: /docs/commands.html
+- title: Development Model
+  url: /docs/development-model.html
+- title: Vision
+  url: /docs/vision.html
 
