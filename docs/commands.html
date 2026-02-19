@@ -144,6 +144,13 @@
 </code></pre></div></div>
 
       </article>
+      <aside class="docs-toc" aria-label="On this page" id="docs-toc-wrapper">
+        <button class="docs-toc-toggle" aria-expanded="false" aria-controls="docs-toc-nav">On this page</button>
+        <nav id="docs-toc-nav"></nav>
+      </aside>
+      <div class="docs-to-top-wrap">
+        <a href="#" class="docs-to-top" aria-label="Scroll to top"><span class="docs-to-top-arrow" aria-hidden="true">↑</span> To top</a>
+      </div>
     </main>
   </div>
 
@@ -151,27 +158,8 @@
     <p><a href="https://github.com/anatoliykmetyuk/ctxlayer" target="_blank" rel="noopener noreferrer">Context Layer</a> — <a href="https://anatoliikmt.me/about" target="_blank" rel="noopener noreferrer">Anatolii Kmetiuk</a> — Apache-2.0 — Built for context engineering</p>
   </footer>
 
-  <script>
-    (function() {
-      var toggle = document.querySelector('.docs-nav-toggle');
-      var sidebar = document.getElementById('docs-nav-menu');
-      if (toggle && sidebar) {
-        function closeMenu() {
-          sidebar.classList.remove('is-open');
-          toggle.setAttribute('aria-expanded', 'false');
-        }
-        toggle.addEventListener('click', function() {
-          var isOpen = sidebar.classList.toggle('is-open');
-          toggle.setAttribute('aria-expanded', isOpen);
-        });
-        sidebar.querySelectorAll('a').forEach(function(link) {
-          link.addEventListener('click', closeMenu);
-        });
-        document.addEventListener('keydown', function(e) {
-          if (e.key === 'Escape' && sidebar.classList.contains('is-open')) closeMenu();
-        });
-      }
-    })();
-  </script>
+  <script src="/js/docs-nav.js" defer></script>
+  <script src="/js/docs-toc.js" defer></script>
+  <script src="/js/docs-to-top.js" defer></script>
 </body>
 </html>
