@@ -74,91 +74,101 @@ structured place for documentation and reference material so they can focus and 
 <p>Each task has <code class="language-plaintext highlighter-rouge">docs/</code> and <code class="language-plaintext highlighter-rouge">data/</code> for documentation and reference material.
 The active domain and task are tracked in <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code> in your repo. When prompted to interact with the context layer, the agent skill will default to the active domain and task.</p>
 
-<domain>/<task>/`. Each task has `docs/` and `data/` for documentation and reference material.
-- **Context store** — `~/.agents/ctxlayer/domains/`; holds domains and tasks.
-- **Human-in-the-loop** — Context is curated by the developer, not auto-generated.
-- **Agent skill** — Teaches Cursor/Claude Code how to use `ctx` and the docs convention. Is installed as a skill in `~/.agents/skills/ctxlayer/`.
+<ul>
+  <li><strong>Context store</strong> — <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/</code>; holds domains and tasks.</li>
+  <li><strong>Human-in-the-loop</strong> — Context is curated by the developer, not auto-generated.</li>
+  <li><strong>Agent skill</strong> — Teaches Cursor/Claude Code how to use <code class="language-plaintext highlighter-rouge">ctx</code> and the docs convention. Is installed as a skill in <code class="language-plaintext highlighter-rouge">~/.agents/skills/ctxlayer/</code>.</li>
+</ul>
 
-## When to use
+<h2 id="when-to-use">When to use</h2>
 
-- Repetitive AI-assisted workflows across sessions
-- Projects where architectural context matters
-- Multi-session work where you need to persist decisions and research across sessions
+<ul>
+  <li>Repetitive AI-assisted workflows across sessions</li>
+  <li>Projects where architectural context matters</li>
+  <li>Multi-session work where you need to persist decisions and research across sessions</li>
+</ul>
 
-[Next: Getting Started](getting-started.html)
+<p><a href="getting-started.html">Next: Getting Started</a></p>
 
+<h2 id="core-concepts">Core concepts</h2>
 
-## Core concepts
+<h2 id="usage">Usage</h2>
 
+<p>This page provides a quick overview of the usage. For a full documentation, see the <a href="https://ctxlayer.dev/docs">Docs</a>.</p>
 
-## Usage
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx new
+</code></pre></div></div>
 
-This page provides a quick overview of the usage. For a full documentation, see the [Docs](https://ctxlayer.dev/docs).
+<p>The above command will prompt you to create a new domain folder and a task folder within it. It will do several things:</p>
 
-```bash
-ctx new
-```
+<ul>
+  <li>Create the new task folder in the <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code> directory.</li>
+  <li>Create the <code class="language-plaintext highlighter-rouge">docs/</code> and <code class="language-plaintext highlighter-rouge">data/</code> folders within the task folder.</li>
+  <li>Link the task folder to the current working directory as a symlink under <code class="language-plaintext highlighter-rouge">.ctxlayer/</code>, so it is accessible to the agent skill.</li>
+  <li>Update <code class="language-plaintext highlighter-rouge">.gitignore</code> to ignore <code class="language-plaintext highlighter-rouge">.ctxlayer/</code>.</li>
+  <li>Initialize a separate domain repo under <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/</code>, so the domain is version-controlled.</li>
+</ul>
 
-The above command will prompt you to create a new domain folder and a task folder within it. It will do several things:
+<h3 id="reference-material-curation">Reference Material Curation</h3>
 
-- Create the new task folder in the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory.
-- Create the `docs/` and `data/` folders within the task folder.
-- Link the task folder to the current working directory as a symlink under `.ctxlayer/`, so it is accessible to the agent skill.
-- Update `.gitignore` to ignore `.ctxlayer/`.
-- Initialize a separate domain repo under `~/.agents/ctxlayer/domains/<domain>/`, so the domain is version-controlled.
+<p>You can put any reference material needed for the task execution in the <code class="language-plaintext highlighter-rouge">data/</code> folder. These may be, for example:</p>
 
-### Reference Material Curation
+<ul>
+  <li>Log files from a failed CI - in case if you want an agent to debug an issue.</li>
+  <li>Examples of well-designed websites - in case if you want an agent to design a new UI.</li>
+  <li>A CSV file - in case you’re making a dashboard for a data analysis and need an agent to design the data access layer against a specific example dataset.</li>
+  <li>A Git repository - in case you want an agent to refer to an existing library code or another project. It is recommended to use a <code class="language-plaintext highlighter-rouge">git submodule</code> when cloning the repository, as every domain is also initialized as a git repository.</li>
+</ul>
 
-You can put any reference material needed for the task execution in the `data/` folder. These may be, for example:
+<p>The agent may later access the reference material from an agent session using e.g. the following prompt:</p>
 
-- Log files from a failed CI - in case if you want an agent to debug an issue.
-- Examples of well-designed websites - in case if you want an agent to design a new UI.
-- A CSV file - in case you're making a dashboard for a data analysis and need an agent to design the data access layer against a specific example dataset.
-- A Git repository - in case you want an agent to refer to an existing library code or another project. It is recommended to use a `git submodule` when cloning the repository, as every domain is also initialized as a git repository.
+<blockquote>
+  <p>“in the context layer, the reference material folder contains an example dataset. Please read it and …”.</p>
+</blockquote>
 
-The agent may later access the reference material from an agent session using e.g. the following prompt:
+<h3 id="documentation-curation">Documentation Curation</h3>
 
-&gt; "in the context layer, the reference material folder contains an example dataset. Please read it and ...".
+<p>The <code class="language-plaintext highlighter-rouge">docs/</code> folder is intended to be an ongoing journal of the task execution. It is intended to be written by the agent itself, but the write is not automatic and must be triggered by the developer. It is expected that the developer will review the documentation and work with the agent to get it to a high quality standard.</p>
 
-### Documentation Curation
+<p>The documentation is written in Markdown and is numbered for easy sorting, for example:</p>
 
-The `docs/` folder is intended to be an ongoing journal of the task execution. It is intended to be written by the agent itself, but the write is not automatic and must be triggered by the developer. It is expected that the developer will review the documentation and work with the agent to get it to a high quality standard.
-
-The documentation is written in Markdown and is numbered for easy sorting, for example:
-
-```bash
-# In the docs/ folder
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c"># In the docs/ folder</span>
 01-initial-research.md
 02-feature-implementation.md
 03-architecture-diagram.md
-```
+</code></pre></div></div>
 
-With the installed skill, use the prompt as follows to write documentation:
+<p>With the installed skill, use the prompt as follows to write documentation:</p>
 
-&gt; "in the context layer, write a document about what you just did. The documentation must include information on X, Y and Z."
+<blockquote>
+  <p>“in the context layer, write a document about what you just did. The documentation must include information on X, Y and Z.”</p>
+</blockquote>
 
-You will later be able to access the documentation from an agent session using e.g. the following prompt:
+<p>You will later be able to access the documentation from an agent session using e.g. the following prompt:</p>
 
-&gt; "in the context layer, the document number 1 specifies initial research findings. Please read it and ...".
+<blockquote>
+  <p>“in the context layer, the document number 1 specifies initial research findings. Please read it and …”.</p>
+</blockquote>
 
-### Other Capabilities
+<h3 id="other-capabilities">Other Capabilities</h3>
 
-Please refer to the [Docs](https://ctxlayer.dev/docs) for the full documentation. The following are some other capabilities that are not covered here:
+<p>Please refer to the <a href="https://ctxlayer.dev/docs">Docs</a> for the full documentation. The following are some other capabilities that are not covered here:</p>
 
-- Importing (linking) context from other domains.
-- Git operations on the context layer.
-- Deleting domains and tasks.
-- Switching the active domain and task.
-- Importing tasks from other domains.
+<ul>
+  <li>Importing (linking) context from other domains.</li>
+  <li>Git operations on the context layer.</li>
+  <li>Deleting domains and tasks.</li>
+  <li>Switching the active domain and task.</li>
+  <li>Importing tasks from other domains.</li>
+</ul>
 
-## Contributing
+<h2 id="contributing">Contributing</h2>
 
-This project is open for contributions. Suggested areas: CLI improvements, agent skill enhancements, context import/export utilities, documentation conventions. See [DEVELOPMENT.md](DEVELOPMENT.md) for local setup.
+<p>This project is open for contributions. Suggested areas: CLI improvements, agent skill enhancements, context import/export utilities, documentation conventions. See <a href="DEVELOPMENT.md">DEVELOPMENT.md</a> for local setup.</p>
 
-## License
+<h2 id="license">License</h2>
 
-Apache-2.0. See [LICENSE](LICENSE) for the full text.
-</domain></task></domain></task></domain>
+<p>Apache-2.0. See <a href="LICENSE">LICENSE</a> for the full text.</p>
 
       </article>
     </main>
