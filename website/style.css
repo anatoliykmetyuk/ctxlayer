@@ -1440,6 +1440,14 @@ tr:hover td {
   margin: 1rem 0;
 }
 
+/* Rouge syntax highlighting — comments */
+.docs-content .highlight .c,
+.docs-content .highlight .c1,
+.docs-content .highlight .cm {
+  color: var(--text-muted);
+  font-style: italic;
+}
+
 .docs-content .table-wrap {
   overflow-x: auto;
   margin: 1rem 0;

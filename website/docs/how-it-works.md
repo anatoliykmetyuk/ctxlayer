@@ -3,15 +3,13 @@ layout: docs
 title: How it works
 ---
 
-# How it works
-
 This page explains the mechanics of Context Layer in detail.
 
 ## Directory structure
 
 Your project directory looks like this with the context layer:
 
-```
+```bash
 my-project/
 ├── README.md
 ├── ...  # your project files
