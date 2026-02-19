@@ -28,7 +28,6 @@ The Context Layer is organized into _domains_ and _tasks_.
 Each task has `docs/` and `data/` for documentation and reference material.
 The active domain and task are tracked in `.ctxlayer/config.yaml` in your repo. When prompted to interact with the context layer, the agent skill will default to the active domain and task.
 
-<domain>/<task>/`. Each task has `docs/` and `data/` for documentation and reference material.
 - **Context store** — `~/.agents/ctxlayer/domains/`; holds domains and tasks.
 - **Human-in-the-loop** — Context is curated by the developer, not auto-generated.
 - **Agent skill** — Teaches Cursor/Claude Code how to use `ctx` and the docs convention. Is installed as a skill in `~/.agents/skills/ctxlayer/`.
