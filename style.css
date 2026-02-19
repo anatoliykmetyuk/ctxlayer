@@ -1645,21 +1645,23 @@ tr:hover td {
 }
 
 /* Code block scroll — grid forces child to not stretch parent, overflow scrolls */
-.docs-content .highlighter-rouge {
+.docs-content div.highlighter-rouge {
   margin: 1rem 0;
+  min-width: 0;
+  max-width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 
-.docs-content .highlighter-rouge .highlight {
+.docs-content div.highlighter-rouge .highlight {
   display: block;
   width: max-content;
   min-width: 100%;
 }
 
-.docs-content .highlighter-rouge pre {
+.docs-content div.highlighter-rouge pre {
   margin: 0;
   overflow: visible;
 }
@@ -1715,21 +1717,16 @@ tr:hover td {
   .docs-layout {
     flex-direction: column;
     padding: 1.5rem 1rem 2rem;
-    overflow-x: hidden;
   }
 
   .docs-main {
     min-width: 0;
-    overflow-x: hidden;
+    max-width: 100%;
   }
 
   .docs-content {
     min-width: 0;
-    overflow-x: hidden;
-  }
-
-  body.docs-page {
-    overflow-x: hidden;
+    max-width: 100%;
   }
 
   .docs-sidebar {
@@ -1800,8 +1797,13 @@ tr:hover td {
   }
 
   /* Code blocks: force scroll so wide content scrolls, not page overflow */
-  .docs-content .highlighter-rouge {
+  .docs-content div.highlighter-rouge {
     overflow-x: scroll;
+  }
+
+  /* Inline code: wrap long paths (e.g. ~/.agents/ctxlayer/domains/<domain>/<task>/) so they don't overflow */
+  .docs-content code {
+    overflow-wrap: break-word;
   }
 }
 
