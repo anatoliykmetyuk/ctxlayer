@@ -1,0 +1,2 @@
+install: "curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh && bash /tmp/ctxlayer-install.sh"
+uninstall: "curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/uninstall.sh -o /tmp/ctxlayer-uninstall.sh && bash /tmp/ctxlayer-uninstall.sh"
