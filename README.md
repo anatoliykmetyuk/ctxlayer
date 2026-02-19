@@ -1,175 +1,115 @@
-# CtxLayer - the Context Layer for AI agents
+# The Context Layer for AI agents
 
-A **context layer** used as **context for AI agents** during iterative development. It gives agents a structured place for documentation and reference material so they can focus and operate more precisely across iterations.
+[![CI](https://github.com/anatoliykmetyuk/ctxlayer/actions/workflows/ci.yml/badge.svg)](https://github.com/anatoliykmetyuk/ctxlayer/actions/workflows/ci.yml) [![npm](https://img.shields.io/npm/v/@anatoliikmt/ctxlayer.svg)](https://www.npmjs.com/package/@anatoliikmt/ctxlayer) [![website](https://img.shields.io/website?url=https%3A%2F%2Fctxlayer.dev&label=website)](https://ctxlayer.dev)
 
-## Intention
+The human-in-the-loop context engineering and curation tool for AI-assisted development.
 
-- **Domain** - Context organization unit. A domain can span one or more Git repositories.
-- **Task** - One task within that domain. Think of a task like a Git branch: create a new task whenever you start a feature, refactor, or research spike.
-- Inside each task you get:
-  - **`data/`** - All data the agent can use (reference material, repos, sample data).
-  - **`docs/`** - Documentation. Whenever something meaningful is done - research, an implementation plan, or the implementation itself - that knowledge is written into the task's `docs/` folder using the naming convention.
-- In later iterations, the relevant Markdown in `docs/` and the contents of `data/` are available so the agent can narrow its focus and work more precisely.
+## Motivation
+
+AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. When you open a new chat, you need to explain the architecture, intent, and conventions every time. Context Layer stores project context in the format of plain folders and files, curated by the developer, so it can be reused across tools and sessions.
 
 ## What it does
 
-- Manages a global store at `~/.agents/ctxlayer/domains/` where domains and tasks live.
-- Each task has `docs/` and `data/` for documentation and reference material.
-- A local `.ctxlayer/config.yaml` in your repo (or workspace) tracks the active domain and task.
-- An agent skill teaches AI coding assistants (Cursor, Claude Code, etc.) how to write documentation and manage context using these conventions.
+- **Stores structured context** at `~/.agents/ctxlayer/domains/` (outside the codebase).
+- **Provides a CLI** to manage the context: link it to existing projects via symlinks, create new tasks, and more.
+- **Provides an Agent Skill** so Cursor/Claude Code can read and write context.
 
-## Directory layout
+The Context Layer is organized into _domains_ and _tasks_. Each task has `docs/` and `data/` for documentation and reference material.
+The active domain and task are tracked in `.ctxlayer/config.yaml` in your repo. When prompted to interact with the context layer, the agent skill will default to the active domain and task.
 
-```
-~/.agents/ctxlayer/                              # global store (in home dir)
-  domains/
-    <domain-name>/                       # one per domain (can span one or more git repos)
-      <task-name>/                        # one per task (think: branch)
-        docs/                             # documentation (01-name.md, 02-name.md, ...)
-        data/                             # reference material, git submodules, sample data
+## When to use
 
-<your-repo>/
-  .ctxlayer/                              # local config (gitignored)
-    config.yaml                           # active-domain and active-task
-    <task-name> -> symlink                # symlink to the task folder in global store
-```
+- Repetitive AI-assisted workflows across sessions
+- Projects where architectural context matters
+- Multi-session work where you need to persist decisions and research across sessions
 
-## Installing
+## Getting Started
 
-One command installs the CLI (from npm) and the agent skill (from GitHub):
+Currently supports only Mac OS and Linux. Requires Node.js/npm.
+
+One command installs the CLI and agent skill (from npm):
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh && bash /tmp/ctxlayer-install.sh
 ```
 
-Downloads the script first, then runs it — stdin stays connected to your terminal so the skill installer can prompt you to select your IDE. Requires Node.js/npm.
-
-### Local development
+Uninstall (removes both CLI and agent skill):
 
 ```bash
-cd /path/to/ctxlayer
-./install-locally.sh
+curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/uninstall.sh -o /tmp/ctxlayer-uninstall.sh && bash /tmp/ctxlayer-uninstall.sh
 ```
 
-Or manually: `npm install` then `npm link`. After that, `ctx` is available globally. Edits to `bin/cli.js` take effect immediately.
+## Core concepts
 
-### Uninstalling
+- **Domain** — Context organization unit. Contains some domain knowledge that may be applicable to multiple repos. Is represented by a folder in `~/.agents/ctxlayer/domains/`.
+- **Task** — One unit of work within a domain (like a branch). Is represented by a folder in `~/.agents/ctxlayer/domains/<domain>/<task>/`. Each task has `docs/` and `data/` for documentation and reference material.
+- **Context store** — `~/.agents/ctxlayer/domains/`; holds domains and tasks.
+- **Human-in-the-loop** — Context is curated by the developer, not auto-generated.
+- **Agent skill** — Teaches Cursor/Claude Code how to use `ctx` and the docs convention. Is installed as a skill in `~/.agents/skills/ctxlayer/`.
+
+## Usage
+
+This page provides a quick overview of the usage. For a full documentation, see the [Docs](https://ctxlayer.dev/docs).
 
 ```bash
-npm unlink -g @anatoliikmt/ctxlayer
+ctx new
 ```
 
-(If you linked when the package had a different name, use that name: `npm unlink -g ctx`.)
+The above command will prompt you to create a new domain folder and a task folder within it. It will do several things:
 
-## CLI commands
+- Create the new task folder in the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory.
+- Create the `docs/` and `data/` folders within the task folder.
+- Link the task folder to the current working directory as a symlink under `.ctxlayer/`, so it is accessible to the agent skill.
+- Update `.gitignore` to ignore `.ctxlayer/`.
+- Initialize a separate domain repo under `~/.agents/ctxlayer/domains/<domain>/`, so the domain is version-controlled.
 
-| Command | Description |
-|---|---|
-| `ctx` | Show help and available commands |
-| `ctx new [name]` | Create a new task (initializes workspace, prompts for domain if needed) |
-| `ctx import` | Import a task from any domain as a local symlink |
-| `ctx git [args...]` | Run git in the current task directory |
-| `ctx drop task [name]` | Remove a task symlink (with optional task name) |
-| `ctx drop domain [name]` | Remove a domain directory from local `.ctxlayer/` (optional domain name) |
-| `ctx delete task` | Delete a task from the context store and remove its symlink |
-| `ctx delete domain` | Delete a domain from the context store and remove its local directory |
-| `ctx status` | Show the current active domain and task |
-| `ctx set` | Set active domain and task (prompts to select) |
+### Reference Material Curation
 
-### `ctx new`
+You can put any reference material needed for the task execution in the `data/` folder. These may be, for example:
 
-Creates a new task. Single entry point for getting started:
+- Log files from a failed CI - in case if you want an agent to debug an issue.
+- Examples of well-designed websites - in case if you want an agent to design a new UI.
+- A CSV file - in case you're making a dashboard for a data analysis and need an agent to design the data access layer against a specific example dataset.
+- A Git repository - in case you want an agent to refer to an existing library code or another project. It is recommended to use a `git submodule` when cloning the repository, as every domain is also initialized as a git repository.
 
-1. Ensures workspace is initialized (`.ctxlayer/`, `config.yaml`, `.gitignore`)
-2. If no active domain: prompts to create (fetch from git, create from scratch) or select existing
-3. If active domain set: asks "Use current active domain [X] for new task?" (yes/no); if no, goes to domain prompt
-4. Prompts for task name (or use `ctx new [name]`), then creates task dir, symlink, and updates config.
+The agent may later access the reference material from an agent session using e.g. the following prompt:
 
-### `ctx import`
+> "in the context layer, the reference material folder contains an example dataset. Please read it and ...".
 
-Imports a task from any project into the local `.ctxlayer/` directory as a symlink. Works on uninitialized workspaces (no `.ctxlayer/` or no `config.yaml`): it initializes the workspace and sets the imported project and task as active. When config already has a valid active project and task, only creates the symlink without changing active.
+### Documentation Curation
 
-1. Ensures workspace is initialized (creates `.ctxlayer/`, `config.yaml`, `.gitignore` if missing).
-2. Prompts to select a domain (arrow-key menu listing all domains in `~/.agents/ctxlayer/domains/`).
-3. Prompts to select a task from that domain.
-4. Creates a symlink at `.ctxlayer/<domain>/<task>` pointing to the task folder in the global store.
-5. Sets the imported domain and task as active in config when active was empty or missing.
+The `docs/` folder is intended to be an ongoing journal of the task execution. It is intended to be written by the agent itself, but the write is not automatic and must be triggered by the developer. It is expected that the developer will review the documentation and work with the agent to get it to a high quality standard.
 
-### `ctx git [args...]`
-
-Runs `git` with the given arguments in the current task directory. Requires an active task to be set. Example: `ctx git status` runs `git status` in `~/.agents/ctxlayer/domains/<domain>/<task>/`.
-
-### `ctx drop task [name]`
-
-Removes a task symlink from the local `.ctxlayer/` directory. Prompts to select a domain, then a task (or use the optional task name with the active domain). If the domain directory is left empty, it is removed.
-
-### `ctx drop project [name]`
-
-Removes an entire domain directory from the local `.ctxlayer/` directory. Pass an optional domain name to drop it directly; otherwise prompts to select a domain. Asks for confirmation before removing.
-
-### `ctx delete task`
-
-Permanently deletes a task from the context store (`~/.agents/ctxlayer/domains/`) and removes its symlink from the local directory. Prompts to select a domain and task, then asks for confirmation.
-
-### `ctx delete project`
-
-Permanently deletes a domain from the context store and removes its local directory from `.ctxlayer/`. Prompts to select a domain and asks for confirmation.
-
-### `ctx status`
-
-Prints the current active domain and task. Run `ctx set` to change the active domain and task.
-
-### `ctx set`
-
-Prompts to select a domain and a task from the global store, then sets them as active in `.ctxlayer/config.yaml`.
-
-## Config file
-
-Located at `.ctxlayer/config.yaml` in your repo:
-
-```yaml
-active-domain: my-domain
-active-task: my-task
-```
-
-## Agent skill
-
-The one-liner installer above installs both the CLI and the skill. The skill lives at `skills/ctxlayer/SKILL.md` and teaches AI coding assistants (Cursor, Claude Code, etc.) how to use the ctx CLI and manage context.
-
-For local development, `./install-locally.sh` installs both the CLI and skill. Or install the skill only:
+The documentation is written in Markdown and is numbered for easy sorting, for example:
 
 ```bash
-npx skills add /path/to/ctxlayer -g -a cursor --skill ctxlayer -y
+# In the docs/ folder
+01-initial-research.md
+02-feature-implementation.md
+03-architecture-diagram.md
 ```
 
-### What the skill teaches the agent
+With the installed skill, use the prompt as follows to write documentation:
 
-1. **CLI commands** - how to use `ctx new`, `ctx status`, `ctx set`, etc.
-2. **Docs convention** - when something meaningful is done (research, plan, implementation), create numbered markdown files (`01-name.md`, `02-name.md`) in the active task's `docs/` folder so later iterations can use that documentation.
-3. **Data convention** - reference material goes in the task's `data/` folder (repos as git submodules). This is the data the agent uses to focus its work.
+> "in the context layer, write a document about what you just did. The documentation must include information on X, Y and Z."
 
-## Cursor setup tips
+You will later be able to access the documentation from an agent session using e.g. the following prompt:
 
-Optional: disable external and dot files protection for added convenience so you don't have to confirm edits each time.
+> "in the context layer, the document number 1 specifies initial research findings. Please read it and ...".
 
-1. Open Cursor Settings
-2. Search for "External files protection" and "Dot files protection", disable both options
+### Other Capabilities
 
-## Project structure
+Please refer to the [Docs](https://ctxlayer.dev/docs) for the full documentation. The following are some other capabilities that are not covered here:
 
-```
-ctxlayer/
-  bin/
-    cli.js                # CLI entry point (ES module)
-  skills/
-    ctxlayer/
-      SKILL.md            # Agent skill definition
-  install.sh              # One-liner installer (curl)
-  install-locally.sh      # Local development installer
-  package.json
-  .gitignore
-  README.md
-```
+- Importing (linking) context from other domains.
+- Git operations on the context layer.
+- Deleting domains and tasks.
+- Switching the active domain and task.
+- Importing tasks from other domains.
+
+## Contributing
+
+This project is open for contributions. Suggested areas: CLI improvements, agent skill enhancements, context import/export utilities, documentation conventions. See [DEVELOPMENT.md](DEVELOPMENT.md) for local setup.
 
 ## License
 
