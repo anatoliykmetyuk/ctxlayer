@@ -39,6 +39,8 @@
 html {
   scroll-behavior: smooth;
   color-scheme: light dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 .sr-only {
