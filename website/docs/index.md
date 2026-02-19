@@ -6,6 +6,8 @@ title: Overview
 Context Layer is a **context layer** used as **context for AI agents** during iterative development. It gives agents a
 structured place for documentation and reference material so they can focus and operate more precisely across iterations.
 
+It comes in a form of a CLI and an agent skill, operating over a plain old directory structure.
+
 ## Motivation
 
 AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. When you open a new chat, you need to explain the architecture, intent, and conventions every time. Context Layer stores project context in the format of plain folders and files, curated by the developer, so it can be reused across tools and sessions.
@@ -16,8 +18,20 @@ AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. Wh
 - **Provides a CLI** to manage the context: link it to existing projects via symlinks, create new tasks, and more.
 - **Provides an Agent Skill** so Cursor/Claude Code can read and write context.
 
-The Context Layer is organized into _domains_ and _tasks_. Each task has `docs/` and `data/` for documentation and reference material.
+## Conceptual Model
+
+The Context Layer is organized into _domains_ and _tasks_.
+
+- **Domain** — Context organization unit. Contains some domain knowledge that may be applicable to multiple repos. Is represented by a folder in `~/.agents/ctxlayer/domains/`.
+- **Task** — One unit of work within a domain (like a branch). Is represented by a folder in `~/.agents/ctxlayer/domains/
+
+Each task has `docs/` and `data/` for documentation and reference material.
 The active domain and task are tracked in `.ctxlayer/config.yaml` in your repo. When prompted to interact with the context layer, the agent skill will default to the active domain and task.
+
+<domain>/<task>/`. Each task has `docs/` and `data/` for documentation and reference material.
+- **Context store** — `~/.agents/ctxlayer/domains/`; holds domains and tasks.
+- **Human-in-the-loop** — Context is curated by the developer, not auto-generated.
+- **Agent skill** — Teaches Cursor/Claude Code how to use `ctx` and the docs convention. Is installed as a skill in `~/.agents/skills/ctxlayer/`.
 
 ## When to use
 
@@ -30,11 +44,6 @@ The active domain and task are tracked in `.ctxlayer/config.yaml` in your repo. 
 
 ## Core concepts
 
-- **Domain** — Context organization unit. Contains some domain knowledge that may be applicable to multiple repos. Is represented by a folder in `~/.agents/ctxlayer/domains/`.
-- **Task** — One unit of work within a domain (like a branch). Is represented by a folder in `~/.agents/ctxlayer/domains/<domain>/<task>/`. Each task has `docs/` and `data/` for documentation and reference material.
-- **Context store** — `~/.agents/ctxlayer/domains/`; holds domains and tasks.
-- **Human-in-the-loop** — Context is curated by the developer, not auto-generated.
-- **Agent skill** — Teaches Cursor/Claude Code how to use `ctx` and the docs convention. Is installed as a skill in `~/.agents/skills/ctxlayer/`.
 
 ## Usage
 
