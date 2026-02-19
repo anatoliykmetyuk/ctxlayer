@@ -357,6 +357,7 @@ main {
   display: flex;
   align-items: stretch;
   gap: 0;
+  margin-bottom: 0.5rem;
   border: 1px solid var(--accent);
   border-radius: 0.5rem;
   background: var(--code-bg);
