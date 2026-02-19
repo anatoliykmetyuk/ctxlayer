@@ -1642,14 +1642,13 @@ tr:hover td {
   font-style: italic;
 }
 
-/* Code block scroll on mobile — outer div scrolls, inner content can grow */
+/* Code block scroll — grid forces child to not stretch parent, overflow scrolls */
 .docs-content .highlighter-rouge {
   margin: 1rem 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  overflow-y: visible;
-  width: 100%;
-  max-width: 100%;
 }
 
 .docs-content .highlighter-rouge .highlight {
@@ -1714,6 +1713,21 @@ tr:hover td {
   .docs-layout {
     flex-direction: column;
     padding: 1.5rem 1rem 2rem;
+    overflow-x: hidden;
+  }
+
+  .docs-main {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  .docs-content {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+
+  body.docs-page {
+    overflow-x: hidden;
   }
 
   .docs-sidebar {
@@ -1781,6 +1795,11 @@ tr:hover td {
 
   .docs-toc-to-top {
     display: none;
+  }
+
+  /* Code blocks: force scroll so wide content scrolls, not page overflow */
+  .docs-content .highlighter-rouge {
+    overflow-x: scroll;
   }
 }
 
