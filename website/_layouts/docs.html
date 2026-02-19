@@ -26,15 +26,20 @@
   <div class="docs-layout">
     <aside id="docs-nav-menu" class="docs-sidebar" aria-label="Docs navigation">
       <nav class="docs-nav">
-        <a href="{{ '/docs/' | relative_url }}" class="docs-nav-link {% if page.url == '/docs/' or page.url == '/docs/index.html' %}active{% endif %}">Overview</a>
-        <a href="{{ '/docs/how-it-works.html' | relative_url }}" class="docs-nav-link {% if page.url contains 'how-it-works' %}active{% endif %}">How it works</a>
-        <a href="{{ '/docs/commands.html' | relative_url }}" class="docs-nav-link {% if page.url contains 'commands' %}active{% endif %}">Commands</a>
-        <a href="{{ '/docs/installing.html' | relative_url }}" class="docs-nav-link {% if page.url contains 'installing' %}active{% endif %}">Installing</a>
+        {% for item in site.data.docs_nav %}
+        {% if item.url == '/docs/' %}
+          {% if page.url == '/docs/' or page.url == '/docs/index.html' %}{% assign is_active = true %}{% else %}{% assign is_active = false %}{% endif %}
+        {% else %}
+          {% if page.url == item.url %}{% assign is_active = true %}{% else %}{% assign is_active = false %}{% endif %}
+        {% endif %}
+        <a href="{{ item.url | relative_url }}" class="docs-nav-link {% if is_active %}active{% endif %}">{{ item.title }}</a>
+        {% endfor %}
       </nav>
     </aside>
 
     <main id="main" class="docs-main">
       <article class="docs-content">
+        <h1>{{ page.title }}</h1>
         {{ content }}
       </article>
     </main>
