@@ -6,3 +6,11 @@ description: Human-in-the-loop context engineering and curation tool for AI-assi
 # url: ""
 
 markdown: kramdown
+
+exclude:
+  - e2e
+  - node_modules
+  - package.json
+  - package-lock.json
+  - playwright.config.ts
+  - test.sh
