@@ -353,7 +353,7 @@ main {
   }
 }
 
-.hero-command {
+.install-command {
   display: flex;
   align-items: stretch;
   gap: 0;
@@ -364,7 +364,7 @@ main {
   box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.2);
 }
 
-.hero-command input {
+.install-command input {
   flex: 1;
   min-width: 0;
   padding: 0.875rem 1rem;
@@ -380,12 +380,12 @@ main {
   scrollbar-width: none;
 }
 
-.hero-command input:focus-visible {
+.install-command input:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: -2px;
 }
 
-.hero-command input::-webkit-scrollbar {
+.install-command input::-webkit-scrollbar {
   display: none;
 }
 
@@ -1562,7 +1562,7 @@ tr:hover td {
     font-size: 1.0625rem;
   }
 
-  .hero-command input {
+  .install-command input {
     font-size: 0.875rem;
     padding: 0.75rem 1rem;
   }

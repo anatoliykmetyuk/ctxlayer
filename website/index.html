@@ -1,3 +1,5 @@
+---
+---
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,13 +47,7 @@
         </div>
       </div>
       <div class="hero-cta">
-        <div class="hero-command">
-          <input type="text" readonly value="curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh && bash /tmp/ctxlayer-install.sh" id="hero-cmd" aria-label="Install command" spellcheck="false" />
-          <button type="button" class="copy-btn" aria-label="Copy to clipboard">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-            <span aria-live="polite" aria-atomic="true">Copy</span>
-          </button>
-        </div>
+        {% include install-command.html %}
       </div>
     </section>
 
@@ -181,13 +177,7 @@
           <span class="step-num" aria-hidden="true">1</span>
           <span class="step-content">
             <span class="step-desc">Install the ctx CLI and agent skill.</span>
-            <div class="hero-command install-command-block">
-              <input type="text" readonly value="curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh && bash /tmp/ctxlayer-install.sh" aria-label="Install command" spellcheck="false" />
-              <button type="button" class="copy-btn" aria-label="Copy to clipboard">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                <span aria-live="polite" aria-atomic="true">Copy</span>
-              </button>
-            </div>
+            {% include install-command.html class="install-command install-command-block" %}
           </span>
         </li>
         <li><span class="step-num" aria-hidden="true">2</span><span class="step-content">From your project directory, run <code>ctx new</code> — Create a new task to hold the context for the task you are about to do. Initializes the context layer for your domain if it was not yet initialized.</span></li>
@@ -204,21 +194,6 @@
 
   <script>
     (function() {
-      // Copy buttons (hero + quick start) — identical logic for both
-      document.querySelectorAll('.hero-command').forEach(function(block) {
-        var btn = block.querySelector('.copy-btn');
-        var input = block.querySelector('input[type="text"]');
-        if (btn && input) {
-          btn.addEventListener('click', function() {
-            navigator.clipboard.writeText(input.value).then(function() {
-              var span = btn.querySelector('span');
-              if (span) { span.textContent = 'Copied!'; }
-              setTimeout(function() { if (span) span.textContent = 'Copy'; }, 1500);
-            });
-          });
-        }
-      });
-
       // Hamburger menu toggle
       var navToggle = document.querySelector('.nav-toggle');
       var navMenu = document.getElementById('nav-menu');
