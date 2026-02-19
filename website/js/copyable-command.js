@@ -1,8 +1,8 @@
 (function() {
-  if (window.installCommandInit) return;
-  window.installCommandInit = true;
+  if (window.copyableCommandInit) return;
+  window.copyableCommandInit = true;
 
-  document.querySelectorAll('.install-command').forEach(function(block) {
+  document.querySelectorAll('.copyable-command').forEach(function(block) {
     var btn = block.querySelector('.copy-btn');
     var input = block.querySelector('input[type="text"]');
     if (btn && input) {

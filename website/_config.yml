@@ -2,6 +2,7 @@ title: Context Layer
 description: Human-in-the-loop context engineering and curation tool for AI-assisted development
 
 install_command: "curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/install.sh -o /tmp/ctxlayer-install.sh && bash /tmp/ctxlayer-install.sh"
+uninstall_command: "curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/uninstall.sh -o /tmp/ctxlayer-uninstall.sh && bash /tmp/ctxlayer-uninstall.sh"
 
 # GitHub Pages: set baseurl if site is served from a subdirectory (e.g. /ctxlayer)
 # baseurl: ""
