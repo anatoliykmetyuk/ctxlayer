@@ -47,7 +47,7 @@ jobs:
           working-directory: website
 
       - name: Run HTML Proofer
-        run: bundle exec htmlproofer _site --allow-hash-href --empty-alt-ignore --disable-external
+        run: bundle exec htmlproofer _site --allow-hash-href --ignore-empty-alt
         working-directory: website
 
   deploy:
