@@ -6,13 +6,13 @@ title: Overview
 Context Layer is a tool for organizing and managing agents' context during iterative development.
 It provides a structured place for documentation and reference material so agents can operate more precisely across iterations.
 
-It comes in a form of a CLI and an agent skill, operating over a plain old directory structure. It is designed to be used with AI coding tools, such as Cursor and Claude Code.
+It comes in the form of a CLI and an agent skill, operating over a plain old directory structure. It is designed to be used with AI coding tools, such as Cursor and Claude Code.
 
 ## Motivation
 
 AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. When you open a new chat, you need to explain the architecture, intent, and conventions every time. This reduces the development speed and enjoyment of the process. Moreover, human memory is also limited, so one may need to use agent to repeat exploration of the codebase, to e.g. recall why a certain decision was made. This wastes token budget and time. All in all, statelessness wastes cognitive resources of the agent and the developer alike. See [Effective Context Engineering for AI Agents](https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents) by Anthropic for further reading on the topic.
 
-A number of attempts have been made by the community to solve this. Automatic approaches, such as automatic logging of the context, usually lead to context clutter and [context rot](https://research.trychroma.com/context-rot). Manually logging documentation to markdown files is a common approach, but it is often developer- or task-specific. The context generated in such a way often does not belong to the codebase, and poses difficulies for version control.
+A number of attempts have been made by the community to solve this. Automatic approaches, such as automatic logging of the context, usually lead to context clutter and [context rot](https://research.trychroma.com/context-rot). Manually logging documentation to markdown files is a common approach, but it is often developer- or task-specific. The context generated in such a way often does not belong to the codebase, and poses difficulties for version control.
 
 Further, context comes in different shape, not always human-readable markdown files. Sometimes it is an external git repo, a sample dataset, a log of a failed CI, examples of well-designed websites, etc. All of those are critical for the agent to do its job well but have no place in the codebase, as they are more of a raw material than an end product.
 
@@ -26,11 +26,11 @@ The tool is aimed at an **AI power-user developer** - a kind of developer who pr
 
 Rather than expecting the developer to do less work due to AI automation, the tool assumes the developer to be doing a new kind of work, shifting their attention focus from the implementation details to the architecture and intent-shaping.
 
-The developer is expected to exercise discipline in their context curation and management to get the most value of the tool.
+The developer is expected to exercise discipline in their context curation and management to get the most value from the tool.
 
 ## The Solution
 
-The Context Layer exists on your machine in a form of a **directory structure that contains files and folders**. The structure is logically organized into **domains** and **tasks**. Domains are intended to track domain knowledge across one or more software projects, while tasks exist as part of a domain are are used to store the context for a specific unit of work, similarly to how you would use a branch in a git repository.
+The Context Layer exists on your machine in the form of a **directory structure that contains files and folders**. The structure is logically organized into **domains** and **tasks**. Domains are intended to track domain knowledge across one or more software projects, while tasks exist as part of a domain and are used to store the context for a specific unit of work, similarly to how you would use a branch in a git repository.
 
 Context may be linked across projects with task-wise granularity. So, from any project you are working on, you may link a task from another domain to your project via a symlink. Link only what you need to get the job done, so you don't have to worry about cluttering your project with irrelevant context.
 
