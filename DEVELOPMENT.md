@@ -25,7 +25,14 @@ npm test
 
 ## Release
 
-Publishing to npm is triggered by pushing a version tag. The package is `@anatoliikmt/ctxlayer` (CLI command: `ctx`).
+Publishing to npm and creating a GitHub Release happen when you push a version tag, **after** the CLI workflow tests pass. The package is `@anatoliikmt/ctxlayer` (CLI command: `ctx`).
+
+### Flow
+
+1. **CLI** (`.github/workflows/cli.yml`) runs on push to `main`, tag pushes `v*`, and pull requests. It runs tests on Node 22 and 24.
+2. On a **tag push** with tests passing, the **Release** workflow (`.github/workflows/release.yml`) runs:
+   - publishes to npm
+   - creates a GitHub Release with auto-generated notes (PRs and commits since last tag)
 
 ### Steps
 
@@ -45,7 +52,7 @@ Publishing to npm is triggered by pushing a version tag. The package is `@anatol
    git push origin v1.0.1
    ```
 
-The GitHub Actions workflow (`.github/workflows/publish.yml`) runs on tag push: it runs tests and publishes to npm. Check the [Actions tab](https://github.com/anatoliykmetyuk/ctxlayer/actions) to confirm.
+The CLI workflow runs tests on the tag. If they pass, the Release workflow publishes to npm and creates a GitHub Release. Check the [Actions tab](https://github.com/anatoliykmetyuk/ctxlayer/actions) to confirm.
 
 ### Verify
 
