@@ -3,7 +3,7 @@ layout: docs
 title: Getting Started
 ---
 
-Let's use the Context Layer tool to do an ordinary task in a new way. Think of a project you're currently working on, and some task that you need to do on it. Prepare your favorite development envirinment and start your agent.
+Let's use the Context Layer tool to do an ordinary task in a new way. Think of a project you're currently working on, and some task that you need to do on it. Prepare your favorite development environment and start your agent.
 
 Now let's install the Context Layer tool on your machine.
 
@@ -68,10 +68,10 @@ Also, `.ctxlayer` will be added to your `.gitignore` file, so that the context l
 
 Think of the task you want to do on your project. Do you have any reference data that the agent would benefit from while doing your task? This could be:
 
-- **Log files** from a failed CI - in case if you want an agent to debug an issue.
-- **Examples** of well-designed websites - in case if you want an agent to design a new UI.
+- **Log files** from a failed CI - in case you want an agent to debug an issue.
+- **Examples** of well-designed websites - in case you want an agent to design a new UI.
 - **A CSV file** - in case you're making a data analytics dashboard and need an agent to design the data access layer against a specific example dataset.
-- **A Git repository** - in case you want an agent to refer to an existing library code or another project. It is recommended to use the `git submodule add` command when cloning the repository, as every domain is also initialized as a git repository.
+- **A Git repository** - in case you want an agent to refer to existing library code or another project. It is recommended to use the `git submodule add` command when cloning the repository, as every domain is also initialized as a git repository.
 
 All of those examples belong in the `data/` folder of your task. Now is a good time to bring them into that directory.
 
@@ -111,7 +111,7 @@ This will produce a new document in the docs folder, numbered for easy sorting, 
 
 In the future, when you encounter a similar issue or need the information otherwise, you can refer to the documentation you generated in the previous step to guide the agent:
 
-> Please resolve the issue X / do the job Y. In context layer, plesae use the documentation of previous similar cases, docs numbers XX, YY, and ZZ, to guide your work.
+> Please resolve the issue X / do the job Y. In the context layer, please use the documentation of previous similar cases, docs numbers XX, YY, and ZZ, to guide your work.
 
 ### 6. Reuse Domain Intelligence across projects
 
@@ -137,7 +137,7 @@ You can always ask the agent to **access a task other than the active task** by 
 
 ### 7. Version Manage your Context Layer
 
-**Every domain is initialized as a git repository**. You can `cd` into it and use git operations just like you would do with any other git repository. You can save your context layer per domain in separate github repositories.
+**Every domain is initialized as a git repository**. You can `cd` into it and use git operations just like you would do with any other git repository. You can save your context layer per domain in separate GitHub repositories.
 
 **Convenience commands** are available from the project's root directory to work with the context layer so that you do not have to `cd` into it every time:
 
