@@ -20,23 +20,17 @@ Further, context comes in different shape, not always human-readable markdown fi
 
 The Context Layer tool is built around the principles of **simplicity** and **human-in-the-loop**. It does not make an attempt to automate your development cycle or context management. Rather than being an automation, it is a tool for a skilled developer to conveniently sculpt the context before doing the work with an agent.
 
-Rather than trying to replace the developer with an agent or commoditize software engineering, the tool assumes **the developer to be an essential part of the development process** which brings **expertise, taste and the knowledge** of the big picture to the table, while the agent is a tool to automate mechanical work and translate intent into result. The agent is assumed to be a tool to automate mechanical work and to speed up the translation of the developer's intent into result. But it is the role of the developer to specify their intent precisely.
+Rather than trying to replace the developer with an agent or commoditize software engineering, the tool assumes **the developer to be an essential part of the development process** which brings **expertise, taste and the knowledge** of the big picture to the table, while the agent is a tool to automate mechanical work and translate intent into result. The role of a developer is to specify their intent precisely. The developer is expected to exercise discipline in their context curation and management to get the most value from the tool.
 
-The tool is aimed at an **AI power-user developer** - a kind of developer who prefers to use AI to generate >80% of their code. Such a developer is expected to think at the level of concepts, architecture, intent and constraints rather than precise code statements that express that code.
-
-Rather than expecting the developer to do less work due to AI automation, the tool assumes the developer to be doing a new kind of work, shifting their attention focus from the implementation details to the architecture and intent-shaping.
-
-The developer is expected to exercise discipline in their context curation and management to get the most value from the tool.
-
-## The Solution
+## The Tool
 
 The Context Layer exists on your machine in the form of a **directory structure that contains files and folders**. The structure is logically organized into **domains** and **tasks**. Domains are intended to track domain knowledge across one or more software projects, while tasks exist as part of a domain and are used to store the context for a specific unit of work, similarly to how you would use a branch in a git repository.
 
 Context may be linked across projects with task-wise granularity. So, from any project you are working on, you may link a task from another domain to your project via a symlink. Link only what you need to get the job done, so you don't have to worry about cluttering your project with irrelevant context.
 
-A CLI tool is provided to easily perform the operations above, such as creating new tasks, linking tasks from other domains, and more.
+A CLI tool is provided to easily perform the operations described above, such as creating new tasks, linking tasks from other domains, and more.
 
-Your agent of choice (such as Cursor, Claude Code, etc.) is made aware of the context layer of your project via an [agent skill](https://github.com/anatoliykmetyuk/ctxlayer/blob/main/SKILL.md) (see the [Skills standard specification](https://github.com/anatoliykmetyuk/skills-spec)). So, whenever you mention "context layer" in your prompts, your agent will know where to look.
+Your agent of choice (such as Cursor, Claude Code, etc.) is made aware of the context layer of your project via an [agent skill](https://github.com/anatoliykmetyuk/ctxlayer/blob/main/skills/ctxlayer/SKILL.md). So, whenever you mention "context layer" in your prompts, your agent will know where to look.
 
 The intended outcome is an ever-growing corpus of domain knowledge, where every task you do is documented in a human-driven way, separately from the codebase, readily accessible during future work across projects. As a result, the developer saves time, token budget and cognitive resources, speeds up the development process, makes it more enjoyable and predictable.
 
