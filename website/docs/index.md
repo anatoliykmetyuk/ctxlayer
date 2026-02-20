@@ -14,7 +14,7 @@ AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. Wh
 
 A number of attempts have been made by the community to solve this. Automatic approaches, such as automatic logging of the context, usually lead to context clutter and [context rot](https://research.trychroma.com/context-rot). Manually logging documentation to markdown files is a common approach, but it is often developer- or task-specific. The context generated in such a way often does not belong to the codebase, and poses difficulties for version control.
 
-Further, context comes in different shape, not always human-readable markdown files. Sometimes it is an external git repo, a sample dataset, a log of a failed CI, examples of well-designed websites, etc. All of those are critical for the agent to do its job well but have no place in the codebase, as they are more of a raw material than an end product.
+Further, context comes in different shape, not always human-readable markdown files. Sometimes it is an external git repo, a sample dataset, a log of a failed CI, examples of well-designed websites, etc. All of those are critical for the agent to do its job well but do not belong in the codebase, as they are more of a raw material than an end product.
 
 ## The Concept
 
