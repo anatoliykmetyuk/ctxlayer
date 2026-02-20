@@ -2,8 +2,10 @@
 set -e
 cd "$(dirname "$0")"
 
-echo "Building Jekyll site..."
-bundle exec jekyll build
+if [[ ! -d "_site" ]]; then
+  echo "Error: _site directory not found. Build the site first with 'bundle exec jekyll build'" >&2
+  exit 1
+fi
 
 echo "Starting server..."
 npx serve _site -l 3000 &

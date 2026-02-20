@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  website-test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,6 +18,26 @@ jobs:
           ruby-version: '3.2'
           bundler-cache: true
           working-directory: website
+
+      - name: Build Jekyll site
+        run: bundle exec jekyll build
+        working-directory: website
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jekyll-site
+          path: website/_site
+
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: jekyll-site
+          path: website/_site
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -34,7 +54,7 @@ jobs:
         run: npx playwright install --with-deps
         working-directory: website
 
-      - name: Build, serve, and test website
+      - name: Run Playwright tests
         run: ./test.sh
         working-directory: website
 
@@ -45,14 +65,16 @@ jobs:
           path: website/playwright-report/
           retention-days: 30
 
-  deploy:
-    needs: website-test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+  html-proofer:
+    needs: build
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: jekyll-site
+          path: website/_site
 
       - name: Setup Ruby
         uses: ruby/setup-ruby@v1
@@ -61,9 +83,23 @@ jobs:
           bundler-cache: true
           working-directory: website
 
-      - name: Build Jekyll site
-        run: bundle exec jekyll build
+      - name: Run HTML Proofer
+        run: bundle exec htmlproofer _site --allow-hash-href --empty-alt-ignore --disable-external
         working-directory: website
+
+  deploy:
+    needs: [test, html-proofer]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: jekyll-site
+          path: website/_site
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
