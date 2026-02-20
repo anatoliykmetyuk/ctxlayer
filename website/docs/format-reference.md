@@ -1,20 +1,22 @@
 ---
 layout: docs
-title: Context Structure
+title: Directory Format Reference
 ---
 
-The context layer is the corpus of knowledge and context you curate for AI-assisted development. It lives on your operating system as a directory structure and is linked into your software projects via symlinks.
+The context layer is the corpus of knowledge you curate for an AI agent to use during AI-assisted development. It lives on your operating system as a directory structure and is linked into your software projects via symlinks.
 
 ## Location
 
-The context layer is stored in a centralized location on your machine. By default, it is located at `~/.agents/ctxlayer/`. You can change this location by setting the `CONTEXT_LAYER_HOME` environment variable. Each software project links to the tasks on the context layer through a local `.ctxlayer/` folder.
+The context layer is stored in a centralized location on your machine at `~/.agents/ctxlayer/`. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local `.ctxlayer/` folder in the project root.
+
+The `.ctxlayer/` folder is added to `.gitignore` when you initialize the context layer for a project via `ctx new`, so it is not committed to your project's repository. You should use a separate git repository to version-control the context layer.
 
 **Global store (system-wide):**
 
 ```bash
 ~/.agents/ctxlayer/
 └── domains/
-    └── my-domain/
+    └── my-domain-1/
         ├── .git/
         ├── task-1/
         │   ├── docs/
@@ -25,6 +27,10 @@ The context layer is stored in a centralized location on your machine. By defaul
         └── task-2/
             ├── docs/
             └── data/
+    └── my-domain-2/
+        ├── .git/
+        ├── task-1/
+        └── task-2/
 ```
 
 **Local link (in your project):**
@@ -35,12 +41,10 @@ my-project/
 ├── ...                    # your project files
 └── .ctxlayer/             # gitignored
     ├── config.yaml        # active-domain, active-task
-    └── my-domain/
-        ├── task-1/        # symlink → ~/.agents/ctxlayer/domains/my-domain/task-1/
-        └── task-2/        # symlink → ~/.agents/ctxlayer/domains/my-domain/task-2/
+    └── my-domain-1/
+        ├── task-1/        # symlink → ~/.agents/ctxlayer/domains/my-domain-1/task-1/
+        └── task-2/        # symlink → ~/.agents/ctxlayer/domains/my-domain-1/task-2/
 ```
-
-The global store lives in your home directory (`~/.agents/ctxlayer/domains/`) and is independent of any single repo. Each project's `.ctxlayer/` contains `config.yaml` and symlinks to tasks in that store. The `.ctxlayer/` folder is added to `.gitignore` so it is not committed to your project.
 
 ## Conceptual structure
 
@@ -52,11 +56,11 @@ A **domain** is a context organization unit. It holds knowledge that may apply t
 
 - **Location:** `~/.agents/ctxlayer/domains/<domain-name>/`
 - **Git:** Each domain is initialized as a separate git repository. Use it to version-control domain knowledge and push to a dedicated GitHub repo if needed.
-- **Scope:** For a simple project, use one domain per project (e.g. `my-project` or `my-project-ctx`). For multiple projects sharing purpose or context, use a single domain for all of them.
+- **Scope:** For a simple project, use one domain per project (e.g. `my-project` or `my-project-ctx`). For multiple projects sharing purpose or context, you can use a single domain for all of them if it makes sense.
 
 ### Tasks
 
-A **task** is one unit of work within a domain (similar to a branch).
+A **task** is one unit of work within a domain (similar to a git branch in a git repository).
 
 - **Location:** `~/.agents/ctxlayer/domains/<domain>/<task>/`
 - **Structure:** Each task has:
@@ -64,6 +68,8 @@ A **task** is one unit of work within a domain (similar to a branch).
   - **`data/`** — Reference material (logs, sample data, external repos, config snippets)
 
 Tasks are created with `ctx new` and linked into projects via symlinks under `.ctxlayer/<domain>/<task>/`.
+
+The precise structure of the task directory is still evolving and will likely change in the future, as the Context Layer engineering pattern defined by this documentation evolves.
 
 ## Config file
 
@@ -85,7 +91,7 @@ The agent skill reads this file to know where to write documentation and which t
 
 ## Docs folder convention
 
-Markdown files in `docs/` are **numbered** for sorting and to support "document number N" references in prompts.
+Markdown files in `docs/` are **numbered** for sorting and to support *"document number N"* references in prompts.
 
 **Naming:** `NN-descriptive-name.md`
 
@@ -96,12 +102,10 @@ Markdown files in `docs/` are **numbered** for sorting and to support "document 
 
 **Examples:** `01-initial-research.md`, `02-feature-implementation.md`, `03-architecture-diagram.md`
 
-Each file is a standalone document. The docs folder acts as a running report and journal for the task. When you ask the agent to "read document number 1", it refers to the first file when sorted by name (e.g. `01-...`).
+Each file is a standalone document. The docs folder acts as a **running report** and **journal** for the task. For example, if you ask the agent to *"read document number 1"*, it refers to the file starting with that number, such as `01-initial-research.md`.
 
 ## Data folder convention
 
 The `data/` folder holds reference material: sample data, config snippets, logs, external repositories, and anything the agent needs during implementation.
 
-**Adding external repos:** Use `git submodule add <repo-url>` inside the task's `data/` folder (not a plain `git clone`), so the domain repo stays lightweight and version-controlled via submodule references.
-
-Use these to override paths for testing or custom setups.
+**Adding external repos:** Use `git submodule add <repo-url>` inside the task's `data/` folder (not a plain `git clone`), so the domain repo stays lightweight and version-controlled via submodule references. You can also ask the agent to *add a git repo into the context layer's data*, and it should use `git submodule add` by default.

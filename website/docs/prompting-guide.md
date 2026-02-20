@@ -15,17 +15,17 @@ Mention the context layer in your prompt. Phrases that work:
 - _"to the context layer"_
 - _"into the context layer"_
 
-When the agent sees these, it reads `.ctxlayer/config.yaml` for the active domain and task, will refer to the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory to find the requested information.
+When the agent sees these, it reads `.ctxlayer/config.yaml` for the active domain and task and refers to the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory, accessed via the symlink in the project's local `.ctxlayer/<domain>/<task>/` directory, to find the requested information.
 
 ## Reading documents
 
-Documents in the `docs/` folder are numbered (`01-...`, `02-...`, etc.). Reference them by number:
+Documents in the `docs/` folder should follow the numbering convention (`01-...`, `02-...`, etc.). You can reference them by number:
 
 - _"In the context layer, read document number 1"_
 - _"As discussed in document 3 in the context layer, please implement..."_
 - _"The context layer document 2 contains the implementation plan. Please follow it."_
 
-The intention behind numbering is to allow for sorting by name and displaying the documents in a chronological order, as well as easily referencing the documents by number.
+The intention behind numbering is to allow for sorting by name and displaying the documents in chronological order, as well as easily referencing the documents by number.
 
 ## Writing documents
 
@@ -37,6 +37,8 @@ Ask the agent to document something _"in the context layer"_ or _"to the context
 
 The agent creates a new numbered markdown file in the active task's `docs/` folder and writes the content.
 
+As with any agentic system, it is not guaranteed to follow the numbering convention every time, so if it does not, the user is expected to correct it so that the documentation stays consistent.
+
 ## Using the data folder
 
 Reference material lives in the task's `data/` folder. Point the agent at it:
@@ -45,12 +47,16 @@ Reference material lives in the task's `data/` folder. Point the agent at it:
 - _"In the context layer, read the log files in the data folder and prepare a report on the failures"_
 - _"The context layer's data folder has sample-data.json. Use it to design the data access layer"_
 
+### Adding repositories to data
+
+To add an external repo as reference material, ask to _"add a repository to the context layer"_ or _"clone a repo as context layer context"_. The agent will use `git submodule add` in the task's `data/` folder, not a plain `git clone`, so the domain repo stays version-controlled via submodule references.
+
 ## Specifying domain and task
 
 By default, the agent uses the **active** domain and task from `config.yaml`. To use a different task, say so explicitly:
 
 - _"In the context layer, domain my-other-domain, task my-other-task, document 1 specifies the research. Please read it and..."_
-- _"In context layer, domain A, task B, use documents 1 and 2 to guide your work"_
+- _"In the context layer, domain A, task B, use documents 1 and 2 to guide your work"_
 
 Use `ctx set` to change the active task, or refer to domain and task by name in the prompt.
 
@@ -75,16 +81,3 @@ Use `ctx set` to change the active task, or refer to domain and task by name in 
 **Read data and write a report:**
 
 > In the context layer, read the log files in the data folder, prepare a report on the failures, and write it into the context layer as a new file.
-
-## Git operations
-
-When you want to run git on the context layer (domain repo), ask the agent to use `ctx git`:
-
-- _"Run `ctx git status`"_
-- _"In the context layer, commit the changes and push"_
-
-The agent should run `ctx git <args>` rather than `cd` into the folder and running `git` directly.
-
-## Adding repositories to data
-
-To add an external repo as reference material, ask to _"add a repository to the context layer"_ or _"clone a repo as context layer context"_. The agent will use `git submodule add` in the task's `data/` folder, not a plain `git clone`, so the domain repo stays version-controlled via submodule references.
