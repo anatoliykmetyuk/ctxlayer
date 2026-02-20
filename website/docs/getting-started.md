@@ -27,6 +27,15 @@ Uninstall command is also available to revert the changes:
 
 </details>
 
+## Permissions
+
+The Context Layer pattern relies on the agent having high degree of autonomy in running commands and modifying files. Since the context layer is stored in a centralized location in your user's home directory, the agent needs to be able to access it and modify it.
+
+We understand that not everyone may be comfortable with this, however, for those who are, we recommend to configure your agent with following permissions:
+
+- Access files outside of the project directory
+- Access hidden files
+
 ## Initialization
 
 From the repo of your project, run the following command:
