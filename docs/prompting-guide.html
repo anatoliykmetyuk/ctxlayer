@@ -34,10 +34,10 @@
         <a href="/docs/getting-started.html" class="docs-nav-link ">Getting Started</a>
         
         
-        <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
+        <a href="/docs/commands.html" class="docs-nav-link ">Commands Reference</a>
         
         
-        <a href="/docs/context-structure.html" class="docs-nav-link ">Context Structure</a>
+        <a href="/docs/format-reference.html" class="docs-nav-link ">Directory Format Reference</a>
         
         
         <a href="/docs/prompting-guide.html" class="docs-nav-link active">Prompting Guide</a>
@@ -62,11 +62,11 @@
   <li><em>“into the context layer”</em></li>
 </ul>
 
-<p>When the agent sees these, it reads <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code> for the active domain and task, will refer to the <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code> directory to find the requested information.</p>
+<p>When the agent sees these, it reads <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code> for the active domain and task and refers to the <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code> directory, accessed via the symlink in the project’s local <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;/</code> directory, to find the requested information.</p>
 
 <h2 id="reading-documents">Reading documents</h2>
 
-<p>Documents in the <code class="language-plaintext highlighter-rouge">docs/</code> folder are numbered (<code class="language-plaintext highlighter-rouge">01-...</code>, <code class="language-plaintext highlighter-rouge">02-...</code>, etc.). Reference them by number:</p>
+<p>Documents in the <code class="language-plaintext highlighter-rouge">docs/</code> folder should follow the numbering convention (<code class="language-plaintext highlighter-rouge">01-...</code>, <code class="language-plaintext highlighter-rouge">02-...</code>, etc.). You can reference them by number:</p>
 
 <ul>
   <li><em>“In the context layer, read document number 1”</em></li>
@@ -74,7 +74,7 @@
   <li><em>“The context layer document 2 contains the implementation plan. Please follow it.”</em></li>
 </ul>
 
-<p>The intention behind numbering is to allow for sorting by name and displaying the documents in a chronological order, as well as easily referencing the documents by number.</p>
+<p>The intention behind numbering is to allow for sorting by name and displaying the documents in chronological order, as well as easily referencing the documents by number.</p>
 
 <h2 id="writing-documents">Writing documents</h2>
 
@@ -88,6 +88,8 @@
 
 <p>The agent creates a new numbered markdown file in the active task’s <code class="language-plaintext highlighter-rouge">docs/</code> folder and writes the content.</p>
 
+<p>As with any agentic system, it is not guaranteed to follow the numbering convention every time, so if it does not, the user is expected to correct it so that the documentation stays consistent.</p>
+
 <h2 id="using-the-data-folder">Using the data folder</h2>
 
 <p>Reference material lives in the task’s <code class="language-plaintext highlighter-rouge">data/</code> folder. Point the agent at it:</p>
@@ -98,13 +100,17 @@
   <li><em>“The context layer’s data folder has sample-data.json. Use it to design the data access layer”</em></li>
 </ul>
 
+<h3 id="adding-repositories-to-data">Adding repositories to data</h3>
+
+<p>To add an external repo as reference material, ask to <em>“add a repository to the context layer”</em> or <em>“clone a repo as context layer context”</em>. The agent will use <code class="language-plaintext highlighter-rouge">git submodule add</code> in the task’s <code class="language-plaintext highlighter-rouge">data/</code> folder, not a plain <code class="language-plaintext highlighter-rouge">git clone</code>, so the domain repo stays version-controlled via submodule references.</p>
+
 <h2 id="specifying-domain-and-task">Specifying domain and task</h2>
 
 <p>By default, the agent uses the <strong>active</strong> domain and task from <code class="language-plaintext highlighter-rouge">config.yaml</code>. To use a different task, say so explicitly:</p>
 
 <ul>
   <li><em>“In the context layer, domain my-other-domain, task my-other-task, document 1 specifies the research. Please read it and…“</em></li>
-  <li><em>“In context layer, domain A, task B, use documents 1 and 2 to guide your work”</em></li>
+  <li><em>“In the context layer, domain A, task B, use documents 1 and 2 to guide your work”</em></li>
 </ul>
 
 <p>Use <code class="language-plaintext highlighter-rouge">ctx set</code> to change the active task, or refer to domain and task by name in the prompt.</p>
@@ -140,21 +146,6 @@
 <blockquote>
   <p>In the context layer, read the log files in the data folder, prepare a report on the failures, and write it into the context layer as a new file.</p>
 </blockquote>
-
-<h2 id="git-operations">Git operations</h2>
-
-<p>When you want to run git on the context layer (domain repo), ask the agent to use <code class="language-plaintext highlighter-rouge">ctx git</code>:</p>
-
-<ul>
-  <li><em>“Run <code class="language-plaintext highlighter-rouge">ctx git status</code>“</em></li>
-  <li><em>“In the context layer, commit the changes and push”</em></li>
-</ul>
-
-<p>The agent should run <code class="language-plaintext highlighter-rouge">ctx git &lt;args&gt;</code> rather than <code class="language-plaintext highlighter-rouge">cd</code> into the folder and running <code class="language-plaintext highlighter-rouge">git</code> directly.</p>
-
-<h2 id="adding-repositories-to-data">Adding repositories to data</h2>
-
-<p>To add an external repo as reference material, ask to <em>“add a repository to the context layer”</em> or <em>“clone a repo as context layer context”</em>. The agent will use <code class="language-plaintext highlighter-rouge">git submodule add</code> in the task’s <code class="language-plaintext highlighter-rouge">data/</code> folder, not a plain <code class="language-plaintext highlighter-rouge">git clone</code>, so the domain repo stays version-controlled via submodule references.</p>
 
       </article>
       <aside class="docs-toc" aria-label="On this page" id="docs-toc-wrapper">

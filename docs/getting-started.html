@@ -34,10 +34,10 @@
         <a href="/docs/getting-started.html" class="docs-nav-link active">Getting Started</a>
         
         
-        <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
+        <a href="/docs/commands.html" class="docs-nav-link ">Commands Reference</a>
         
         
-        <a href="/docs/context-structure.html" class="docs-nav-link ">Context Structure</a>
+        <a href="/docs/format-reference.html" class="docs-nav-link ">Directory Format Reference</a>
         
         
         <a href="/docs/prompting-guide.html" class="docs-nav-link ">Prompting Guide</a>
@@ -48,9 +48,9 @@
     <main id="main" class="docs-main">
       <article class="docs-content">
         <h1>Getting Started</h1>
-        <p>Let’s use the Context Layer tool to do an ordinary task in a new way. Think of a project you’re currently working on, and some task that you need to do on it. Prepare your favorite development envirinment and start your agent.</p>
+        <p>Let’s use the Context Layer tool to do an ordinary task in a new way. Think of a project you’re currently working on, and some task that you need to do on it. Prepare your favorite development environment and start your agent.</p>
 
-<p>Now let’s install the Context Layer tool globally on your machine.</p>
+<p>Now let’s install the Context Layer tool on your machine.</p>
 
 <h2 id="installation">Installation</h2>
 
@@ -65,23 +65,39 @@
 </div>
 <script src="/js/copyable-command.js" defer=""></script>
 
-<p>This command (see <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/install.sh">source</a>) does several things:</p>
+<details>
+  <summary>What does this command do?</summary>
 
-<ul>
-  <li>Installs the <code class="language-plaintext highlighter-rouge">ctx</code> CLI, so that <code class="language-plaintext highlighter-rouge">ctx</code> command becomes available. This is done via <code class="language-plaintext highlighter-rouge">npm install</code> under the hood. This command provides conveniences to manage context across projects.</li>
-  <li>Installs the <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/SKILL.md">agent skill</a> (see <a href="https://skills.sh/">skills standard reference</a>), so that the agent can access the context layer. This is done via <code class="language-plaintext highlighter-rouge">npx skills add</code> under the hood. The command will prompt you to specify the type of agent you are using (e.g. Cursor, Claude Code, etc.) so that the skill becomes available to the agent whenever <em>context layer</em> is mentioned in your prompts.</li>
-</ul>
+  <p>This command (see <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/install.sh">source</a>) does several things:</p>
 
-<p>Uninstall command is also available to revert the changes:</p>
+  <ul>
+    <li>Installs the <code class="language-plaintext highlighter-rouge">ctx</code> CLI, so that <code class="language-plaintext highlighter-rouge">ctx</code> command becomes available. This is done via <code class="language-plaintext highlighter-rouge">npm install</code> under the hood. This command provides conveniences to manage context across projects.</li>
+    <li>Installs the <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/skills/ctxlayer/SKILL.md">agent skill</a> (see <a href="https://skills.sh/">skills standard reference</a>), so that the agent can access the context layer. This is done via <code class="language-plaintext highlighter-rouge">npx skills add</code> under the hood. The command will prompt you to specify the type of agent you are using (e.g. Cursor, Claude Code, etc.) so that the skill becomes available to the agent whenever <em>context layer</em> is mentioned in your prompts.</li>
+  </ul>
 
-<div class="copyable-command">
+  <p>Uninstall command is also available to revert the changes:</p>
+
+  <div class="copyable-command">
   <input type="text" readonly="" value="curl -fsSL https://raw.githubusercontent.com/anatoliykmetyuk/ctxlayer/main/uninstall.sh -o /tmp/ctxlayer-uninstall.sh &amp;&amp; bash /tmp/ctxlayer-uninstall.sh" aria-label="Command" spellcheck="false" />
   <button type="button" class="copy-btn" aria-label="Copy to clipboard">
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
     <span aria-live="polite" aria-atomic="true">Copy</span>
   </button>
 </div>
-<script src="/js/copyable-command.js" defer=""></script>
+  <script src="/js/copyable-command.js" defer=""></script>
+
+</details>
+
+<h2 id="permissions">Permissions</h2>
+
+<p>The Context Layer pattern relies on the agent having high degree of autonomy in running commands and modifying files. Since the context layer is stored in a centralized location in your user’s home directory, the agent needs to be able to access it and modify it.</p>
+
+<p>We understand that not everyone may be comfortable with this, however, for those who are, we recommend to configure your agent with following permissions:</p>
+
+<ul>
+  <li>Access files outside of the project directory</li>
+  <li>Access hidden files</li>
+</ul>
 
 <h2 id="initialization">Initialization</h2>
 
@@ -122,28 +138,28 @@
 
 <h3 id="1-add-reference-material">1. Add Reference Material</h3>
 
-<p>Think of the task you want to do on your project. Do you have any reference data that the agent would benefit from while doing your task? Think of:</p>
+<p>Think of the task you want to do on your project. Do you have any reference data that the agent would benefit from while doing your task? This could be:</p>
 
 <ul>
-  <li>Log files from a failed CI - in case if you want an agent to debug an issue.</li>
-  <li>Examples of well-designed websites - in case if you want an agent to design a new UI.</li>
-  <li>A CSV file - in case you’re making a data analytics dashboard and need an agent to design the data access layer against a specific example dataset.</li>
-  <li>A Git repository - in case you want an agent to refer to an existing library code or another project. It is recommended to use a <code class="language-plaintext highlighter-rouge">git submodule</code> when cloning the repository, as every domain is also initialized as a git repository.</li>
+  <li><strong>Log files</strong> from a failed CI - in case you want an agent to debug an issue.</li>
+  <li><strong>Examples</strong> of well-designed websites - in case you want an agent to design a new UI.</li>
+  <li><strong>A CSV file</strong> - in case you’re making a data analytics dashboard and need an agent to design the data access layer against a specific example dataset.</li>
+  <li><strong>A Git repository</strong> - in case you want an agent to refer to existing library code or another project. It is recommended to use the <code class="language-plaintext highlighter-rouge">git submodule add</code> command when cloning the repository, as every domain is also initialized as a git repository.</li>
 </ul>
 
-<p>All of those examples belong in the <code class="language-plaintext highlighter-rouge">data/</code> folder of your task. Now is the good time to bring them into that directory.</p>
+<p>All of those examples belong in the <code class="language-plaintext highlighter-rouge">data/</code> folder of your task. Now is a good time to bring them into that directory.</p>
 
 <h3 id="2-perform-task-research-and-documentation">2. Perform Task Research and Documentation</h3>
 
-<p>After you’ve assembled the corpus of reference material, it is a good idea to ask your agent to do some research on the task you are about to do, and possibly plan an implementation plan. Prompt it with the following:</p>
+<p>After you’ve assembled the corpus of reference material, it is a good idea to ask your agent to do some <strong>research</strong> on the task you are about to do, and possibly compose an <strong>implementation plan</strong>. Prompt it with the following:</p>
 
 <blockquote>
-  <p>I would like to do the task X in the project. You will find reference materials X, Y, Z in the context layer’s data folder. Please use them to inform your research and planning. Now, please do the research and compose a plan of how to do the task. Please write the plan as a new document in the context layer’s documentation section.</p>
+  <p>I would like to do A. You will find reference materials X, Y, Z in the context layer’s data folder. Please use them to inform your research and planning. Do the research and compose a plan of how to do the task. Write the plan as a new document in the context layer’s docs folder.</p>
 </blockquote>
 
-<p>As you’ve installed the agent skill during the installation step above, the agent will know which folders to look at and will produce you the markdown file with the planning results. Markdown files in the docs folder are numbered for easy sorting, as they intend to represent a sequential log of task execution. A file with a name something like <code class="language-plaintext highlighter-rouge">01-task-plan.md</code> will be produced.</p>
+<p>As you’ve installed the agent skill during the installation step above, the agent will know which folders to look at and will produce a markdown file with the implementation plan. Markdown files in the docs folder are numbered for easy sorting, as they intend to represent a sequential log of task execution. A file with a name something like <code class="language-plaintext highlighter-rouge">01-task-plan.md</code> will be produced.</p>
 
-<p>Review the plan and iterate it with your agent until it looks good for you.</p>
+<p>Review the plan and iterate on it with your agent until it looks good to you.</p>
 
 <h3 id="3-execute-the-task">3. Execute the Task</h3>
 
@@ -153,54 +169,50 @@
   <p>In the context layer, the document number 1 specifies the task plan. Please read it and execute the task according to the plan.</p>
 </blockquote>
 
-<p>If you are using an agent that natively supports planning mode, such as Cursor, it is a good idea to execute the prompt in planning mode. An extra planning step never hurts when preparing an agent for work.</p>
+<p>If you are using an agent that natively supports <strong>planning mode</strong>, such as Cursor, it is a good idea to execute the prompt in planning mode. An extra planning step never hurts when preparing an agent for work.</p>
 
 <h3 id="4-log-the-domain-intelligence">4. Log the Domain Intelligence</h3>
 
-<p>As your agent progresses with the task, keep your eye on the domain intelligence generated in the process:</p>
+<p>As your agent progresses with the task, keep an eye on the <strong>domain intelligence</strong> generated in the process:</p>
 
 <ul>
-  <li>Friction points when an agent gets stuck or confused.</li>
-  <li>Decision points where one path needs to be preferred over another.</li>
-  <li>Procedural knowledge such as how to run tests or a general workflow to debug issues.</li>
+  <li><strong>Friction points</strong> when an agent gets stuck or confused.</li>
+  <li><strong>Decision points</strong> where one path needs to be preferred over another.</li>
+  <li><strong>Procedural knowledge</strong> such as how to run tests or a general workflow to debug issues.</li>
 </ul>
 
-<p>When you encounter those and successfully resolve them, ask your agent to document them in the context layer:</p>
+<p>When you encounter those and get your agent to successfully resolve them, ask it to document them in the context layer:</p>
 
 <blockquote>
-  <p>We have just resolved an issue X / made a decision Y / followed a workflow Z. Please document it in the context layer as a new document.</p>
+  <p>We have just resolved an issue X / made a decision Y / followed a workflow Z. Please document it in the context layer as a new document. Include a brief description of the issue, what decisions were made, what approaches worked and what did not and why.</p>
 </blockquote>
 
-<p>This will produce a new document in the docs folder, numbered for easy sorting.</p>
+<p>This will produce a new document in the docs folder, numbered for easy sorting, readily accessible in case you need to return to the gathered domain intelligence in the future.</p>
 
 <h3 id="5-reuse-the-domain-intelligence">5. Reuse the Domain Intelligence</h3>
 
-<p>In the future, when you encounter a similar issue, you can refer to the documentation you generated in step 4 to guide the agent:</p>
+<p>In the future, when you encounter a similar issue or need the information otherwise, you can refer to the documentation you generated in the previous step to guide the agent:</p>
 
 <blockquote>
-  <p>Please resolve the issue X / do the job Y. In context layer, plesae use documents number XX, YY, and ZZ to guide your work.</p>
+  <p>Please resolve the issue X / do the job Y. In the context layer, please use the documentation of previous similar cases, docs numbers XX, YY, and ZZ, to guide your work.</p>
 </blockquote>
 
 <h3 id="6-reuse-domain-intelligence-across-projects">6. Reuse Domain Intelligence across projects</h3>
 
-<p>The context layer is stored in a centralized location at your home directory and is linked to projects via symlinks. If you are working on a different project in the future, or a different task, you may import the tasks from other domains into your project:</p>
+<p>The context layer is stored in a centralized location at your home directory (see <a href="/docs/context-structure.html">Context Directory Structure</a> for details) and is linked to projects via <strong>symlinks</strong>. If you are working on a different project or task in the future, you may <strong>import the tasks</strong> from other domains into your project:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx import
 </code></pre></div></div>
 
 <p>You will be prompted to select the domain and task to import.</p>
 
-<p>You can specify which task you are currently working on so that the agent knows which task to access by default:</p>
+<p>After you’ve imported the task, you may end up with more than one task in your project. You can specify which task you are currently working on - <strong>the active task</strong> - so that the agent knows which task to access by default:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx <span class="nb">set</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx <span class="nb">set
+</span>ctx status
 </code></pre></div></div>
 
-<p>The following command will show you the current active domain and task:</p>
-
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx status
-</code></pre></div></div>
-
-<p>You can always ask the agent to access a task other than default by specifying it explicitly in the prompt:</p>
+<p>You can always ask the agent to <strong>access a task other than the active task</strong> by specifying it explicitly in the prompt:</p>
 
 <blockquote>
   <p>“in the context layer, domain A, task B, the document number 1 specifies initial research findings. Please read it and …”.</p>
@@ -208,16 +220,16 @@
 
 <h3 id="7-version-manage-your-context-layer">7. Version Manage your Context Layer</h3>
 
-<p>Every domain is initialized as a git repository. You can <code class="language-plaintext highlighter-rouge">cd</code> into it and use git operations just like you would do with any other git repository. You can save your context layer per domain in separate github repositories.</p>
+<p><strong>Every domain is initialized as a git repository</strong>. You can <code class="language-plaintext highlighter-rouge">cd</code> into it and use git operations just like you would do with any other git repository. You can save your context layer per domain in separate GitHub repositories.</p>
 
-<p>Convenience commands are available from the project to work with the context layer so that you do not have to <code class="language-plaintext highlighter-rouge">cd</code> into it every time:</p>
+<p><strong>Convenience commands</strong> are available from the project’s root directory to work with the context layer so that you do not have to <code class="language-plaintext highlighter-rouge">cd</code> into it every time:</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx git &lt;git-args...&gt;
 </code></pre></div></div>
 
 <p>The above command is equivalent to:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ./ctxlayer/&lt;domain&gt;/&lt;task&gt;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ./.ctxlayer/&lt;domain&gt;/&lt;task&gt;
 git &lt;git-args...&gt;
 </code></pre></div></div>
 
@@ -227,8 +239,8 @@ git &lt;git-args...&gt;
 
 <ul>
   <li><a href="/docs/commands.html">Command Reference</a></li>
+  <li><a href="/docs/format-reference.html">Directory Format Reference</a></li>
   <li><a href="/docs/prompting-guide.html">Prompting Guide</a></li>
-  <li><a href="/docs/context-structure.html">Context Directory Structure</a></li>
 </ul>
 
       </article>

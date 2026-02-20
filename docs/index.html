@@ -34,10 +34,10 @@
         <a href="/docs/getting-started.html" class="docs-nav-link ">Getting Started</a>
         
         
-        <a href="/docs/commands.html" class="docs-nav-link ">Commands</a>
+        <a href="/docs/commands.html" class="docs-nav-link ">Commands Reference</a>
         
         
-        <a href="/docs/context-structure.html" class="docs-nav-link ">Context Structure</a>
+        <a href="/docs/format-reference.html" class="docs-nav-link ">Directory Format Reference</a>
         
         
         <a href="/docs/prompting-guide.html" class="docs-nav-link ">Prompting Guide</a>
@@ -48,40 +48,36 @@
     <main id="main" class="docs-main">
       <article class="docs-content">
         <h1>Overview</h1>
-        <p>Context Layer is a tool for organizing and managing agents’ context during iterative development.
+        <p><strong>The Context Layer Tool</strong> is a tool for organizing and managing agents’ context during iterative development.
 It provides a structured place for documentation and reference material so agents can operate more precisely across iterations.</p>
 
-<p>It comes in a form of a CLI and an agent skill, operating over a plain old directory structure. It is designed to be used with AI coding tools, such as Cursor and Claude Code.</p>
+<p>It comes in the form of a CLI and an agent skill, operating over a plain old directory structure. It is designed to be used with AI coding tools, such as Cursor and Claude Code.</p>
+
+<p><strong>The Context Layer Pattern</strong> is also an engineering pattern where the developer shifts the focus from the codebase to context management to enable AI-assisted development. This documentation defines this pattern in the context of the Context Layer Tool.</p>
 
 <h2 id="motivation">Motivation</h2>
 
 <p>AI coding tools, such as Cursor and Claude Code, treat sessions as stateless. When you open a new chat, you need to explain the architecture, intent, and conventions every time. This reduces the development speed and enjoyment of the process. Moreover, human memory is also limited, so one may need to use agent to repeat exploration of the codebase, to e.g. recall why a certain decision was made. This wastes token budget and time. All in all, statelessness wastes cognitive resources of the agent and the developer alike. See <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">Effective Context Engineering for AI Agents</a> by Anthropic for further reading on the topic.</p>
 
-<p>A number of attempts have been made by the community to solve this. Automatic approaches, such as automatic logging of the context, usually lead to context clutter and <a href="https://research.trychroma.com/context-rot">context rot</a>. Manually logging documentation to markdown files is a common approach, but it is often developer- or task-specific. The context generated in such a way often does not belong to the codebase, and poses difficulies for version control.</p>
+<p>A number of attempts have been made by the community to solve this. Automatic approaches, such as automatic logging of the context, usually lead to context clutter and <a href="https://research.trychroma.com/context-rot">context rot</a>. Manually logging documentation to markdown files is a common approach, but it is often developer- or task-specific. The context generated in such a way often does not belong to the codebase, and poses difficulties for version control.</p>
 
-<p>Further, context comes in different shape, not always human-readable markdown files. Sometimes it is an external git repo, a sample dataset, a log of a failed CI, examples of well-designed websites, etc. All of those are critical for the agent to do its job well but have no place in the codebase, as they are more of a raw material than an end product.</p>
+<p>Further, context comes in different shape, not always human-readable markdown files. Sometimes it is an external git repo, a sample dataset, a log of a failed CI, examples of well-designed websites, etc. All of those are critical for the agent to do its job well but do not belong in the codebase, as they are more of a raw material than an end product.</p>
 
 <h2 id="the-concept">The Concept</h2>
 
 <p>The Context Layer tool is built around the principles of <strong>simplicity</strong> and <strong>human-in-the-loop</strong>. It does not make an attempt to automate your development cycle or context management. Rather than being an automation, it is a tool for a skilled developer to conveniently sculpt the context before doing the work with an agent.</p>
 
-<p>Rather than trying to replace the developer with an agent or commoditize software engineering, the tool assumes <strong>the developer to be an essential part of the development process</strong> which brings <strong>expertise, taste and the knowledge</strong> of the big picture to the table, while the agent is a tool to automate mechanical work and translate intent into result. The agent is assumed to be a tool to automate mechanical work and to speed up the translation of the developer’s intent into result. But it is the role of the developer to specify their intent precisely.</p>
+<p>Rather than trying to replace the developer with an agent or commoditize software engineering, the tool assumes <strong>the developer to be an essential part of the development process</strong> which brings <strong>expertise, taste and the knowledge</strong> of the big picture to the table, while the agent is a tool to automate mechanical work and translate intent into result. The role of a developer is to specify their intent precisely. The developer is expected to exercise discipline in their context curation and management to get the most value from the tool.</p>
 
-<p>The tool is aimed at an <strong>AI power-user developer</strong> - a kind of developer who prefers to use AI to generate &gt;80% of their code. Such a developer is expected to think at the level of concepts, architecture, intent and constraints rather than precise code statements that express that code.</p>
+<h2 id="the-tool">The Tool</h2>
 
-<p>Rather than expecting the developer to do less work due to AI automation, the tool assumes the developer to be doing a new kind of work, shifting their attention focus from the implementation details to the architecture and intent-shaping.</p>
-
-<p>The developer is expected to exercise discipline in their context curation and management to get the most value of the tool.</p>
-
-<h2 id="the-solution">The Solution</h2>
-
-<p>The Context Layer exists on your machine in a form of a <strong>directory structure that contains files and folders</strong>. The structure is logically organized into <strong>domains</strong> and <strong>tasks</strong>. Domains are intended to track domain knowledge across one or more software projects, while tasks exist as part of a domain are are used to store the context for a specific unit of work, similarly to how you would use a branch in a git repository.</p>
+<p>The Context Layer exists on your machine in the form of a <strong>directory structure that contains files and folders</strong>. The structure is logically organized into <strong>domains</strong> and <strong>tasks</strong>. Domains are intended to track domain knowledge across one or more software projects, while tasks exist as part of a domain and are used to store the context for a specific unit of work, similarly to how you would use a branch in a git repository.</p>
 
 <p>Context may be linked across projects with task-wise granularity. So, from any project you are working on, you may link a task from another domain to your project via a symlink. Link only what you need to get the job done, so you don’t have to worry about cluttering your project with irrelevant context.</p>
 
-<p>A CLI tool is provided to easily perform the operations above, such as creating new tasks, linking tasks from other domains, and more.</p>
+<p>A CLI tool is provided to easily perform the operations described above, such as creating new tasks, linking tasks from other domains, and more.</p>
 
-<p>Your agent of choice (such as Cursor, Claude Code, etc.) is made aware of the context layer of your project via an <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/SKILL.md">agent skill</a> (see the <a href="https://github.com/anatoliykmetyuk/skills-spec">Skills standard specification</a>). So, whenever you mention “context layer” in your prompts, your agent will know where to look.</p>
+<p>Your agent of choice (such as Cursor, Claude Code, etc.) is made aware of the context layer of your project via an <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/skills/ctxlayer/SKILL.md">agent skill</a>. So, whenever you mention “context layer” in your prompts, your agent will know where to look.</p>
 
 <p>The intended outcome is an ever-growing corpus of domain knowledge, where every task you do is documented in a human-driven way, separately from the codebase, readily accessible during future work across projects. As a result, the developer saves time, token budget and cognitive resources, speeds up the development process, makes it more enjoyable and predictable.</p>
 
