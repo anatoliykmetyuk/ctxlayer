@@ -6,7 +6,7 @@ title: Citation
 If you reference or build upon this work in research or publications, please cite:
 
 ```bibtex
-@software{kmetyuk_2026_18709911,
+@software{kmetiuk_2026_18709911,
   author       = {Kmetiuk, Anatolii},
   title        = {The Context Layer for AI agents},
   month        = feb,
