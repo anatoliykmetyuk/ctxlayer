@@ -9,7 +9,7 @@ The context layer is the corpus of knowledge you curate for an AI agent to use d
 
 The context layer is stored in a centralized location on your machine at `~/.agents/ctxlayer/`. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local `.ctxlayer/` folder in the project root.
 
-The `.ctxlayer/` folder is added to `.gitignore` when you initialize the context layer for a project via `ctx new` so it is not committed to your project's repository. You should use a separate git repository to version-control the context layer.
+The `.ctxlayer/` folder is added to `.gitignore` when you initialize the context layer for a project via `ctx new`, so it is not committed to your project's repository. You should use a separate git repository to version-control the context layer.
 
 **Global store (system-wide):**
 
@@ -42,8 +42,8 @@ my-project/
 └── .ctxlayer/             # gitignored
     ├── config.yaml        # active-domain, active-task
     └── my-domain-1/
-        ├── task-1/        # symlink → ~/.agents/ctxlayer/domains/my-domain/task-1/
-        └── task-2/        # symlink → ~/.agents/ctxlayer/domains/my-domain/task-2/
+        ├── task-1/        # symlink → ~/.agents/ctxlayer/domains/my-domain-1/task-1/
+        └── task-2/        # symlink → ~/.agents/ctxlayer/domains/my-domain-1/task-2/
 ```
 
 ## Conceptual structure
@@ -102,7 +102,7 @@ Markdown files in `docs/` are **numbered** for sorting and to support *"document
 
 **Examples:** `01-initial-research.md`, `02-feature-implementation.md`, `03-architecture-diagram.md`
 
-Each file is a standalone document. The docs folder acts as a **running report** and **journal** for the task. For example, if you ask the agent to *"read document number 1"*, it refers to the file starting with that number - `01-….md`.
+Each file is a standalone document. The docs folder acts as a **running report** and **journal** for the task. For example, if you ask the agent to *"read document number 1"*, it refers to the file starting with that number, such as `01-initial-research.md`.
 
 ## Data folder convention
 
