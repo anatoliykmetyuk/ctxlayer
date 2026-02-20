@@ -29,9 +29,7 @@ active-task: <task-name>   # may be omitted if no task is active
 
 Domains are stored globally at `~/.agents/ctxlayer/domains/`. Each domain contains task folders, and each task folder has `docs/` and `data/` subdirectories.
 
-**Which task to access:** By default, use the **active** domain and task from `config.yaml` (run `ctx status` to obtain them). When the user explicitly specifies a domain and task in the prompt (e.g. "in the context layer, domain A, task B, use documents 1 and 2"), use that instead. You may only access them via symlinks in the `.ctxlayer/<domain>/<task>/` folder. If the requested task is not linked (no symlink at `.ctxlayer/<domain>/<task>/`), advise the user to run `ctx import` first. All operations below (reading/writing docs, adding data) apply to this resolved task.
-
-From here onwards, when describing the operations you may perform, it is understood that you are performing them on the task resolved as described above. Any mentions of directories or files are understood to be relative to the task resolved as described above. "Resolved task" below will mean the task resolved as described above.
+**Which task to access:** By default, use the **active** domain and task from `config.yaml` (run `ctx status` to obtain them). When the user explicitly specifies a domain and task in the prompt (e.g. "in the context layer, domain A, task B, use documents 1 and 2"), use that instead. You may only access them via symlinks in the `.ctxlayer/<domain>/<task>/` folder. If the requested task is not linked (no symlink at `.ctxlayer/<domain>/<task>/`), advise the user to run `ctx import` first. All operations below apply to this resolved task.
 
 ## Documentation operations
 
@@ -58,7 +56,7 @@ When the user asks to read a document referring to it by name, e.g. "document nu
 
 ### Writing documents
 
-When the user asks to write a document, create a new numbered markdown file in the resolved task's `docs/` folder and write the content as a markdown file. To obtain the next prefix number number, list existing files, determine the greatest prefix number, and increment it by 1.
+When the user asks to write a document, create a new numbered markdown file in the resolved task's `docs/` folder and write the content as a markdown file. To obtain the next prefix number, list existing files, determine the greatest prefix number, and increment it by 1.
 
 ## Data operations
 
@@ -72,9 +70,9 @@ If the user explicitly mentions the data folder, e.g. "the data folder", "the co
 
 ### Adding repositories to data
 
-When the user asks to "add a repository to the context layer" or "clone a repo as context layer context", do **NOT** run a regular `git clone`. Instead, use `git submodule add` in the task's `data/` folder.
+When the user asks to "add a repository to the context layer" or "clone a repo as context layer context", do **NOT** run a regular `git clone`. Instead, from the domain root (`~/.agents/ctxlayer/domains/<domain>/`), run `git submodule add <repo-url> <task>/data/<subdir>` to add the repo into the task's data folder.
 
-This keeps the domain repo lightweight and version-controlled via submodule references rather than full repository copies.
+This keeps the domain repo lightweight and version-controlled via submodule references.
 
 ## Git operations
 

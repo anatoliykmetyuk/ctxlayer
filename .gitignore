@@ -21,3 +21,5 @@ website/.jekyll-cache/
 *.swo
 .cursor/
 /.ctxlayer/
+
+.agents/
