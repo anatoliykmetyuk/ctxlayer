@@ -124,7 +124,7 @@ In the future, when you encounter a similar issue or need the information otherw
 
 ### 6. Reuse Domain Intelligence across projects
 
-The context layer is stored in a centralized location at your home directory (see [Context Directory Structure](/docs/context-structure.html) for details) and is linked to projects via **symlinks**. If you are working on a different project or task in the future, you may **import the tasks** from other domains into your project:
+The context layer is stored in a centralized location at your home directory (see [Context Directory Structure](/docs/format-reference.html) for details) and is linked to projects via **symlinks**. If you are working on a different project or task in the future, you may **import the tasks** from other domains into your project:
 
 ```bash
 ctx import

@@ -1,9 +1,7 @@
-name: Publish to npm
+name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_call:
 
 jobs:
   publish:
@@ -21,17 +19,19 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
 
-      - name: Configure Git
-        run: |
-          git config --global user.email "test@test.com"
-          git config --global user.name "Test User"
-
-      - name: Install and test
-        run: |
-          npm ci
-          npm test
-
       - name: Publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: npm publish --access public
+
+  github-release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
