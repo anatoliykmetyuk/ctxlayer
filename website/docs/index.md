@@ -3,10 +3,12 @@ layout: docs
 title: Overview
 ---
 
-Context Layer is a tool for organizing and managing agents' context during iterative development.
+**The Context Layer Tool** is a tool for organizing and managing agents' context during iterative development.
 It provides a structured place for documentation and reference material so agents can operate more precisely across iterations.
 
 It comes in the form of a CLI and an agent skill, operating over a plain old directory structure. It is designed to be used with AI coding tools, such as Cursor and Claude Code.
+
+**The Context Layer Pattern** is also an engineering pattern where the developer shifts the focus from the codebase to context management to enable AI-assisted development. This documentation defines this pattern in the context of the Context Layer Tool.
 
 ## Motivation
 

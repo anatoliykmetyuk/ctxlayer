@@ -157,5 +157,5 @@ git <git-args...>
 To learn more about the project capabilities, refer to the specifications:
 
 - [Command Reference](/docs/commands.html)
+- [Directory Format Reference](/docs/format-reference.html)
 - [Prompting Guide](/docs/prompting-guide.html)
-- [Context Directory Structure](/docs/context-structure.html)
