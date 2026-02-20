@@ -9,7 +9,7 @@ The `ctx` CLI manages domains and tasks in your context layer. Run `ctx` with no
 
 | Command | Description |
 |---------|-------------|
-| `ctx new [name]` | Create a new task (prompts for domain if needed or `name` is not specified) |
+| `ctx new [name]` | Create a new task (prompts for domain if needed; prompts for task name if `name` is not specified) |
 | `ctx import` | Import a task from any domain as a symlink into `.ctxlayer/` |
 | `ctx status` | Show the active domain and task, plus git tracking info |
 | `ctx set` | Set active domain and task (interactive) |
@@ -62,7 +62,7 @@ Shows the current active domain and task, plus git tracking information when the
 
 - Active domain and task from `config.yaml`
 - If the domain directory has a `.git` folder: current branch, repo name, and remote URL
-- If not synced to git: a short note bringing the user's attention to the fact that the domain is not synced to git
+- If not synced to git: a short note drawing the user's attention to the fact that the domain is not synced to git
 
 ## ctx set
 
@@ -95,7 +95,7 @@ ctx git push
 
 ## ctx drop task [name]
 
-Removes the symlink to a task from `.ctxlayer/`. The task folder in the context layer (`~/.agents/ctxlayer/domains/<domain>/<task>/`) is **not** deleted - only symlink to the task is deleted.
+Removes the symlink to a task from `.ctxlayer/`. The task folder in the context layer (`~/.agents/ctxlayer/domains/<domain>/<task>/`) is **not** deleted - only the symlink to the task is deleted.
 
 Use it when you've finished working on a task and no longer need it linked to the project, but wish to preserve the collected knowledge and context.
 
