@@ -1,9 +1,7 @@
-name: Publish to npm
+name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_call:
 
 jobs:
   publish:
@@ -20,16 +18,6 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
           cache: 'npm'
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "test@test.com"
-          git config --global user.name "Test User"
-
-      - name: Install and test
-        run: |
-          npm ci
-          npm test
 
       - name: Publish
         env:
