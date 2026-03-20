@@ -12,12 +12,12 @@ The `ctx` CLI manages domains and tasks in your context layer. Run `ctx` with no
 | `ctx new [name]` | Create a new task. Supports non-interactive flags such as `--task`, `--domain`, `--use-current-domain`, and `--create-domain` |
 | `ctx import` | Import a task from any domain as a symlink into `.ctxlayer/`. Supports `--domain`, `--task`, and `--clone-from` |
 | `ctx status` | Show the active domain and task, plus git tracking info |
-| `ctx set` | Set active domain and task. Supports `--domain` and `--task` |
+| `ctx set` | Set active domain and task. Supports `--domain`, `--task`, and `--clone-from` |
 | `ctx git [args...]` | Run git in the active task directory |
 | `ctx drop task [name]` | Remove a task symlink from `.ctxlayer/`. Supports `--domain` and `--task` |
 | `ctx drop domain [name]` | Remove a domain directory from `.ctxlayer/`. Supports `--domain` and `--yes` |
 | `ctx delete task` | Permanently delete a task from the context layer. Supports `--domain`, `--task`, and `--yes` |
-| `ctx delete domain` | Permanently delete a domain from the context layer. Supports `--domain` and `--yes` |
+| `ctx delete domain [name]` | Permanently delete a domain. Domain as first arg or `--domain`; use `--yes` to skip confirmation |
 
 ## ctx new [name]
 
@@ -52,8 +52,8 @@ Imports an existing task from any domain into your project as a symlink. This is
 **What it does:**
 
 1. Ensures the workspace is initialized
-2. Prompts you to select a domain, accepts `--domain`, or clones a domain first via `--clone-from`
-3. Prompts you to select a task from that domain (or accepts `--task`)
+2. Chooses the domain: `--clone-from` clones first; else `--domain` if given; else if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
+3. Prompts you to select a task from that domain unless you passed `--task`
 4. Creates a symlink at `.ctxlayer/<domain>/<task>` pointing to the task in the context layer
 5. If `config.yaml` has no active domain/task, sets the imported domain and task as active; otherwise only creates the symlink
 
@@ -62,6 +62,7 @@ Imports an existing task from any domain into your project as a symlink. This is
 ```bash
 ctx import
 ctx import --domain my-domain --task my-task
+ctx import --task other-task   # same domain as in config; errors if no active domain
 ctx import --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
 ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
 ```
@@ -100,8 +101,8 @@ Select and set the active domain and task. Use this to switch context when worki
 **What it does:**
 
 1. Ensures workspace is initialized
-2. Lists domains in `~/.agents/ctxlayer/domains/` and prompts you to pick one, or accepts `--domain`
-3. Lists tasks in the selected domain and prompts you to pick the one you'd like to become active, or accepts `--task`
+2. Chooses the domain: `--clone-from` clones the repo into `~/.agents/ctxlayer/domains/<name>/` first (`<name>` is `--domain` if given, otherwise derived from the repo URL); else uses `--domain` if given; else if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
+3. Lists tasks in that domain and prompts you to pick one unless you passed `--task` (required with `--clone-from`)
 4. Writes `active-domain` and `active-task` to `config.yaml`
 5. Ensures the symlink exists at `.ctxlayer/<domain>/<task>`. If it does not, creates the symlink.
 
@@ -109,6 +110,9 @@ Select and set the active domain and task. Use this to switch context when worki
 
 ```bash
 ctx set --domain my-domain --task my-task
+ctx set --task other-task   # same domain as in config; errors if no active domain
+ctx set --clone-from https://github.com/acme/context-repo.git --task my-task
+ctx set --clone-from https://github.com/acme/context-repo.git --domain short-name --task my-task
 ```
 
 ## ctx git [args...]
@@ -183,7 +187,7 @@ ctx delete task --domain my-domain --task my-task --yes
 
 **What it does:**
 
-1. Prompts you to select a domain, or accepts `--domain`
+1. Chooses the domain from the first argument (`ctx delete domain <name>`), or `--domain`, or prompts
 2. Asks for confirmation, or accepts `--yes`
 3. Deletes the domain from `~/.agents/ctxlayer/domains/<domain>/`
 4. Removes `.ctxlayer/<domain>/` from your project
@@ -193,5 +197,6 @@ This cannot be undone. All tasks in the domain are deleted.
 **Example:**
 
 ```bash
+ctx delete domain my-domain --yes
 ctx delete domain --domain my-domain --yes
 ```

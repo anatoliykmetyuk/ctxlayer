@@ -988,29 +988,66 @@ async function setActive(options = {}) {
     ensureWorkspaceInitialized();
     const config = readConfigOrNull();
 
+    if (options.cloneFrom && !options.taskName) {
+      throw new Error('Option "--clone-from" requires "--task".');
+    }
+
+    if (options.cloneFrom) {
+      const selectedDomain = options.domainName || repoNameFromUrl(options.cloneFrom);
+      cloneDomainFromGit(options.cloneFrom, selectedDomain);
+      const tasks = getStoredTasks(selectedDomain);
+
+      if (tasks.length === 0) {
+        throw new Error('No tasks found in domain "' + selectedDomain + '".');
+      }
+
+      const selectedTask =
+        options.taskName && tasks.includes(options.taskName)
+          ? options.taskName
+          : (() => {
+              throw new Error(
+                'Task directory not found: ' + path.join(DOMAINS_ROOT, selectedDomain, options.taskName)
+              );
+            })();
+
+      setActiveDomainAndTask(selectedDomain, selectedTask);
+      console.log('\nDone.');
+      return;
+    }
+
     const domains = getStoredDomains();
 
     if (domains.length === 0) {
       throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedDomain =
-      options.domainName && domains.includes(options.domainName)
-        ? options.domainName
-        : options.domainName
-          ? (() => {
-              throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
-            })()
-          : await select({
-              message: 'Select a domain:',
-              choices: domains.map((name) => ({ name, value: name })),
-              default:
-                config &&
-                config['active-domain'] &&
-                domains.includes(config['active-domain'])
-                  ? config['active-domain']
-                  : undefined,
-            });
+    const activeFromConfig =
+      config &&
+      config['active-domain'] &&
+      domains.includes(config['active-domain'])
+        ? config['active-domain']
+        : undefined;
+
+    let selectedDomain;
+    if (options.domainName) {
+      if (!domains.includes(options.domainName)) {
+        throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+      }
+      selectedDomain = options.domainName;
+    } else if (options.taskName) {
+      if (!activeFromConfig) {
+        throw new Error(
+          'Option "--task" requires an active domain in .ctxlayer/config.yaml, or pass "--domain".'
+        );
+      }
+      selectedDomain = activeFromConfig;
+    } else {
+      selectedDomain = await select({
+        message: 'Select a domain:',
+        choices: domains.map((name) => ({ name, value: name })),
+        default: activeFromConfig,
+      });
+    }
 
     const tasks = getStoredTasks(selectedDomain);
 
@@ -1075,17 +1112,32 @@ async function importTask(options = {}) {
         throw new Error('No domains found in ' + DOMAINS_ROOT);
       }
 
-      selectedDomain =
-        options.domainName && domains.includes(options.domainName)
-          ? options.domainName
-          : options.domainName
-            ? (() => {
-                throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
-              })()
-            : await select({
-                message: 'Select a domain:',
-                choices: domains.map((name) => ({ name, value: name })),
-              });
+      const activeFromConfig =
+        config &&
+        config['active-domain'] &&
+        domains.includes(config['active-domain'])
+          ? config['active-domain']
+          : undefined;
+
+      if (options.domainName) {
+        if (!domains.includes(options.domainName)) {
+          throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+        }
+        selectedDomain = options.domainName;
+      } else if (options.taskName) {
+        if (!activeFromConfig) {
+          throw new Error(
+            'Option "--task" requires an active domain in .ctxlayer/config.yaml, or pass "--domain".'
+          );
+        }
+        selectedDomain = activeFromConfig;
+      } else {
+        selectedDomain = await select({
+          message: 'Select a domain:',
+          choices: domains.map((name) => ({ name, value: name })),
+          default: activeFromConfig,
+        });
+      }
     }
 
     const tasks = getStoredTasks(selectedDomain);
@@ -1150,12 +1202,14 @@ if (argv[0] === 'git') {
     domainName: readStringOption(options, 'domain'),
     taskName: readStringOption(options, 'task'),
   });
-} else if (argv[0] === 'delete' && argv[1] === 'domain' && argv.length === 2) {
-  await deleteDomain();
 } else if (argv[0] === 'delete' && argv[1] === 'domain') {
-  const { options } = parseOptions(argv.slice(2));
+  const { options, positionals } = parseOptions(argv.slice(2));
   await deleteDomain({
-    domainName: readStringOption(options, 'domain'),
+    domainName: resolveConflictingValues(
+      positionals[0],
+      readStringOption(options, 'domain'),
+      'domain name'
+    ),
     yes: readBooleanFlag(options, 'yes'),
   });
 } else if (argv[0] === 'delete' && argv[1] === 'task' && argv.length === 2) {
@@ -1190,6 +1244,7 @@ if (argv[0] === 'git') {
   await setActive({
     domainName: readStringOption(options, 'domain'),
     taskName: readStringOption(options, 'task'),
+    cloneFrom: readStringOption(options, 'clone-from'),
   });
 } else {
   console.log(`
@@ -1199,14 +1254,14 @@ Main Commands:
   new [name]        Create a new task (supports --task, --domain, --use-current-domain, --create-domain)
   import            Import a task from any domain as a symlink (supports --domain, --task, --clone-from)
   status            Show the current active domain and task
-  set               Set active domain and task (supports --domain, --task)
+  set               Set active domain and task (supports --domain, --task, --clone-from)
 
 Convenience Commands:
   git [args...]     Run git in the current task directory
   drop task [name]  Remove a task symlink (supports --domain, --task)
   drop domain [name]  Remove a domain directory from local .ctxlayer/ (supports --domain, --yes)
   delete task       Delete a task from the context store and remove its symlink (supports --domain, --task, --yes)
-  delete domain     Delete a domain from the context store and remove its local directory (supports --domain, --yes)
+  delete domain [name]  Delete a domain from the context store (supports --domain, --yes)
 `);
 }
 
