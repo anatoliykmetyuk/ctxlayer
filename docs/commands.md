@@ -392,7 +392,7 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 | `ctx delete task` | `deleteTask(options?)` | list from DOMAINS_ROOT, supports `--domain` / `--task` / `--yes`, rm task + symlink |
 | `ctx delete domain` | `deleteDomain(options?)` | list from DOMAINS_ROOT, supports `--domain` / `--yes`, rm domain + local dir |
 | `ctx status` | `status()` | readConfig, print |
-| `ctx set` | `setActive(options?)` | ensureWorkspaceInitialized, supports `--domain` / `--task`, writeConfig |
+| `ctx set` | `setActive(options?)` | ensureWorkspaceInitialized, supports `--domain` / `--task` / `--clone-from`, writeConfig |
 
 ---
 

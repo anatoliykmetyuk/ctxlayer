@@ -988,6 +988,33 @@ async function setActive(options = {}) {
     ensureWorkspaceInitialized();
     const config = readConfigOrNull();
 
+    if (options.cloneFrom && !options.taskName) {
+      throw new Error('Option "--clone-from" requires "--task".');
+    }
+
+    if (options.cloneFrom) {
+      const selectedDomain = options.domainName || repoNameFromUrl(options.cloneFrom);
+      cloneDomainFromGit(options.cloneFrom, selectedDomain);
+      const tasks = getStoredTasks(selectedDomain);
+
+      if (tasks.length === 0) {
+        throw new Error('No tasks found in domain "' + selectedDomain + '".');
+      }
+
+      const selectedTask =
+        options.taskName && tasks.includes(options.taskName)
+          ? options.taskName
+          : (() => {
+              throw new Error(
+                'Task directory not found: ' + path.join(DOMAINS_ROOT, selectedDomain, options.taskName)
+              );
+            })();
+
+      setActiveDomainAndTask(selectedDomain, selectedTask);
+      console.log('\nDone.');
+      return;
+    }
+
     const domains = getStoredDomains();
 
     if (domains.length === 0) {
@@ -1215,6 +1242,7 @@ if (argv[0] === 'git') {
   await setActive({
     domainName: readStringOption(options, 'domain'),
     taskName: readStringOption(options, 'task'),
+    cloneFrom: readStringOption(options, 'clone-from'),
   });
 } else {
   console.log(`
@@ -1224,7 +1252,7 @@ Main Commands:
   new [name]        Create a new task (supports --task, --domain, --use-current-domain, --create-domain)
   import            Import a task from any domain as a symlink (supports --domain, --task, --clone-from)
   status            Show the current active domain and task
-  set               Set active domain and task (supports --domain, --task)
+  set               Set active domain and task (supports --domain, --task, --clone-from)
 
 Convenience Commands:
   git [args...]     Run git in the current task directory

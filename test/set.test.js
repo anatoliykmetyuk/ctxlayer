@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import * as cp from 'child_process';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
@@ -21,12 +22,37 @@ process.env.CONTEXT_LAYER_CWD = tmpCwd;
 // ---------------------------------------------------------------------------
 
 let selectQueue = [];
+let execSyncCalls = [];
+let cloneFixtures = {};
 
 mock.module('@inquirer/prompts', {
   namedExports: {
     select: async () => selectQueue.shift(),
     input: async () => '',
     confirm: async () => false,
+  },
+});
+
+mock.module('child_process', {
+  namedExports: {
+    execSync: (command, options) => {
+      execSyncCalls.push({ command, options });
+
+      if (command.startsWith('git clone ')) {
+        const parts = command.split(' ');
+        const url = parts[2];
+        const targetPath = parts[3];
+        const tasks = cloneFixtures[url] || [];
+
+        fs.mkdirSync(targetPath, { recursive: true });
+        for (const task of tasks) {
+          fs.mkdirSync(path.join(targetPath, task, 'docs'), { recursive: true });
+          fs.mkdirSync(path.join(targetPath, task, 'data'), { recursive: true });
+        }
+      }
+    },
+    spawn: cp.spawn,
+    spawnSync: cp.spawnSync,
   },
 });
 
@@ -70,6 +96,8 @@ describe('ctx set', () => {
   beforeEach(() => {
     process.exit.mock.resetCalls();
     selectQueue = [];
+    execSyncCalls = [];
+    cloneFixtures = {};
   });
 
   after(() => {
@@ -104,6 +132,55 @@ describe('ctx set', () => {
     const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-beta', 'task-three');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('clones a domain from git and sets the task active', async () => {
+    cloneFixtures['https://github.com/user/repo.git'] = ['pr-reviews'];
+
+    await setActive({
+      cloneFrom: 'https://github.com/user/repo.git',
+      taskName: 'pr-reviews',
+    });
+
+    const expectedDomainDir = path.join(tmpDomainsRoot, 'repo');
+    assert.ok(fs.existsSync(path.join(expectedDomainDir, 'pr-reviews')));
+    assert.equal(
+      execSyncCalls[0].command,
+      `git clone https://github.com/user/repo.git ${expectedDomainDir}`
+    );
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-domain: repo'));
+    assert.ok(config.includes('active-task: pr-reviews'));
+
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'repo', 'pr-reviews');
+    assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('supports --domain with --clone-from for the cloned folder name', async () => {
+    cloneFixtures['https://github.com/user/repo.git'] = ['t1'];
+
+    await setActive({
+      cloneFrom: 'https://github.com/user/repo.git',
+      domainName: 'custom-name',
+      taskName: 't1',
+    });
+
+    assert.ok(fs.existsSync(path.join(tmpDomainsRoot, 'custom-name', 't1')));
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-domain: custom-name'));
+    assert.ok(config.includes('active-task: t1'));
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('exits when --clone-from is used without --task', async () => {
+    await setActive({
+      cloneFrom: 'https://github.com/user/repo.git',
+    });
+
+    assert.equal(process.exit.mock.calls.length, 1);
+    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
   it('with only taskName, uses active domain from config (no prompts)', async () => {

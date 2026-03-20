@@ -12,7 +12,7 @@ The `ctx` CLI manages domains and tasks in your context layer. Run `ctx` with no
 | `ctx new [name]` | Create a new task. Supports non-interactive flags such as `--task`, `--domain`, `--use-current-domain`, and `--create-domain` |
 | `ctx import` | Import a task from any domain as a symlink into `.ctxlayer/`. Supports `--domain`, `--task`, and `--clone-from` |
 | `ctx status` | Show the active domain and task, plus git tracking info |
-| `ctx set` | Set active domain and task. Supports `--domain` and `--task` |
+| `ctx set` | Set active domain and task. Supports `--domain`, `--task`, and `--clone-from` |
 | `ctx git [args...]` | Run git in the active task directory |
 | `ctx drop task [name]` | Remove a task symlink from `.ctxlayer/`. Supports `--domain` and `--task` |
 | `ctx drop domain [name]` | Remove a domain directory from `.ctxlayer/`. Supports `--domain` and `--yes` |
@@ -101,8 +101,8 @@ Select and set the active domain and task. Use this to switch context when worki
 **What it does:**
 
 1. Ensures workspace is initialized
-2. Chooses the domain: uses `--domain` if given; if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
-3. Lists tasks in that domain and prompts you to pick one unless you passed `--task`
+2. Chooses the domain: `--clone-from` clones the repo into `~/.agents/ctxlayer/domains/<name>/` first (`<name>` is `--domain` if given, otherwise derived from the repo URL); else uses `--domain` if given; else if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
+3. Lists tasks in that domain and prompts you to pick one unless you passed `--task` (required with `--clone-from`)
 4. Writes `active-domain` and `active-task` to `config.yaml`
 5. Ensures the symlink exists at `.ctxlayer/<domain>/<task>`. If it does not, creates the symlink.
 
@@ -111,6 +111,8 @@ Select and set the active domain and task. Use this to switch context when worki
 ```bash
 ctx set --domain my-domain --task my-task
 ctx set --task other-task   # same domain as in config; errors if no active domain
+ctx set --clone-from https://github.com/acme/context-repo.git --task my-task
+ctx set --clone-from https://github.com/acme/context-repo.git --domain short-name --task my-task
 ```
 
 ## ctx git [args...]
