@@ -52,8 +52,8 @@ Imports an existing task from any domain into your project as a symlink. This is
 **What it does:**
 
 1. Ensures the workspace is initialized
-2. Prompts you to select a domain, accepts `--domain`, or clones a domain first via `--clone-from`
-3. Prompts you to select a task from that domain (or accepts `--task`)
+2. Chooses the domain: `--clone-from` clones first; else `--domain` if given; else if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
+3. Prompts you to select a task from that domain unless you passed `--task`
 4. Creates a symlink at `.ctxlayer/<domain>/<task>` pointing to the task in the context layer
 5. If `config.yaml` has no active domain/task, sets the imported domain and task as active; otherwise only creates the symlink
 
@@ -62,6 +62,7 @@ Imports an existing task from any domain into your project as a symlink. This is
 ```bash
 ctx import
 ctx import --domain my-domain --task my-task
+ctx import --task other-task   # same domain as in config; errors if no active domain
 ctx import --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
 ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
 ```

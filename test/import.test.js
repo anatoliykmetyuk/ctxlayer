@@ -137,6 +137,27 @@ describe('ctx import', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('with only taskName, uses active domain from config (no prompts)', async () => {
+    fs.writeFileSync(
+      path.join(tmpCwd, '.ctxlayer', 'config.yaml'),
+      'active-domain: domain-alpha\nactive-task: task-one\n'
+    );
+    await importTask({ taskName: 'task-two' });
+
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-alpha', 'task-two');
+    assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('exits when import --task is used but config has no resolvable active domain', async () => {
+    fs.writeFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'active-task: task-one\n');
+
+    await importTask({ taskName: 'task-two' });
+
+    assert.equal(process.exit.mock.calls.length, 1);
+    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
+  });
+
   it('supports importing a domain from git and importing a task from it', async () => {
     cloneFixtures['https://github.com/user/git-domain.git'] = ['task-from-git'];
 

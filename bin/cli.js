@@ -1085,17 +1085,32 @@ async function importTask(options = {}) {
         throw new Error('No domains found in ' + DOMAINS_ROOT);
       }
 
-      selectedDomain =
-        options.domainName && domains.includes(options.domainName)
-          ? options.domainName
-          : options.domainName
-            ? (() => {
-                throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
-              })()
-            : await select({
-                message: 'Select a domain:',
-                choices: domains.map((name) => ({ name, value: name })),
-              });
+      const activeFromConfig =
+        config &&
+        config['active-domain'] &&
+        domains.includes(config['active-domain'])
+          ? config['active-domain']
+          : undefined;
+
+      if (options.domainName) {
+        if (!domains.includes(options.domainName)) {
+          throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+        }
+        selectedDomain = options.domainName;
+      } else if (options.taskName) {
+        if (!activeFromConfig) {
+          throw new Error(
+            'Option "--task" requires an active domain in .ctxlayer/config.yaml, or pass "--domain".'
+          );
+        }
+        selectedDomain = activeFromConfig;
+      } else {
+        selectedDomain = await select({
+          message: 'Select a domain:',
+          choices: domains.map((name) => ({ name, value: name })),
+          default: activeFromConfig,
+        });
+      }
     }
 
     const tasks = getStoredTasks(selectedDomain);
