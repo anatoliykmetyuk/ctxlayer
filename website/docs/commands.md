@@ -17,7 +17,7 @@ The `ctx` CLI manages domains and tasks in your context layer. Run `ctx` with no
 | `ctx drop task [name]` | Remove a task symlink from `.ctxlayer/`. Supports `--domain` and `--task` |
 | `ctx drop domain [name]` | Remove a domain directory from `.ctxlayer/`. Supports `--domain` and `--yes` |
 | `ctx delete task` | Permanently delete a task from the context layer. Supports `--domain`, `--task`, and `--yes` |
-| `ctx delete domain` | Permanently delete a domain from the context layer. Supports `--domain` and `--yes` |
+| `ctx delete domain [name]` | Permanently delete a domain. Domain as first arg or `--domain`; use `--yes` to skip confirmation |
 
 ## ctx new [name]
 
@@ -187,7 +187,7 @@ ctx delete task --domain my-domain --task my-task --yes
 
 **What it does:**
 
-1. Prompts you to select a domain, or accepts `--domain`
+1. Chooses the domain from the first argument (`ctx delete domain <name>`), or `--domain`, or prompts
 2. Asks for confirmation, or accepts `--yes`
 3. Deletes the domain from `~/.agents/ctxlayer/domains/<domain>/`
 4. Removes `.ctxlayer/<domain>/` from your project
@@ -197,5 +197,6 @@ This cannot be undone. All tasks in the domain are deleted.
 **Example:**
 
 ```bash
+ctx delete domain my-domain --yes
 ctx delete domain --domain my-domain --yes
 ```

@@ -1202,12 +1202,14 @@ if (argv[0] === 'git') {
     domainName: readStringOption(options, 'domain'),
     taskName: readStringOption(options, 'task'),
   });
-} else if (argv[0] === 'delete' && argv[1] === 'domain' && argv.length === 2) {
-  await deleteDomain();
 } else if (argv[0] === 'delete' && argv[1] === 'domain') {
-  const { options } = parseOptions(argv.slice(2));
+  const { options, positionals } = parseOptions(argv.slice(2));
   await deleteDomain({
-    domainName: readStringOption(options, 'domain'),
+    domainName: resolveConflictingValues(
+      positionals[0],
+      readStringOption(options, 'domain'),
+      'domain name'
+    ),
     yes: readBooleanFlag(options, 'yes'),
   });
 } else if (argv[0] === 'delete' && argv[1] === 'task' && argv.length === 2) {
@@ -1259,7 +1261,7 @@ Convenience Commands:
   drop task [name]  Remove a task symlink (supports --domain, --task)
   drop domain [name]  Remove a domain directory from local .ctxlayer/ (supports --domain, --yes)
   delete task       Delete a task from the context store and remove its symlink (supports --domain, --task, --yes)
-  delete domain     Delete a domain from the context store and remove its local directory (supports --domain, --yes)
+  delete domain [name]  Delete a domain from the context store (supports --domain, --yes)
 `);
 }
 

@@ -2,7 +2,11 @@ import { describe, it, before, after, beforeEach, mock } from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'node:url';
+import { spawnSync } from 'node:child_process';
 import { createSandbox, createConfig, createDomain, createTaskSymlink } from './helpers.js';
+
+const cliPath = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'bin', 'cli.js');
 
 // ---------------------------------------------------------------------------
 // Sandbox setup
@@ -101,5 +105,63 @@ describe('ctx delete domain', () => {
     } finally {
       fs.renameSync(backup, tmpDomainsRoot);
     }
+  });
+
+  describe('CLI (subprocess)', () => {
+    it('deletes domain from first positional with --yes', () => {
+      const name = 'cli-positional-domain';
+      createDomain(tmpDomainsRoot, name, ['t1']);
+      createTaskSymlink(tmpCwd, name, 't1', tmpDomainsRoot);
+
+      const res = spawnSync(
+        process.execPath,
+        [cliPath, 'delete', 'domain', name, '--yes'],
+        {
+          env: { ...process.env },
+          cwd: tmpCwd,
+          encoding: 'utf8',
+        }
+      );
+
+      assert.equal(res.status, 0, res.stdout + res.stderr);
+      assert.ok(!fs.existsSync(path.join(tmpDomainsRoot, name)));
+      const localDomainDir = path.join(tmpCwd, '.ctxlayer', name);
+      assert.ok(!fs.existsSync(localDomainDir));
+    });
+
+    it('errors when positional domain and --domain disagree', () => {
+      createDomain(tmpDomainsRoot, 'cli-domain-a', ['t1']);
+      createDomain(tmpDomainsRoot, 'cli-domain-b', ['t1']);
+      createTaskSymlink(tmpCwd, 'cli-domain-a', 't1', tmpDomainsRoot);
+      createTaskSymlink(tmpCwd, 'cli-domain-b', 't1', tmpDomainsRoot);
+
+      const res = spawnSync(
+        process.execPath,
+        [
+          cliPath,
+          'delete',
+          'domain',
+          'cli-domain-a',
+          '--domain',
+          'cli-domain-b',
+          '--yes',
+        ],
+        {
+          env: { ...process.env },
+          cwd: tmpCwd,
+          encoding: 'utf8',
+        }
+      );
+
+      assert.equal(res.status, 1);
+      assert.match(res.stderr, /Conflicting domain name provided/);
+      assert.ok(fs.existsSync(path.join(tmpDomainsRoot, 'cli-domain-a')));
+      assert.ok(fs.existsSync(path.join(tmpDomainsRoot, 'cli-domain-b')));
+
+      fs.rmSync(path.join(tmpDomainsRoot, 'cli-domain-a'), { recursive: true, force: true });
+      fs.rmSync(path.join(tmpDomainsRoot, 'cli-domain-b'), { recursive: true, force: true });
+      fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'cli-domain-a'), { recursive: true, force: true });
+      fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'cli-domain-b'), { recursive: true, force: true });
+    });
   });
 });
