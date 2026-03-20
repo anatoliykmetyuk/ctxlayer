@@ -94,6 +94,18 @@ describe('ctx set', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('supports non-interactive domain and task selection', async () => {
+    await setActive({ domainName: 'domain-beta', taskName: 'task-three' });
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-domain: domain-beta'));
+    assert.ok(config.includes('active-task: task-three'));
+
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-beta', 'task-three');
+    assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('exits when selected domain has no tasks', async () => {
     selectQueue = ['empty-domain'];
 

@@ -98,6 +98,40 @@ describe('ctx new', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('supports non-interactive task creation in the current domain', async () => {
+    await newTask(undefined, {
+      taskName: 'flag-task',
+      useCurrentDomain: true,
+    });
+
+    const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'flag-task');
+    assert.ok(fs.existsSync(taskDir));
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-domain: my-domain'));
+    assert.ok(config.includes('active-task: flag-task'));
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('supports non-interactive scratch domain creation', async () => {
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
+
+    await newTask('script-task', {
+      domainName: 'script-domain',
+      createDomain: true,
+    });
+
+    const domainDir = path.join(tmpDomainsRoot, 'script-domain');
+    assert.ok(fs.existsSync(domainDir));
+    assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'docs')));
+    assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'data')));
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-domain: script-domain'));
+    assert.ok(config.includes('active-task: script-task'));
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('active domain set, answer no: goes to domain prompt then creates task', async () => {
     createDomain(tmpDomainsRoot, 'domain-a', ['task-a1']);
     createDomain(tmpDomainsRoot, 'domain-b', ['task-b1']);

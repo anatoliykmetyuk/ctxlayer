@@ -75,6 +75,17 @@ describe('ctx drop domain', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('supports non-interactive domain deletion with --yes semantics', async () => {
+    createDomain(tmpDomainsRoot, 'domain-gamma', ['task-four']);
+    createTaskSymlink(tmpCwd, 'domain-gamma', 'task-four', tmpDomainsRoot);
+
+    await dropDomain(undefined, { domainName: 'domain-gamma', yes: true });
+
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-gamma');
+    assert.ok(!fs.existsSync(domainDir), 'domain dir should be removed');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('does not remove when name arg provided but user cancels', async () => {
     confirmQueue = [false];
     await dropDomain('domain-beta');

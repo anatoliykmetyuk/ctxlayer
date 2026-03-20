@@ -37,6 +37,112 @@ function ensureDomainsRoot() {
   }
 }
 
+function parseOptions(args) {
+  const options = {};
+  const positionals = [];
+
+  for (let i = 0; i < args.length; i++) {
+    const token = args[i];
+
+    if (token === '--') {
+      positionals.push(...args.slice(i + 1));
+      break;
+    }
+
+    if (token.startsWith('--')) {
+      const equalsIndex = token.indexOf('=');
+      if (equalsIndex !== -1) {
+        const key = token.slice(2, equalsIndex);
+        options[key] = token.slice(equalsIndex + 1);
+        continue;
+      }
+
+      const key = token.slice(2);
+      const next = args[i + 1];
+      if (next !== undefined && !next.startsWith('--')) {
+        options[key] = next;
+        i += 1;
+      } else {
+        options[key] = true;
+      }
+      continue;
+    }
+
+    positionals.push(token);
+  }
+
+  return { options, positionals };
+}
+
+function readStringOption(options, name) {
+  if (!Object.hasOwn(options, name)) {
+    return undefined;
+  }
+
+  const value = options[name];
+  if (value === true) {
+    throw new Error(`Option "--${name}" requires a value.`);
+  }
+  if (value === '') {
+    throw new Error(`Option "--${name}" cannot be empty.`);
+  }
+  return value;
+}
+
+function readBooleanFlag(options, name) {
+  if (!Object.hasOwn(options, name)) {
+    return false;
+  }
+
+  const value = options[name];
+  if (value !== true) {
+    throw new Error(`Option "--${name}" does not take a value.`);
+  }
+  return true;
+}
+
+function resolveConflictingValues(argValue, optionValue, label) {
+  if (argValue && optionValue && argValue !== optionValue) {
+    throw new Error(`Conflicting ${label} provided.`);
+  }
+  return argValue || optionValue;
+}
+
+function getStoredDomains() {
+  if (!fs.existsSync(DOMAINS_ROOT)) {
+    throw new Error('No domains directory found at ' + DOMAINS_ROOT);
+  }
+
+  return fs
+    .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
+    .filter((e) => e.isDirectory())
+    .map((e) => e.name);
+}
+
+function getStoredTasks(domainName) {
+  const domainDir = path.join(DOMAINS_ROOT, domainName);
+  if (!fs.existsSync(domainDir)) {
+    throw new Error('Domain directory not found: ' + domainDir);
+  }
+
+  return fs
+    .readdirSync(domainDir, { withFileTypes: true })
+    .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
+    .map((e) => e.name);
+}
+
+function getLocalTasks(domainName) {
+  const domainDir = path.join(CWD, LOCAL_DIR, domainName);
+  if (!fs.existsSync(domainDir)) {
+    throw new Error('Domain directory not found: ' + domainDir);
+  }
+
+  return fs
+    .readdirSync(domainDir, { withFileTypes: true })
+    .filter((e) => e.isSymbolicLink() || (e.isDirectory() && !e.name.startsWith('.')))
+    .map((e) => e.name);
+}
+
 function readConfig() {
   const configPath = path.join(CWD, LOCAL_DIR, 'config.yaml');
   if (!fs.existsSync(configPath)) {
@@ -200,18 +306,20 @@ function ensureWorkspaceInitialized() {
 // Choice 1: Fetch from git
 // ---------------------------------------------------------------------------
 
-async function initFromGit() {
-  const url = await input({ message: 'GitHub repo URL:' });
+async function initFromGit({ url: urlArg, domainName: domainNameArg } = {}) {
+  const url = urlArg || (await input({ message: 'GitHub repo URL:' }));
   if (!url) {
     throw new Error('URL cannot be empty');
   }
 
   const defaultName = repoNameFromUrl(url);
   const domainName =
+    domainNameArg ||
     (await input({
       message: 'Domain name:',
       default: defaultName,
-    })) || defaultName;
+    })) ||
+    defaultName;
 
   ensureDomainsRoot();
 
@@ -231,8 +339,8 @@ async function initFromGit() {
 // Choice 2: Create new domain from scratch
 // ---------------------------------------------------------------------------
 
-async function initFromScratch() {
-  const domainName = await input({ message: 'Domain name:' });
+async function initFromScratch({ domainName: domainNameArg } = {}) {
+  const domainName = domainNameArg || (await input({ message: 'Domain name:' }));
   if (!domainName) {
     throw new Error('Domain name cannot be empty');
   }
@@ -257,31 +365,32 @@ async function initFromScratch() {
 // Choice 3: Use existing domain
 // ---------------------------------------------------------------------------
 
-async function initFromExisting() {
-  if (!fs.existsSync(DOMAINS_ROOT)) {
-    throw new Error('No domains directory found at ' + DOMAINS_ROOT);
-  }
-
-  const entries = fs
-    .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
-    .filter((e) => e.isDirectory())
-    .map((e) => e.name);
+async function initFromExisting({ domainName: domainNameArg } = {}) {
+  const entries = getStoredDomains();
 
   if (entries.length === 0) {
     throw new Error('No domains found in ' + DOMAINS_ROOT);
   }
 
-  const domainName = await select({
-    message: 'Select a domain:',
-    choices: entries.map((name) => ({
-      name,
-      value: name,
-    })),
-  });
+  let domainName = domainNameArg;
+  if (domainName) {
+    if (!entries.includes(domainName)) {
+      throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, domainName));
+    }
+  } else {
+    domainName = await select({
+      message: 'Select a domain:',
+      choices: entries.map((name) => ({
+        name,
+        value: name,
+      })),
+    });
+  }
 
   console.log('Using domain:', domainName);
 
   setupLocal(domainName);
+  return domainName;
 }
 
 // ---------------------------------------------------------------------------
@@ -355,7 +464,7 @@ async function createTaskInDomain(domainName, taskNameArg) {
 // New task flow (single creative entry point)
 // ---------------------------------------------------------------------------
 
-async function newTask(nameArg) {
+async function newTask(nameArg, options = {}) {
   try {
     ensureWorkspaceInitialized();
 
@@ -365,9 +474,30 @@ async function newTask(nameArg) {
       : null;
     const hasValidDomain = config && domainDir && fs.existsSync(domainDir);
 
+    const taskName = resolveConflictingValues(nameArg, options.taskName, 'task name');
+
+    if (options.useCurrentDomain && (options.domainName || options.createDomain || options.cloneFrom)) {
+      throw new Error(
+        'Cannot combine "--use-current-domain" with "--domain", "--create-domain", or "--clone-from".'
+      );
+    }
+    if (options.createDomain && options.cloneFrom) {
+      throw new Error('Cannot combine "--create-domain" with "--clone-from".');
+    }
+    if (options.createDomain && !options.domainName) {
+      throw new Error('Option "--create-domain" requires "--domain".');
+    }
+
     let domainName;
-    if (!hasValidDomain) {
-      domainName = await selectOrCreateDomain();
+    if (options.useCurrentDomain) {
+      if (!hasValidDomain) {
+        throw new Error('No valid active domain set. Use "--domain", "--create-domain", or "--clone-from".');
+      }
+      domainName = config['active-domain'];
+    } else if (!hasValidDomain) {
+      domainName = await selectOrCreateDomain(options);
+    } else if (options.domainName || options.createDomain || options.cloneFrom) {
+      domainName = await selectOrCreateDomain(options);
     } else {
       const useCurrent = await confirm({
         message: `Use current active domain [${config['active-domain']}] for new task?`,
@@ -380,7 +510,7 @@ async function newTask(nameArg) {
       }
     }
 
-    await createTaskInDomain(domainName, nameArg);
+    await createTaskInDomain(domainName, taskName);
     console.log('\nDone.');
   } catch (err) {
     if (err.name === 'ExitPromptError') {
@@ -399,7 +529,7 @@ const FETCH_GIT = '__fetch_git__';
 const CREATE_SCRATCH = '__create_scratch__';
 const SELECT_EXISTING = '__select_existing__';
 
-async function selectOrCreateDomain() {
+async function selectOrCreateDomain(options = {}) {
   ensureDomainsRoot();
 
   const entries = fs.existsSync(DOMAINS_ROOT)
@@ -408,6 +538,21 @@ async function selectOrCreateDomain() {
         .filter((e) => e.isDirectory())
         .map((e) => e.name)
     : [];
+
+  if (options.cloneFrom) {
+    return await initFromGit({ url: options.cloneFrom, domainName: options.domainName });
+  }
+
+  if (options.createDomain) {
+    return await initFromScratch({ domainName: options.domainName });
+  }
+
+  if (options.domainName) {
+    if (!entries.includes(options.domainName)) {
+      throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+    }
+    return options.domainName;
+  }
 
   const firstChoices = [
     { name: 'Fetch from git', value: FETCH_GIT },
@@ -552,7 +697,7 @@ function intelGit() {
 // ctx drop task - remove symlink to a task
 // ---------------------------------------------------------------------------
 
-async function dropTask(taskNameArg) {
+async function dropTask(taskNameArg, options = {}) {
   try {
     const config = readConfig();
 
@@ -564,37 +709,51 @@ async function dropTask(taskNameArg) {
     let selectedDomain;
     let selectedTask;
 
-    if (taskNameArg) {
-      selectedDomain = config['active-domain'];
+    const taskName = resolveConflictingValues(taskNameArg, options.taskName, 'task name');
+
+    if (taskName) {
+      selectedDomain = options.domainName || config['active-domain'];
       const domainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
       if (!fs.existsSync(domainDir)) {
         throw new Error('Domain directory not found: ' + domainDir);
       }
-      const linkPath = path.join(domainDir, taskNameArg);
+      const linkPath = path.join(domainDir, taskName);
       if (!fs.existsSync(linkPath)) {
         throw new Error('Task symlink not found: ' + linkPath);
       }
-      selectedTask = taskNameArg;
+      selectedTask = taskName;
     } else {
-      selectedDomain = await select({
-        message: 'Select domain:',
-        choices: domains.map((name) => ({ name, value: name })),
-      });
+      if (options.domainName) {
+        if (!domains.includes(options.domainName)) {
+          throw new Error('Domain directory not found: ' + path.join(CWD, LOCAL_DIR, options.domainName));
+        }
+        selectedDomain = options.domainName;
+      } else {
+        selectedDomain = await select({
+          message: 'Select domain:',
+          choices: domains.map((name) => ({ name, value: name })),
+        });
+      }
 
-      const domainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
-      const entries = fs
-        .readdirSync(domainDir, { withFileTypes: true })
-        .filter((e) => e.isSymbolicLink() || (e.isDirectory() && !e.name.startsWith('.')))
-        .map((e) => e.name);
+      const entries = getLocalTasks(selectedDomain);
 
       if (entries.length === 0) {
         throw new Error('No tasks found in domain "' + selectedDomain + '".');
       }
 
-      selectedTask = await select({
-        message: 'Select task to drop:',
-        choices: entries.map((name) => ({ name, value: name })),
-      });
+      if (options.taskName) {
+        if (!entries.includes(options.taskName)) {
+          throw new Error(
+            'Task symlink not found: ' + path.join(CWD, LOCAL_DIR, selectedDomain, options.taskName)
+          );
+        }
+        selectedTask = options.taskName;
+      } else {
+        selectedTask = await select({
+          message: 'Select task to drop:',
+          choices: entries.map((name) => ({ name, value: name })),
+        });
+      }
     }
 
     const linkPath = path.join(CWD, LOCAL_DIR, selectedDomain, selectedTask);
@@ -622,7 +781,7 @@ async function dropTask(taskNameArg) {
 // ctx drop domain - remove domain directory from local .ctxlayer/
 // ---------------------------------------------------------------------------
 
-async function dropDomain(domainNameArg) {
+async function dropDomain(domainNameArg, options = {}) {
   try {
     readConfig();
 
@@ -631,13 +790,15 @@ async function dropDomain(domainNameArg) {
       throw new Error('No domain directories found in .ctxlayer/.');
     }
 
+    const domainName = resolveConflictingValues(domainNameArg, options.domainName, 'domain name');
+
     let selectedDomain;
-    if (domainNameArg) {
-      if (!domains.includes(domainNameArg)) {
-        const localDomainDir = path.join(CWD, LOCAL_DIR, domainNameArg);
+    if (domainName) {
+      if (!domains.includes(domainName)) {
+        const localDomainDir = path.join(CWD, LOCAL_DIR, domainName);
         throw new Error('Domain directory not found: ' + localDomainDir);
       }
-      selectedDomain = domainNameArg;
+      selectedDomain = domainName;
     } else {
       selectedDomain = await select({
         message: 'Select domain to drop:',
@@ -646,10 +807,12 @@ async function dropDomain(domainNameArg) {
     }
 
     const localDomainDir = path.join(CWD, LOCAL_DIR, selectedDomain);
-    const confirmed = await confirm({
-      message: `Remove domain directory "${selectedDomain}" from .ctxlayer/?`,
-      default: false,
-    });
+    const confirmed =
+      options.yes ||
+      (await confirm({
+        message: `Remove domain directory "${selectedDomain}" from .ctxlayer/?`,
+        default: false,
+      }));
 
     if (!confirmed) {
       console.log('Cancelled.');
@@ -672,47 +835,54 @@ async function dropDomain(domainNameArg) {
 // ctx delete task - remove task from context store and symlink
 // ---------------------------------------------------------------------------
 
-async function deleteTask() {
+async function deleteTask(options = {}) {
   try {
     readConfig();
 
-    if (!fs.existsSync(DOMAINS_ROOT)) {
-      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
-    }
-
-    const domains = fs
-      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name);
+    const domains = getStoredDomains();
 
     if (domains.length === 0) {
       throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedDomain = await select({
-      message: 'Select domain:',
-      choices: domains.map((name) => ({ name, value: name })),
-    });
+    const selectedDomain =
+      options.domainName && domains.includes(options.domainName)
+        ? options.domainName
+        : options.domainName
+          ? (() => {
+              throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+            })()
+          : await select({
+              message: 'Select domain:',
+              choices: domains.map((name) => ({ name, value: name })),
+            });
 
-    const domainDir = path.join(DOMAINS_ROOT, selectedDomain);
-    const tasks = fs
-      .readdirSync(domainDir, { withFileTypes: true })
-      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
-      .map((e) => e.name);
+    const tasks = getStoredTasks(selectedDomain);
 
     if (tasks.length === 0) {
       throw new Error('No tasks found in domain "' + selectedDomain + '".');
     }
 
-    const selectedTask = await select({
-      message: 'Select task to delete:',
-      choices: tasks.map((name) => ({ name, value: name })),
-    });
+    const selectedTask =
+      options.taskName && tasks.includes(options.taskName)
+        ? options.taskName
+        : options.taskName
+          ? (() => {
+              throw new Error(
+                'Task directory not found: ' + path.join(DOMAINS_ROOT, selectedDomain, options.taskName)
+              );
+            })()
+          : await select({
+              message: 'Select task to delete:',
+              choices: tasks.map((name) => ({ name, value: name })),
+            });
 
-    const confirmed = await confirm({
-      message: `Permanently delete task "${selectedTask}" from domain "${selectedDomain}"?`,
-      default: false,
-    });
+    const confirmed =
+      options.yes ||
+      (await confirm({
+        message: `Permanently delete task "${selectedTask}" from domain "${selectedDomain}"?`,
+        default: false,
+      }));
 
     if (!confirmed) {
       console.log('Cancelled.');
@@ -752,32 +922,34 @@ async function deleteTask() {
 // ctx delete domain - remove domain from context store and local dir
 // ---------------------------------------------------------------------------
 
-async function deleteDomain() {
+async function deleteDomain(options = {}) {
   try {
     readConfig();
 
-    if (!fs.existsSync(DOMAINS_ROOT)) {
-      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
-    }
-
-    const domains = fs
-      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name);
+    const domains = getStoredDomains();
 
     if (domains.length === 0) {
       throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedDomain = await select({
-      message: 'Select domain to delete:',
-      choices: domains.map((name) => ({ name, value: name })),
-    });
+    const selectedDomain =
+      options.domainName && domains.includes(options.domainName)
+        ? options.domainName
+        : options.domainName
+          ? (() => {
+              throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+            })()
+          : await select({
+              message: 'Select domain to delete:',
+              choices: domains.map((name) => ({ name, value: name })),
+            });
 
-    const confirmed = await confirm({
-      message: `Permanently delete domain "${selectedDomain}" from the context store?`,
-      default: false,
-    });
+    const confirmed =
+      options.yes ||
+      (await confirm({
+        message: `Permanently delete domain "${selectedDomain}" from the context store?`,
+        default: false,
+      }));
 
     if (!confirmed) {
       console.log('Cancelled.');
@@ -808,56 +980,61 @@ async function deleteDomain() {
 // Set active domain and task (ctx set)
 // ---------------------------------------------------------------------------
 
-async function setActive() {
+async function setActive(options = {}) {
   try {
     ensureWorkspaceInitialized();
     const config = readConfigOrNull();
 
-    if (!fs.existsSync(DOMAINS_ROOT)) {
-      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
-    }
-
-    const domains = fs
-      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name);
+    const domains = getStoredDomains();
 
     if (domains.length === 0) {
       throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedDomain = await select({
-      message: 'Select a domain:',
-      choices: domains.map((name) => ({ name, value: name })),
-      default:
-        config &&
-        config['active-domain'] &&
-        domains.includes(config['active-domain'])
-          ? config['active-domain']
-          : undefined,
-    });
+    const selectedDomain =
+      options.domainName && domains.includes(options.domainName)
+        ? options.domainName
+        : options.domainName
+          ? (() => {
+              throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+            })()
+          : await select({
+              message: 'Select a domain:',
+              choices: domains.map((name) => ({ name, value: name })),
+              default:
+                config &&
+                config['active-domain'] &&
+                domains.includes(config['active-domain'])
+                  ? config['active-domain']
+                  : undefined,
+            });
 
-    const domainDir = path.join(DOMAINS_ROOT, selectedDomain);
-    const tasks = fs
-      .readdirSync(domainDir, { withFileTypes: true })
-      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
-      .map((e) => e.name);
+    const tasks = getStoredTasks(selectedDomain);
 
     if (tasks.length === 0) {
       throw new Error('No tasks found in domain "' + selectedDomain + '".');
     }
 
-    const selectedTask = await select({
-      message: 'Select a task:',
-      choices: tasks.map((name) => ({ name, value: name })),
-      default:
-        config &&
-        selectedDomain === config['active-domain'] &&
-        config['active-task'] &&
-        tasks.includes(config['active-task'])
-          ? config['active-task']
-          : undefined,
-    });
+    const selectedTask =
+      options.taskName && tasks.includes(options.taskName)
+        ? options.taskName
+        : options.taskName
+          ? (() => {
+              throw new Error(
+                'Task directory not found: ' + path.join(DOMAINS_ROOT, selectedDomain, options.taskName)
+              );
+            })()
+          : await select({
+              message: 'Select a task:',
+              choices: tasks.map((name) => ({ name, value: name })),
+              default:
+                config &&
+                selectedDomain === config['active-domain'] &&
+                config['active-task'] &&
+                tasks.includes(config['active-task'])
+                  ? config['active-task']
+                  : undefined,
+            });
 
     setActiveDomainAndTask(selectedDomain, selectedTask);
     console.log('\nDone.');
@@ -874,35 +1051,31 @@ async function setActive() {
 // Import task from any domain
 // ---------------------------------------------------------------------------
 
-async function importTask() {
+async function importTask(options = {}) {
   try {
     ensureWorkspaceInitialized();
 
     const config = readConfigOrNull();
 
-    if (!fs.existsSync(DOMAINS_ROOT)) {
-      throw new Error('No domains directory found at ' + DOMAINS_ROOT);
-    }
-
-    const domains = fs
-      .readdirSync(DOMAINS_ROOT, { withFileTypes: true })
-      .filter((e) => e.isDirectory())
-      .map((e) => e.name);
+    const domains = getStoredDomains();
 
     if (domains.length === 0) {
       throw new Error('No domains found in ' + DOMAINS_ROOT);
     }
 
-    const selectedDomain = await select({
-      message: 'Select a domain:',
-      choices: domains.map((name) => ({ name, value: name })),
-    });
+    const selectedDomain =
+      options.domainName && domains.includes(options.domainName)
+        ? options.domainName
+        : options.domainName
+          ? (() => {
+              throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+            })()
+          : await select({
+              message: 'Select a domain:',
+              choices: domains.map((name) => ({ name, value: name })),
+            });
 
-    const domainDir = path.join(DOMAINS_ROOT, selectedDomain);
-    const tasks = fs
-      .readdirSync(domainDir, { withFileTypes: true })
-      .filter((e) => e.isDirectory() && !e.name.startsWith('.'))
-      .map((e) => e.name);
+    const tasks = getStoredTasks(selectedDomain);
 
     if (tasks.length === 0) {
       console.log('\nNo tasks found in domain "' + selectedDomain + '".');
@@ -910,10 +1083,19 @@ async function importTask() {
       return;
     }
 
-    const selectedTask = await select({
-      message: 'Select a task to import:',
-      choices: tasks.map((name) => ({ name, value: name })),
-    });
+    const selectedTask =
+      options.taskName && tasks.includes(options.taskName)
+        ? options.taskName
+        : options.taskName
+          ? (() => {
+              throw new Error(
+                'Task directory not found: ' + path.join(DOMAINS_ROOT, selectedDomain, options.taskName)
+              );
+            })()
+          : await select({
+              message: 'Select a task to import:',
+              choices: tasks.map((name) => ({ name, value: name })),
+            });
 
     const shouldSetActive =
       !config ||
@@ -939,42 +1121,78 @@ async function importTask() {
 // Entrypoint
 // ---------------------------------------------------------------------------
 
-const command = process.argv.slice(2).join(' ');
+const argv = process.argv.slice(2);
 
-if (command === 'git' || command.startsWith('git ')) {
+if (argv[0] === 'git') {
   intelGit();
-} else if (command === 'drop domain' || command.startsWith('drop domain ')) {
-  await dropDomain(command.slice(12).trim() || undefined);
-} else if (command === 'drop task' || command.startsWith('drop task ')) {
-  await dropTask(command.slice(10).trim() || undefined);
-} else if (command === 'delete domain') {
+} else if (argv[0] === 'drop' && argv[1] === 'domain') {
+  const { options, positionals } = parseOptions(argv.slice(2));
+  await dropDomain(positionals[0], {
+    domainName: readStringOption(options, 'domain'),
+    yes: readBooleanFlag(options, 'yes'),
+  });
+} else if (argv[0] === 'drop' && argv[1] === 'task') {
+  const { options, positionals } = parseOptions(argv.slice(2));
+  await dropTask(positionals[0], {
+    domainName: readStringOption(options, 'domain'),
+    taskName: readStringOption(options, 'task'),
+  });
+} else if (argv[0] === 'delete' && argv[1] === 'domain' && argv.length === 2) {
   await deleteDomain();
-} else if (command === 'delete task') {
+} else if (argv[0] === 'delete' && argv[1] === 'domain') {
+  const { options } = parseOptions(argv.slice(2));
+  await deleteDomain({
+    domainName: readStringOption(options, 'domain'),
+    yes: readBooleanFlag(options, 'yes'),
+  });
+} else if (argv[0] === 'delete' && argv[1] === 'task' && argv.length === 2) {
   await deleteTask();
-} else if (command === 'new' || command.startsWith('new ')) {
-  await newTask(command.slice(4) || undefined);
-} else if (command === 'import') {
-  await importTask();
-} else if (command === 'status') {
+} else if (argv[0] === 'delete' && argv[1] === 'task') {
+  const { options } = parseOptions(argv.slice(2));
+  await deleteTask({
+    domainName: readStringOption(options, 'domain'),
+    taskName: readStringOption(options, 'task'),
+    yes: readBooleanFlag(options, 'yes'),
+  });
+} else if (argv[0] === 'new') {
+  const { options, positionals } = parseOptions(argv.slice(1));
+  await newTask(positionals[0], {
+    taskName: readStringOption(options, 'task'),
+    domainName: readStringOption(options, 'domain'),
+    useCurrentDomain: readBooleanFlag(options, 'use-current-domain'),
+    createDomain: readBooleanFlag(options, 'create-domain'),
+    cloneFrom: readStringOption(options, 'clone-from'),
+  });
+} else if (argv[0] === 'import') {
+  const { options } = parseOptions(argv.slice(1));
+  await importTask({
+    domainName: readStringOption(options, 'domain'),
+    taskName: readStringOption(options, 'task'),
+  });
+} else if (argv[0] === 'status' && argv.length === 1) {
   status();
-} else if (command === 'set') {
-  await setActive();
+} else if (argv[0] === 'set') {
+  const { options } = parseOptions(argv.slice(1));
+  await setActive({
+    domainName: readStringOption(options, 'domain'),
+    taskName: readStringOption(options, 'task'),
+  });
 } else {
   console.log(`
 Usage: ctx <command>
 
 Main Commands:
-  new [name]        Create a new task (prompts for domain if needed)
-  import            Import a task from any domain as a symlink
+  new [name]        Create a new task (supports --task, --domain, --use-current-domain, --create-domain, --clone-from)
+  import            Import a task from any domain as a symlink (supports --domain, --task)
   status            Show the current active domain and task
-  set               Set active domain and task (prompts to select)
+  set               Set active domain and task (supports --domain, --task)
 
 Convenience Commands:
   git [args...]     Run git in the current task directory
-  drop task [name]  Remove a task symlink (with optional task name)
-  drop domain [name]  Remove a domain directory from local .ctxlayer/
-  delete task       Delete a task from the context store and remove its symlink
-  delete domain     Delete a domain from the context store and remove its local directory
+  drop task [name]  Remove a task symlink (supports --domain, --task)
+  drop domain [name]  Remove a domain directory from local .ctxlayer/ (supports --domain, --yes)
+  delete task       Delete a task from the context store and remove its symlink (supports --domain, --task, --yes)
+  delete domain     Delete a domain from the context store and remove its local directory (supports --domain, --yes)
 `);
 }
 

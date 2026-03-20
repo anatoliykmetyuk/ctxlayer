@@ -62,6 +62,20 @@ describe('ctx drop task', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('supports non-interactive domain and task selection', async () => {
+    createDomain(tmpDomainsRoot, 'domain-gamma', ['task-four']);
+    createTaskSymlink(tmpCwd, 'domain-gamma', 'task-four', tmpDomainsRoot);
+
+    await dropTask(undefined, {
+      domainName: 'domain-gamma',
+      taskName: 'task-four',
+    });
+
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-gamma', 'task-four');
+    assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('removes symlink for selected task', async () => {
     selectQueue = ['domain-alpha', 'task-one'];
     await dropTask();

@@ -99,6 +99,16 @@ describe('ctx import', () => {
     assert.equal(process.exit.mock.calls.length, 0, 'should not call process.exit');
   });
 
+  it('supports non-interactive domain and task selection', async () => {
+    await importTask({ domainName: 'domain-beta', taskName: 'task-three' });
+
+    const linkPath = path.join(
+      tmpCwd, '.ctxlayer', 'domain-beta', 'task-three'
+    );
+    assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('is idempotent when the symlink already exists', async () => {
     selectQueue = ['domain-beta', 'task-three'];
     await importTask();

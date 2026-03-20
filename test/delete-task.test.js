@@ -80,6 +80,24 @@ describe('ctx delete task', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('supports non-interactive deletion with explicit domain, task, and yes', async () => {
+    createDomain(tmpDomainsRoot, 'domain-beta', ['task-three']);
+    createTaskSymlink(tmpCwd, 'domain-beta', 'task-three', tmpDomainsRoot);
+
+    await deleteTask({
+      domainName: 'domain-beta',
+      taskName: 'task-three',
+      yes: true,
+    });
+
+    const taskDir = path.join(tmpDomainsRoot, 'domain-beta', 'task-three');
+    assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
+
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-beta', 'task-three');
+    assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('removes task dir and symlink when last task in domain is deleted', async () => {
     createDomain(tmpDomainsRoot, 'domain-solo', ['only-task']);
     createTaskSymlink(tmpCwd, 'domain-solo', 'only-task', tmpDomainsRoot);
