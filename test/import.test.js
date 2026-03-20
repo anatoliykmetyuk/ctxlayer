@@ -184,13 +184,42 @@ describe('ctx import', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('requires task when importing a domain from git', async () => {
+  it('clone-from without task clones only; uses --domain as store folder name', async () => {
+    cloneFixtures['https://github.com/user/long-repo-name.git'] = ['t1'];
+
     await importTask({
-      cloneFrom: 'https://github.com/user/git-domain.git',
+      cloneFrom: 'https://github.com/user/long-repo-name.git',
+      domainName: 'sbt2-plugin-ports',
     });
 
-    assert.equal(process.exit.mock.calls.length, 1);
-    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
+    const domainDir = path.join(tmpDomainsRoot, 'sbt2-plugin-ports');
+    assert.ok(fs.existsSync(domainDir));
+    assert.ok(fs.existsSync(path.join(domainDir, 't1')));
+    assert.equal(
+      execSyncCalls[0].command,
+      `git clone https://github.com/user/long-repo-name.git ${domainDir}`
+    );
+    assert.ok(
+      !fs.existsSync(path.join(tmpCwd, '.ctxlayer', 'sbt2-plugin-ports')),
+      'clone-only must not create local .ctxlayer/<domain>/'
+    );
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('clone-from without task uses repo name when --domain omitted', async () => {
+    cloneFixtures['https://x:y@github.com/org/clone-only.git'] = [];
+
+    await importTask({
+      cloneFrom: 'https://x:y@github.com/org/clone-only.git',
+    });
+
+    const domainDir = path.join(tmpDomainsRoot, 'clone-only');
+    assert.ok(fs.existsSync(domainDir));
+    assert.equal(
+      execSyncCalls[0].command,
+      `git clone https://x:y@github.com/org/clone-only.git ${domainDir}`
+    );
+    assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('is idempotent when the symlink already exists', async () => {

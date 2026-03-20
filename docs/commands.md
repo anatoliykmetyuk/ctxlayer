@@ -385,7 +385,7 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 | Command | Handler | Key logic |
 |---------|---------|-----------|
 | `ctx new [name]` | `newTask(name?, options?)` | ensureWorkspaceInitialized, supports `--task`, `--domain`, `--use-current-domain`, `--create-domain`, createTaskInDomain |
-| `ctx import` | `importTask(options?)` | ensureWorkspaceInitialized, readConfigOrNull, supports `--domain` / `--task` / `--clone-from`, clones domain when requested, ensures task symlink, sets active when config empty/missing |
+| `ctx import` | `importTask(options?)` | `--clone-from` alone clones to store only (`--domain` = folder name); with `--task`, symlink + optional set active |
 | `ctx git [args...]` | `intelGit()` | readConfig, spawnSync('git', args, { cwd: taskDir }) |
 | `ctx drop task [name]` | `dropTask(name?, options?)` | getLocalDomainDirs, supports `--domain` / `--task`, unlink symlink, rmdir if empty |
 | `ctx drop domain [name]` | `dropDomain(name?, options?)` | getLocalDomainDirs, optional name skips select, `--yes` skips confirm, rm local dir |

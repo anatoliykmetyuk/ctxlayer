@@ -482,7 +482,7 @@ async function newTask(nameArg, options = {}) {
 
     if (options.cloneFrom) {
       throw new Error(
-        'Option "--clone-from" is not supported by "ctx new". Use "ctx import --clone-from ... --task ...".'
+        'Option "--clone-from" is not supported by "ctx new". Use "ctx import --clone-from ..." (optional --task).'
       );
     }
 
@@ -1097,14 +1097,14 @@ async function importTask(options = {}) {
 
     const config = readConfigOrNull();
 
-    if (options.cloneFrom && !options.taskName) {
-      throw new Error('Option "--clone-from" requires "--task".');
-    }
-
     let selectedDomain;
     if (options.cloneFrom) {
       selectedDomain = options.domainName || repoNameFromUrl(options.cloneFrom);
       cloneDomainFromGit(options.cloneFrom, selectedDomain);
+      if (!options.taskName) {
+        console.log('\nDone.');
+        return;
+      }
     } else {
       const domains = getStoredDomains();
 

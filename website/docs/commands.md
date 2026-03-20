@@ -10,7 +10,7 @@ The `ctx` CLI manages domains and tasks in your context layer. Run `ctx` with no
 | Command | Description |
 |---------|-------------|
 | `ctx new [name]` | Create a new task. Supports non-interactive flags such as `--task`, `--domain`, `--use-current-domain`, and `--create-domain` |
-| `ctx import` | Import a task from any domain as a symlink into `.ctxlayer/`. Supports `--domain`, `--task`, and `--clone-from` |
+| `ctx import` | Clone a domain and/or link a task into `.ctxlayer/`. Supports `--domain`, `--task`, `--clone-from` (clone-only if no `--task`) |
 | `ctx status` | Show the active domain and task, plus git tracking info |
 | `ctx set` | Set active domain and task. Supports `--domain`, `--task`, and `--clone-from` |
 | `ctx git [args...]` | Run git in the active task directory |
@@ -52,10 +52,9 @@ Imports an existing task from any domain into your project as a symlink. This is
 **What it does:**
 
 1. Ensures the workspace is initialized
-2. Chooses the domain: `--clone-from` clones first; else `--domain` if given; else if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
-3. Prompts you to select a task from that domain unless you passed `--task`
-4. Creates a symlink at `.ctxlayer/<domain>/<task>` pointing to the task in the context layer
-5. If `config.yaml` has no active domain/task, sets the imported domain and task as active; otherwise only creates the symlink
+2. Chooses the domain: `--clone-from` clones first into `~/.agents/ctxlayer/domains/<name>/` (`<name>` is `--domain` when given, otherwise the repo name from the URL); else `--domain` if given; else if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
+3. **Clone-only:** With `--clone-from` but no `--task`, stops after the clone — nothing is added under `.ctxlayer/` and config is unchanged
+4. **Import task:** Otherwise picks a task (prompt or `--task`), creates `.ctxlayer/<domain>/<task>`, and sets active when `config.yaml` has no active domain/task
 
 **Examples:**
 
@@ -63,26 +62,22 @@ Imports an existing task from any domain into your project as a symlink. This is
 ctx import
 ctx import --domain my-domain --task my-task
 ctx import --task other-task   # same domain as in config; errors if no active domain
+ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context
 ctx import --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
 ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
 ```
 
 ### Import a context-layer domain from git
 
-Use this flow when the domain itself already lives in a git repository and you want `ctx` to clone that domain and immediately import one task from it.
+Use `--clone-from` when the domain lives in git. **Without `--task`**, only the global domain folder is created (custom name via `--domain`, otherwise derived from the repo URL). **With `--task`**, `ctx` also links that task into the project.
 
 ```bash
+ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context
 ctx import --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
 ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
 ```
 
-The command will:
-
-1. clone the domain repo into `~/.agents/ctxlayer/domains/<domain>/`
-2. locate the requested task inside the cloned domain
-3. link that task into your project's `.ctxlayer/`
-
-If the task is not present in the cloned domain, `ctx import` exits with an error instead of creating it.
+With `--task`, if the task is missing in the cloned domain, `ctx import` exits with an error instead of creating it.
 
 ## ctx status
 

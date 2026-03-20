@@ -46,7 +46,7 @@ ctx new
 
 You will be prompted to select or create a domain and a task.
 
-If you already keep a context-layer domain in git, create your local task later with `ctx new`, and use `ctx import --clone-from ... --task ...` when you need to bring that remote domain into this project.
+If you already keep a context-layer domain in git, use `ctx import --clone-from ...` to clone it into the global store (`--domain` sets the folder name). Add `--task` when you also want a task symlinked into this project.
 
 - __Domain__ represents a corpus of knowledge about the project you are working on. For a simple project, you can name it something like `<project-name>` or `<project-name>-ctx`.
 - __Task__ represents a unit of work within the project.
@@ -134,14 +134,15 @@ ctx import
 
 You will be prompted to select the domain and task to import.
 
-If the domain is not present locally yet but exists in a remote git repository, import it directly from git:
+If the domain is not present locally yet but exists in a remote git repository, clone it from git (optionally set the store folder name with `--domain`):
 
 ```bash
+ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context
 ctx import --clone-from https://github.com/acme/payments-context.git --task bootstrap-task
 ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
 ```
 
-This clones the domain repo into `~/.agents/ctxlayer/domains/<domain>/` and links the requested task into your project's `.ctxlayer/`.
+Clone-only updates `~/.agents/ctxlayer/domains/<name>/` only. With `--task`, the matching task is also linked under your project's `.ctxlayer/`.
 
 After that, use `ctx import` without `--clone-from` to link additional tasks from that same domain into other projects.
 
