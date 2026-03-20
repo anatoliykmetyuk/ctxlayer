@@ -27,7 +27,7 @@ Creates a new task. This is the main entry point for getting started and will in
 
 1. Ensures the workspace is initialized: creates `.ctxlayer/` and `config.yaml`, adds `/.ctxlayer/` to `.gitignore` if missing
 2. If no valid active domain exists, prompts you to:
-   - **Fetch from git** — clone an existing domain repo into `~/.agents/ctxlayer/domains/<domain>/`
+   - **Fetch from git** — clone an existing context-layer domain repo into `~/.agents/ctxlayer/domains/<domain>/`
    - **Create from scratch** — create a new domain directory and run `git init` in it
    - **Select existing domain** — pick from domains already in the user-wide context layer (in the `~/.agents/ctxlayer/domains/` directory)
 3. Prompts for task name (or use `ctx new my-task` / `ctx new --task my-task` to pass it)
@@ -46,9 +46,28 @@ ctx new --domain new-domain --create-domain --task my-feature-branch
 ctx new --clone-from https://github.com/user/repo.git --task my-feature-branch
 ```
 
+### Import a context-layer domain from git
+
+Use this flow when the domain itself already lives in a git repository and you want to bring it into your local context layer store.
+
+```bash
+ctx new --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
+ctx new --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
+```
+
+The command will:
+
+1. clone the domain repo into `~/.agents/ctxlayer/domains/<domain>/`
+2. create the requested task inside that cloned domain
+3. link the task into your project's `.ctxlayer/`
+
+If you prefer prompts, run `ctx new`, then choose **Fetch from git**.
+
 ## ctx import
 
 Imports an existing task from any domain into your project as a symlink. This is useful when you need your agent to access domain knowledge from other projects.
+
+> `ctx import` only works with domains that are already present in your local context layer store. To bring in a domain from a remote git repository first, use `ctx new --clone-from ...`.
 
 **What it does:**
 

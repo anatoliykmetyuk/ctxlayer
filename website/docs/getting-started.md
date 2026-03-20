@@ -46,6 +46,15 @@ ctx new
 
 You will be prompted to select or create a domain and a task.
 
+If you already keep a context-layer domain in git, you can import that domain directly instead of creating one from scratch:
+
+```bash
+ctx new --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
+ctx new --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
+```
+
+This clones the domain repo into `~/.agents/ctxlayer/domains/<domain>/`, creates the task, and links it into your project's `.ctxlayer/`. The interactive equivalent is to run `ctx new` and choose **Fetch from git**.
+
 - __Domain__ represents a corpus of knowledge about the project you are working on. For a simple project, you can name it something like `<project-name>` or `<project-name>-ctx`.
 - __Task__ represents a unit of work within the project.
 
@@ -131,6 +140,14 @@ ctx import
 ```
 
 You will be prompted to select the domain and task to import.
+
+If the domain is not present locally yet but exists in a remote git repository, import the domain first:
+
+```bash
+ctx new --clone-from https://github.com/acme/payments-context.git --task bootstrap-task
+```
+
+After that, use `ctx import` to link additional tasks from that same domain into other projects.
 
 After you've imported the task, you may end up with more than one task in your project. You can specify which task you are currently working on - **the active task** - so that the agent knows which task to access by default:
 
