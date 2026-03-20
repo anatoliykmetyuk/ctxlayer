@@ -121,7 +121,7 @@
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-project/
 ├── README.md
 ├── ...  <span class="c"># your project files</span>
-└── .ctxlayer/  <span class="c"># symlink to ~/.agents/ctxlayer/</span>
+└── ctxlayer/  <span class="c"># symlink to ~/.agents/ctxlayer/</span>
     └── my-domain/
         ├── config.yaml
         ├── task-1/
@@ -134,8 +134,6 @@
             ├── docs/
             └── data/
 </code></pre></div></div>
-
-<p>Also, <code class="language-plaintext highlighter-rouge">.ctxlayer</code> will be added to your <code class="language-plaintext highlighter-rouge">.gitignore</code> file, so that the context layer is not committed to your project repository.</p>
 
 <h2 id="usage">Usage</h2>
 
@@ -216,7 +214,7 @@ ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments
 ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments-context.git <span class="nt">--domain</span> payments-context <span class="nt">--task</span> audit-tax-calculation
 </code></pre></div></div>
 
-<p>Clone-only updates <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;name&gt;/</code> only. With <code class="language-plaintext highlighter-rouge">--task</code>, the matching task is also linked under your project’s <code class="language-plaintext highlighter-rouge">.ctxlayer/</code>.</p>
+<p>Clone-only updates <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;name&gt;/</code> only. With <code class="language-plaintext highlighter-rouge">--task</code>, the matching task is also linked under your project’s <code class="language-plaintext highlighter-rouge">ctxlayer/</code>.</p>
 
 <p>After that, use <code class="language-plaintext highlighter-rouge">ctx import</code> without <code class="language-plaintext highlighter-rouge">--clone-from</code> to link additional tasks from that same domain into other projects.</p>
 
@@ -243,7 +241,7 @@ ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments
 
 <p>The above command is equivalent to:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ./.ctxlayer/&lt;domain&gt;/&lt;task&gt;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ./ctxlayer/&lt;domain&gt;/&lt;task&gt;
 git &lt;git-args...&gt;
 </code></pre></div></div>
 

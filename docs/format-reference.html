@@ -53,9 +53,9 @@
 
 <h2 id="location">Location</h2>
 
-<p>The context layer is stored in a centralized location on your machine at <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/</code>. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder in the project root.</p>
+<p>The context layer is stored in a centralized location on your machine at <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/</code>. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local <code class="language-plaintext highlighter-rouge">ctxlayer/</code> folder in the project root.</p>
 
-<p>The <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder is added to <code class="language-plaintext highlighter-rouge">.gitignore</code> when you initialize the context layer for a project via <code class="language-plaintext highlighter-rouge">ctx new</code>, so it is not committed to your project’s repository. You should use a separate git repository to version-control the context layer.</p>
+<p>You can add <code class="language-plaintext highlighter-rouge">ctxlayer/</code> to <code class="language-plaintext highlighter-rouge">.gitignore</code> if you do not want the local links and config in your project repository, or commit them if you prefer. The global store under <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/</code> is separate and is usually versioned with its own git repository per domain.</p>
 
 <p><strong>Global store (system-wide):</strong></p>
 
@@ -83,7 +83,7 @@
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-project/
 ├── README.md
 ├── ...                    <span class="c"># your project files</span>
-└── .ctxlayer/             <span class="c"># gitignored</span>
+└── ctxlayer/             <span class="c"># local config + symlinks</span>
     ├── config.yaml        <span class="c"># active-domain, active-task</span>
     └── my-domain-1/
         ├── task-1/        <span class="c"># symlink → ~/.agents/ctxlayer/domains/my-domain-1/task-1/</span>
@@ -118,13 +118,13 @@
   </li>
 </ul>
 
-<p>Tasks are created with <code class="language-plaintext highlighter-rouge">ctx new</code> and linked into projects via symlinks under <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;/</code>.</p>
+<p>Tasks are created with <code class="language-plaintext highlighter-rouge">ctx new</code> and linked into projects via symlinks under <code class="language-plaintext highlighter-rouge">ctxlayer/&lt;domain&gt;/&lt;task&gt;/</code>.</p>
 
 <p>The precise structure of the task directory is still evolving and will likely change in the future, as the Context Layer engineering pattern defined by this documentation evolves.</p>
 
 <h2 id="config-file">Config file</h2>
 
-<p>This file lives in the <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder in your project root: <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code>. It contains the active domain and task that will be used by default by the agent skill and commands like <code class="language-plaintext highlighter-rouge">ctx git</code>.</p>
+<p>This file lives in the <code class="language-plaintext highlighter-rouge">ctxlayer/</code> folder in your project root: <code class="language-plaintext highlighter-rouge">ctxlayer/config.yaml</code>. It contains the active domain and task that will be used by default by the agent skill and commands like <code class="language-plaintext highlighter-rouge">ctx git</code>.</p>
 
 <p><strong>Format:</strong></p>
 
