@@ -75,7 +75,7 @@
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx set</code></td>
-      <td>Set active domain and task. Supports <code class="language-plaintext highlighter-rouge">--domain</code> and <code class="language-plaintext highlighter-rouge">--task</code></td>
+      <td>Set active domain and task. Supports <code class="language-plaintext highlighter-rouge">--domain</code>, <code class="language-plaintext highlighter-rouge">--task</code>, and <code class="language-plaintext highlighter-rouge">--clone-from</code></td>
     </tr>
     <tr>
       <td><code class="language-plaintext highlighter-rouge">ctx git [args...]</code></td>
@@ -94,8 +94,8 @@
       <td>Permanently delete a task from the context layer. Supports <code class="language-plaintext highlighter-rouge">--domain</code>, <code class="language-plaintext highlighter-rouge">--task</code>, and <code class="language-plaintext highlighter-rouge">--yes</code></td>
     </tr>
     <tr>
-      <td><code class="language-plaintext highlighter-rouge">ctx delete domain</code></td>
-      <td>Permanently delete a domain from the context layer. Supports <code class="language-plaintext highlighter-rouge">--domain</code> and <code class="language-plaintext highlighter-rouge">--yes</code></td>
+      <td><code class="language-plaintext highlighter-rouge">ctx delete domain [name]</code></td>
+      <td>Permanently delete a domain. Domain as first arg or <code class="language-plaintext highlighter-rouge">--domain</code>; use <code class="language-plaintext highlighter-rouge">--yes</code> to skip confirmation</td>
     </tr>
   </tbody>
 </table>
@@ -138,8 +138,8 @@ ctx new <span class="nt">--domain</span> new-domain <span class="nt">--create-do
 
 <ol>
   <li>Ensures the workspace is initialized</li>
-  <li>Prompts you to select a domain, accepts <code class="language-plaintext highlighter-rouge">--domain</code>, or clones a domain first via <code class="language-plaintext highlighter-rouge">--clone-from</code></li>
-  <li>Prompts you to select a task from that domain (or accepts <code class="language-plaintext highlighter-rouge">--task</code>)</li>
+  <li>Chooses the domain: <code class="language-plaintext highlighter-rouge">--clone-from</code> clones first; else <code class="language-plaintext highlighter-rouge">--domain</code> if given; else if you pass only <code class="language-plaintext highlighter-rouge">--task</code>, uses <code class="language-plaintext highlighter-rouge">active-domain</code> from <code class="language-plaintext highlighter-rouge">config.yaml</code> (non-interactive); otherwise prompts</li>
+  <li>Prompts you to select a task from that domain unless you passed <code class="language-plaintext highlighter-rouge">--task</code></li>
   <li>Creates a symlink at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code> pointing to the task in the context layer</li>
   <li>If <code class="language-plaintext highlighter-rouge">config.yaml</code> has no active domain/task, sets the imported domain and task as active; otherwise only creates the symlink</li>
 </ol>
@@ -148,6 +148,7 @@ ctx new <span class="nt">--domain</span> new-domain <span class="nt">--create-do
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx import
 ctx import <span class="nt">--domain</span> my-domain <span class="nt">--task</span> my-task
+ctx import <span class="nt">--task</span> other-task   <span class="c"># same domain as in config; errors if no active domain</span>
 ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments-context.git <span class="nt">--task</span> investigate-checkout-failure
 ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments-context.git <span class="nt">--domain</span> payments-context <span class="nt">--task</span> audit-tax-calculation
 </code></pre></div></div>
@@ -190,8 +191,8 @@ ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments
 
 <ol>
   <li>Ensures workspace is initialized</li>
-  <li>Lists domains in <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/</code> and prompts you to pick one, or accepts <code class="language-plaintext highlighter-rouge">--domain</code></li>
-  <li>Lists tasks in the selected domain and prompts you to pick the one you’d like to become active, or accepts <code class="language-plaintext highlighter-rouge">--task</code></li>
+  <li>Chooses the domain: <code class="language-plaintext highlighter-rouge">--clone-from</code> clones the repo into <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;name&gt;/</code> first (<code class="language-plaintext highlighter-rouge">&lt;name&gt;</code> is <code class="language-plaintext highlighter-rouge">--domain</code> if given, otherwise derived from the repo URL); else uses <code class="language-plaintext highlighter-rouge">--domain</code> if given; else if you pass only <code class="language-plaintext highlighter-rouge">--task</code>, uses <code class="language-plaintext highlighter-rouge">active-domain</code> from <code class="language-plaintext highlighter-rouge">config.yaml</code> (non-interactive); otherwise prompts</li>
+  <li>Lists tasks in that domain and prompts you to pick one unless you passed <code class="language-plaintext highlighter-rouge">--task</code> (required with <code class="language-plaintext highlighter-rouge">--clone-from</code>)</li>
   <li>Writes <code class="language-plaintext highlighter-rouge">active-domain</code> and <code class="language-plaintext highlighter-rouge">active-task</code> to <code class="language-plaintext highlighter-rouge">config.yaml</code></li>
   <li>Ensures the symlink exists at <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;</code>. If it does not, creates the symlink.</li>
 </ol>
@@ -199,6 +200,9 @@ ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments
 <p><strong>Example:</strong></p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx <span class="nb">set</span> <span class="nt">--domain</span> my-domain <span class="nt">--task</span> my-task
+ctx <span class="nb">set</span> <span class="nt">--task</span> other-task   <span class="c"># same domain as in config; errors if no active domain</span>
+ctx <span class="nb">set</span> <span class="nt">--clone-from</span> https://github.com/acme/context-repo.git <span class="nt">--task</span> my-task
+ctx <span class="nb">set</span> <span class="nt">--clone-from</span> https://github.com/acme/context-repo.git <span class="nt">--domain</span> short-name <span class="nt">--task</span> my-task
 </code></pre></div></div>
 
 <h2 id="ctx-git-args">ctx git [args…]</h2>
@@ -282,7 +286,7 @@ ctx git push
 <p><strong>What it does:</strong></p>
 
 <ol>
-  <li>Prompts you to select a domain, or accepts <code class="language-plaintext highlighter-rouge">--domain</code></li>
+  <li>Chooses the domain from the first argument (<code class="language-plaintext highlighter-rouge">ctx delete domain &lt;name&gt;</code>), or <code class="language-plaintext highlighter-rouge">--domain</code>, or prompts</li>
   <li>Asks for confirmation, or accepts <code class="language-plaintext highlighter-rouge">--yes</code></li>
   <li>Deletes the domain from <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/</code></li>
   <li>Removes <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/</code> from your project</li>
@@ -292,7 +296,8 @@ ctx git push
 
 <p><strong>Example:</strong></p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx delete domain <span class="nt">--domain</span> my-domain <span class="nt">--yes</span>
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ctx delete domain my-domain <span class="nt">--yes</span>
+ctx delete domain <span class="nt">--domain</span> my-domain <span class="nt">--yes</span>
 </code></pre></div></div>
 
       </article>
