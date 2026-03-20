@@ -110,7 +110,10 @@ describe('ctx status', () => {
     const output = logCalls.join('\n');
     assert.ok(output.includes(`Git branch: ${branch}`), output);
     assert.ok(output.includes('Repo:       my-repo'), output);
-    assert.ok(output.includes('Remote:     https://github.com/user/my-repo.git'), output);
+    assert.ok(
+      /Remote:\s+https:\/\/.*github\.com\/user\/my-repo\.git/.test(output),
+      output
+    );
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
