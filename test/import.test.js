@@ -11,7 +11,7 @@ import * as cp from 'child_process';
 // ---------------------------------------------------------------------------
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ctxlayer-test-'));
-const tmpHome = path.join(tmpDir, '.ctxlayer');
+const tmpHome = path.join(tmpDir, 'ctxlayer');
 const tmpDomainsRoot = path.join(tmpHome, 'domains');
 const tmpCwd = path.join(tmpDir, 'repo');
 
@@ -87,7 +87,7 @@ describe('ctx import', () => {
       }
     }
 
-    const localDir = path.join(tmpCwd, '.ctxlayer');
+    const localDir = path.join(tmpCwd, 'ctxlayer');
     fs.mkdirSync(localDir, { recursive: true });
     fs.writeFileSync(
       path.join(localDir, 'config.yaml'),
@@ -113,7 +113,7 @@ describe('ctx import', () => {
     await importTask();
 
     const linkPath = path.join(
-      tmpCwd, '.ctxlayer', 'domain-beta', 'task-three'
+      tmpCwd, 'ctxlayer', 'domain-beta', 'task-three'
     );
     const stat = fs.lstatSync(linkPath);
     assert.ok(stat.isSymbolicLink(), 'expected a symbolic link');
@@ -131,7 +131,7 @@ describe('ctx import', () => {
     await importTask({ domainName: 'domain-beta', taskName: 'task-three' });
 
     const linkPath = path.join(
-      tmpCwd, '.ctxlayer', 'domain-beta', 'task-three'
+      tmpCwd, 'ctxlayer', 'domain-beta', 'task-three'
     );
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
@@ -139,18 +139,18 @@ describe('ctx import', () => {
 
   it('with only taskName, uses active domain from config (no prompts)', async () => {
     fs.writeFileSync(
-      path.join(tmpCwd, '.ctxlayer', 'config.yaml'),
+      path.join(tmpCwd, 'ctxlayer', 'config.yaml'),
       'active-domain: domain-alpha\nactive-task: task-one\n'
     );
     await importTask({ taskName: 'task-two' });
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-alpha', 'task-two');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-alpha', 'task-two');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when import --task is used but config has no resolvable active domain', async () => {
-    fs.writeFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'active-task: task-one\n');
+    fs.writeFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'active-task: task-one\n');
 
     await importTask({ taskName: 'task-two' });
 
@@ -174,7 +174,7 @@ describe('ctx import', () => {
     );
 
     const linkPath = path.join(
-      tmpCwd, '.ctxlayer', 'git-domain', 'task-from-git'
+      tmpCwd, 'ctxlayer', 'git-domain', 'task-from-git'
     );
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(
@@ -200,8 +200,8 @@ describe('ctx import', () => {
       `git clone https://github.com/user/long-repo-name.git ${domainDir}`
     );
     assert.ok(
-      !fs.existsSync(path.join(tmpCwd, '.ctxlayer', 'sbt2-plugin-ports')),
-      'clone-only must not create local .ctxlayer/<domain>/'
+      !fs.existsSync(path.join(tmpCwd, 'ctxlayer', 'sbt2-plugin-ports')),
+      'clone-only must not create local ctxlayer/<domain>/'
     );
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -227,7 +227,7 @@ describe('ctx import', () => {
     await importTask();
 
     const linkPath = path.join(
-      tmpCwd, '.ctxlayer', 'domain-beta', 'task-three'
+      tmpCwd, 'ctxlayer', 'domain-beta', 'task-three'
     );
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
@@ -237,7 +237,7 @@ describe('ctx import', () => {
     selectQueue = ['empty-domain'];
     await importTask();
 
-    const dirPath = path.join(tmpCwd, '.ctxlayer', 'empty-domain');
+    const dirPath = path.join(tmpCwd, 'ctxlayer', 'empty-domain');
     assert.ok(
       !fs.existsSync(dirPath),
       'should not create directory for taskless domain'
@@ -259,45 +259,45 @@ describe('ctx import', () => {
   });
 
   it('works when uninitialized: creates workspace and sets imported as active', async () => {
-    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
     selectQueue = ['domain-beta', 'task-three'];
 
     await importTask();
 
-    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
+    const configPath = path.join(tmpCwd, 'ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
     assert.ok(config.includes('active-domain: domain-beta'));
     assert.ok(config.includes('active-task: task-three'));
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-beta', 'task-three');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-beta', 'task-three');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('works when config has empty active-domain: sets imported as active', async () => {
-    const localDir = path.join(tmpCwd, '.ctxlayer');
+    const localDir = path.join(tmpCwd, 'ctxlayer');
     fs.mkdirSync(localDir, { recursive: true });
     fs.writeFileSync(path.join(localDir, 'config.yaml'), '');
     selectQueue = ['domain-alpha', 'task-one'];
 
     await importTask();
 
-    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: domain-alpha'));
     assert.ok(config.includes('active-task: task-one'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('works when config has empty active-task: sets imported as active', async () => {
-    const localDir = path.join(tmpCwd, '.ctxlayer');
+    const localDir = path.join(tmpCwd, 'ctxlayer');
     fs.mkdirSync(localDir, { recursive: true });
     fs.writeFileSync(path.join(localDir, 'config.yaml'), 'active-domain: domain-alpha\n');
     selectQueue = ['domain-beta', 'task-three'];
 
     await importTask();
 
-    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: domain-beta'));
     assert.ok(config.includes('active-task: task-three'));
     assert.equal(process.exit.mock.calls.length, 0);

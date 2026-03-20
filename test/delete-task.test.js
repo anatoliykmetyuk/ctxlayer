@@ -71,7 +71,7 @@ describe('ctx delete task', () => {
     const taskDir = path.join(tmpDomainsRoot, 'domain-alpha', 'task-two');
     assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-alpha', 'task-two');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-alpha', 'task-two');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
     const taskOneDir = path.join(tmpDomainsRoot, 'domain-alpha', 'task-one');
@@ -93,7 +93,7 @@ describe('ctx delete task', () => {
     const taskDir = path.join(tmpDomainsRoot, 'domain-beta', 'task-three');
     assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-beta', 'task-three');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-beta', 'task-three');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -109,7 +109,7 @@ describe('ctx delete task', () => {
     const taskDir = path.join(tmpDomainsRoot, 'domain-solo', 'only-task');
     assert.ok(!fs.existsSync(taskDir), 'task dir should be deleted');
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-solo', 'only-task');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-solo', 'only-task');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);

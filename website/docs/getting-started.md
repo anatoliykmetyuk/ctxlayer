@@ -57,7 +57,7 @@ After you've named your domain and task, you will notice the following directory
 my-project/
 ├── README.md
 ├── ...  # your project files
-└── .ctxlayer/  # symlink to ~/.agents/ctxlayer/
+└── ctxlayer/  # symlink to ~/.agents/ctxlayer/
     └── my-domain/
         ├── config.yaml
         ├── task-1/
@@ -70,8 +70,6 @@ my-project/
             ├── docs/
             └── data/
 ```
-
-Also, `.ctxlayer` will be added to your `.gitignore` file, so that the context layer is not committed to your project repository.
 
 ## Usage
 
@@ -142,7 +140,7 @@ ctx import --clone-from https://github.com/acme/payments-context.git --task boot
 ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
 ```
 
-Clone-only updates `~/.agents/ctxlayer/domains/<name>/` only. With `--task`, the matching task is also linked under your project's `.ctxlayer/`.
+Clone-only updates `~/.agents/ctxlayer/domains/<name>/` only. With `--task`, the matching task is also linked under your project's `ctxlayer/`.
 
 After that, use `ctx import` without `--clone-from` to link additional tasks from that same domain into other projects.
 
@@ -171,7 +169,7 @@ ctx git <git-args...>
 The above command is equivalent to:
 
 ```bash
-cd ./.ctxlayer/<domain>/<task>
+cd ./ctxlayer/<domain>/<task>
 git <git-args...>
 ```
 

@@ -15,7 +15,7 @@ Mention the context layer in your prompt. Phrases that work:
 - _"to the context layer"_
 - _"into the context layer"_
 
-When the agent sees these, it reads `.ctxlayer/config.yaml` for the active domain and task and refers to the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory, accessed via the symlink in the project's local `.ctxlayer/<domain>/<task>/` directory, to find the requested information.
+When the agent sees these, it reads `ctxlayer/config.yaml` for the active domain and task and refers to the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory, accessed via the symlink in the project's local `ctxlayer/<domain>/<task>/` directory, to find the requested information.
 
 ## Reading documents
 

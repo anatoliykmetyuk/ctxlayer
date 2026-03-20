@@ -57,7 +57,7 @@ describe('ctx drop task', () => {
   it('uses task name arg when provided (active domain)', async () => {
     await dropTask('task-two');
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-alpha', 'task-two');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-alpha', 'task-two');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -71,7 +71,7 @@ describe('ctx drop task', () => {
       taskName: 'task-four',
     });
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-gamma', 'task-four');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-gamma', 'task-four');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -80,10 +80,10 @@ describe('ctx drop task', () => {
     selectQueue = ['domain-alpha', 'task-one'];
     await dropTask();
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-alpha', 'task-one');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-alpha', 'task-one');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
-    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-alpha');
+    const domainDir = path.join(tmpCwd, 'ctxlayer', 'domain-alpha');
     assert.ok(!fs.existsSync(domainDir), 'empty domain dir should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
@@ -93,18 +93,18 @@ describe('ctx drop task', () => {
     selectQueue = ['domain-beta', 'task-three'];
     await dropTask();
 
-    const linkPath = path.join(tmpCwd, '.ctxlayer', 'domain-beta', 'task-three');
+    const linkPath = path.join(tmpCwd, 'ctxlayer', 'domain-beta', 'task-three');
     assert.ok(!fs.existsSync(linkPath), 'symlink should be removed');
 
-    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-beta');
+    const domainDir = path.join(tmpCwd, 'ctxlayer', 'domain-beta');
     assert.ok(!fs.existsSync(domainDir), 'empty domain dir should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no domain directories exist', async () => {
-    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'domain-alpha'), { recursive: true, force: true });
-    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'domain-beta'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, 'ctxlayer', 'domain-alpha'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, 'ctxlayer', 'domain-beta'), { recursive: true, force: true });
 
     await dropTask();
 
@@ -113,7 +113,7 @@ describe('ctx drop task', () => {
   });
 
   it('exits when no config exists', async () => {
-    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
 
     await dropTask();
 
