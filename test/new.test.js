@@ -18,6 +18,7 @@ const { tmpDomainsRoot, tmpCwd, cleanup } = createSandbox();
 let selectQueue = [];
 let inputQueue = [];
 let confirmQueue = [];
+let execSyncCalls = [];
 
 mock.module('@inquirer/prompts', {
   namedExports: {
@@ -29,7 +30,14 @@ mock.module('@inquirer/prompts', {
 
 mock.module('child_process', {
   namedExports: {
-    execSync: () => {},
+    execSync: (command, options) => {
+      execSyncCalls.push({ command, options });
+
+      if (command.startsWith('git clone ')) {
+        const targetPath = command.split(' ').at(-1);
+        fs.mkdirSync(targetPath, { recursive: true });
+      }
+    },
     spawn: cp.spawn,
     spawnSync: cp.spawnSync,
   },
@@ -60,6 +68,7 @@ describe('ctx new', () => {
     selectQueue = [];
     inputQueue = [];
     confirmQueue = [];
+    execSyncCalls = [];
   });
 
   after(() => {
@@ -96,6 +105,50 @@ describe('ctx new', () => {
     const linkPath = path.join(tmpCwd, '.ctxlayer', DOMAIN, 'prompted-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('supports non-interactive task creation in the current domain', async () => {
+    await newTask(undefined, {
+      taskName: 'flag-task',
+      useCurrentDomain: true,
+    });
+
+    const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'flag-task');
+    assert.ok(fs.existsSync(taskDir));
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-domain: my-domain'));
+    assert.ok(config.includes('active-task: flag-task'));
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('supports non-interactive scratch domain creation', async () => {
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
+
+    await newTask('script-task', {
+      domainName: 'script-domain',
+      createDomain: true,
+    });
+
+    const domainDir = path.join(tmpDomainsRoot, 'script-domain');
+    assert.ok(fs.existsSync(domainDir));
+    assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'docs')));
+    assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'data')));
+
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
+    assert.ok(config.includes('active-domain: script-domain'));
+    assert.ok(config.includes('active-task: script-task'));
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('rejects clone-from and points callers to ctx import', async () => {
+    await newTask('scripted-git-task', {
+      cloneFrom: 'https://github.com/user/scripted-domain.git',
+    });
+
+    assert.equal(execSyncCalls.length, 0);
+    assert.equal(process.exit.mock.calls.length, 1);
+    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
   it('active domain set, answer no: goes to domain prompt then creates task', async () => {

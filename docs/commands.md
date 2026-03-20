@@ -75,8 +75,8 @@ flowchart TB
 ## Command organization
 
 - **Single file:** All commands live in `bin/cli.js`. No separate router or subcommand loader.
-- **Flat string match:** `process.argv.slice(2).join(' ')` produces a single string (e.g. `active task`).
-- **Routing order:** More specific commands must appear before general ones. Example: `drop domain` before `drop task` before any `drop` prefix.
+- **Argv-based routing:** The entrypoint now inspects `process.argv.slice(2)` token-by-token and parses `--flag value` / `--flag=value` options for non-interactive usage.
+- **Routing order:** More specific command prefixes still matter. Example: `drop domain` before `drop task`.
 
 ### Data source patterns
 
@@ -102,9 +102,9 @@ flowchart TB
 
 ### Step 1: Decide command shape
 
-- **Exact match:** `command === 'foo'` — single word
-- **Subcommand:** `command === 'foo bar'` — two words, more specific first
-- **With args:** `command.startsWith('foo ')` — pass `command.slice(4).trim()` to handler
+- **Exact match:** `argv[0] === 'foo'` — single word
+- **Subcommand:** `argv[0] === 'foo' && argv[1] === 'bar'` — two words, more specific first
+- **With args/options:** Parse the remaining argv tokens and map them to handler args/options
 
 ### Step 2: Implement the handler
 
@@ -137,13 +137,14 @@ async function myCommand(optionalArg) {
 ### Step 3: Add routing in the entrypoint
 
 ```js
-const command = process.argv.slice(2).join(' ');
+const argv = process.argv.slice(2);
 
-if (command === 'exact') {
+if (argv[0] === 'exact') {
   await exactCommand();
-} else if (command.startsWith('prefix ')) {
-  await prefixCommand(command.slice(7).trim() || undefined);
-} else if (command === 'sub sub') {
+} else if (argv[0] === 'prefix') {
+  const { options, positionals } = parseOptions(argv.slice(1));
+  await prefixCommand(positionals[0], options);
+} else if (argv[0] === 'sub' && argv[1] === 'sub') {
   await subSubCommand();
 // ... more specific before general
 } else {
@@ -383,15 +384,15 @@ All mocks of `@inquirer/prompts` must include `confirm` (e.g. `confirm: async ()
 
 | Command | Handler | Key logic |
 |---------|---------|-----------|
-| `ctx new [name]` | `newTask(name?)` | ensureWorkspaceInitialized, confirm use current domain or selectOrCreateDomain, createTaskInDomain |
-| `ctx import` | `importTask()` | ensureWorkspaceInitialized, readConfigOrNull, select from DOMAINS_ROOT, ensureTaskSymlink, set active when config empty/missing |
+| `ctx new [name]` | `newTask(name?, options?)` | ensureWorkspaceInitialized, supports `--task`, `--domain`, `--use-current-domain`, `--create-domain`, createTaskInDomain |
+| `ctx import` | `importTask(options?)` | ensureWorkspaceInitialized, readConfigOrNull, supports `--domain` / `--task` / `--clone-from`, clones domain when requested, ensures task symlink, sets active when config empty/missing |
 | `ctx git [args...]` | `intelGit()` | readConfig, spawnSync('git', args, { cwd: taskDir }) |
-| `ctx drop task [name]` | `dropTask(name?)` | getLocalDomainDirs, unlink symlink, rmdir if empty |
-| `ctx drop domain [name]` | `dropDomain(name?)` | getLocalDomainDirs, optional name skips select, confirm, rm local dir |
-| `ctx delete task` | `deleteTask()` | list from DOMAINS_ROOT, confirm, rm task + symlink |
-| `ctx delete domain` | `deleteDomain()` | list from DOMAINS_ROOT, confirm, rm domain + local dir |
+| `ctx drop task [name]` | `dropTask(name?, options?)` | getLocalDomainDirs, supports `--domain` / `--task`, unlink symlink, rmdir if empty |
+| `ctx drop domain [name]` | `dropDomain(name?, options?)` | getLocalDomainDirs, optional name skips select, `--yes` skips confirm, rm local dir |
+| `ctx delete task` | `deleteTask(options?)` | list from DOMAINS_ROOT, supports `--domain` / `--task` / `--yes`, rm task + symlink |
+| `ctx delete domain` | `deleteDomain(options?)` | list from DOMAINS_ROOT, supports `--domain` / `--yes`, rm domain + local dir |
 | `ctx status` | `status()` | readConfig, print |
-| `ctx set` | `setActive()` | ensureWorkspaceInitialized, select domain + task from DOMAINS_ROOT, writeConfig |
+| `ctx set` | `setActive(options?)` | ensureWorkspaceInitialized, supports `--domain` / `--task`, writeConfig |
 
 ---
 

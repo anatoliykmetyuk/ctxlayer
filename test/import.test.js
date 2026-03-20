@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import * as cp from 'child_process';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup -- must happen before importing cli.js so module-level
@@ -22,12 +23,37 @@ process.env.CONTEXT_LAYER_CWD = tmpCwd;
 // ---------------------------------------------------------------------------
 
 let selectQueue = [];
+let execSyncCalls = [];
+let cloneFixtures = {};
 
 mock.module('@inquirer/prompts', {
   namedExports: {
     select: async () => selectQueue.shift(),
     input: async () => '',
     confirm: async () => false,
+  },
+});
+
+mock.module('child_process', {
+  namedExports: {
+    execSync: (command, options) => {
+      execSyncCalls.push({ command, options });
+
+      if (command.startsWith('git clone ')) {
+        const parts = command.split(' ');
+        const url = parts[2];
+        const targetPath = parts[3];
+        const tasks = cloneFixtures[url] || [];
+
+        fs.mkdirSync(targetPath, { recursive: true });
+        for (const task of tasks) {
+          fs.mkdirSync(path.join(targetPath, task, 'docs'), { recursive: true });
+          fs.mkdirSync(path.join(targetPath, task, 'data'), { recursive: true });
+        }
+      }
+    },
+    spawn: cp.spawn,
+    spawnSync: cp.spawnSync,
   },
 });
 
@@ -72,6 +98,8 @@ describe('ctx import', () => {
   beforeEach(() => {
     process.exit.mock.resetCalls();
     selectQueue = [];
+    execSyncCalls = [];
+    cloneFixtures = {};
   });
 
   after(() => {
@@ -97,6 +125,51 @@ describe('ctx import', () => {
     assert.equal(target, expected);
 
     assert.equal(process.exit.mock.calls.length, 0, 'should not call process.exit');
+  });
+
+  it('supports non-interactive domain and task selection', async () => {
+    await importTask({ domainName: 'domain-beta', taskName: 'task-three' });
+
+    const linkPath = path.join(
+      tmpCwd, '.ctxlayer', 'domain-beta', 'task-three'
+    );
+    assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('supports importing a domain from git and importing a task from it', async () => {
+    cloneFixtures['https://github.com/user/git-domain.git'] = ['task-from-git'];
+
+    await importTask({
+      cloneFrom: 'https://github.com/user/git-domain.git',
+      taskName: 'task-from-git',
+    });
+
+    const expectedDomainDir = path.join(tmpDomainsRoot, 'git-domain');
+    assert.ok(fs.existsSync(expectedDomainDir));
+    assert.equal(
+      execSyncCalls[0].command,
+      `git clone https://github.com/user/git-domain.git ${expectedDomainDir}`
+    );
+
+    const linkPath = path.join(
+      tmpCwd, '.ctxlayer', 'git-domain', 'task-from-git'
+    );
+    assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
+    assert.equal(
+      fs.readlinkSync(linkPath),
+      path.resolve(path.join(expectedDomainDir, 'task-from-git'))
+    );
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
+  it('requires task when importing a domain from git', async () => {
+    await importTask({
+      cloneFrom: 'https://github.com/user/git-domain.git',
+    });
+
+    assert.equal(process.exit.mock.calls.length, 1);
+    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
   it('is idempotent when the symlink already exists', async () => {

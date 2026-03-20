@@ -76,6 +76,20 @@ describe('ctx delete domain', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
+  it('supports non-interactive domain deletion with yes', async () => {
+    createDomain(tmpDomainsRoot, 'domain-beta', ['task-two']);
+    createTaskSymlink(tmpCwd, 'domain-beta', 'task-two', tmpDomainsRoot);
+
+    await deleteDomain({ domainName: 'domain-beta', yes: true });
+
+    const domainDir = path.join(tmpDomainsRoot, 'domain-beta');
+    assert.ok(!fs.existsSync(domainDir), 'domain dir should be deleted from store');
+
+    const localDomainDir = path.join(tmpCwd, '.ctxlayer', 'domain-beta');
+    assert.ok(!fs.existsSync(localDomainDir), 'local domain dir should be removed');
+    assert.equal(process.exit.mock.calls.length, 0);
+  });
+
   it('exits when no domains exist', async () => {
     const backup = tmpDomainsRoot + '-backup';
     fs.renameSync(tmpDomainsRoot, backup);
