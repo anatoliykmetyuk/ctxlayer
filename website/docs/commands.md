@@ -100,8 +100,8 @@ Select and set the active domain and task. Use this to switch context when worki
 **What it does:**
 
 1. Ensures workspace is initialized
-2. Lists domains in `~/.agents/ctxlayer/domains/` and prompts you to pick one, or accepts `--domain`
-3. Lists tasks in the selected domain and prompts you to pick the one you'd like to become active, or accepts `--task`
+2. Chooses the domain: uses `--domain` if given; if you pass only `--task`, uses `active-domain` from `config.yaml` (non-interactive); otherwise prompts
+3. Lists tasks in that domain and prompts you to pick one unless you passed `--task`
 4. Writes `active-domain` and `active-task` to `config.yaml`
 5. Ensures the symlink exists at `.ctxlayer/<domain>/<task>`. If it does not, creates the symlink.
 
@@ -109,6 +109,7 @@ Select and set the active domain and task. Use this to switch context when worki
 
 ```bash
 ctx set --domain my-domain --task my-task
+ctx set --task other-task   # same domain as in config; errors if no active domain
 ```
 
 ## ctx git [args...]
