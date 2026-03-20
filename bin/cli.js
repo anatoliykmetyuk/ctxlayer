@@ -11,7 +11,7 @@ import { select, input, confirm } from '@inquirer/prompts';
 // ---------------------------------------------------------------------------
 
 const DOMAINS_DIR = 'domains';
-const LOCAL_DIR = '.ctxlayer';
+const LOCAL_DIR = 'ctxlayer';
 
 const CWD = process.env.CONTEXT_LAYER_CWD || process.cwd();
 const CONTEXT_LAYER_HOME = process.env.CONTEXT_LAYER_HOME || path.join(os.homedir(), '.agents', 'ctxlayer');
@@ -192,7 +192,7 @@ function writeConfig(config) {
 }
 
 // ---------------------------------------------------------------------------
-// Ensure a symlink for a task exists at <cwd>/.ctxlayer/<domain>/<task>
+// Ensure a symlink for a task exists at <cwd>/ctxlayer/<domain>/<task>
 // ---------------------------------------------------------------------------
 
 function getLocalDomainDirs() {
@@ -227,7 +227,7 @@ function ensureTaskSymlink(domainName, taskName) {
 /**
  * Set the active domain and task. Call after domain and task are selected.
  * 1. Updates config.yaml (active-domain, active-task)
- * 2. Ensures workspace structure: domain dir under .ctxlayer/<domain>/, symlink to task
+ * 2. Ensures workspace structure: domain dir under ctxlayer/<domain>/, symlink to task
  */
 function setActiveDomainAndTask(domainName, taskName) {
   writeConfig({ 'active-domain': domainName, 'active-task': taskName });
@@ -239,7 +239,7 @@ function setActiveDomainAndTask(domainName, taskName) {
 // ---------------------------------------------------------------------------
 
 function setupLocal(domainName) {
-  // 1. Create .ctxlayer/ in cwd
+  // 1. Create ctxlayer/ in cwd
   const localDir = path.join(CWD, LOCAL_DIR);
   if (!fs.existsSync(localDir)) {
     fs.mkdirSync(localDir, { recursive: true });
@@ -250,27 +250,10 @@ function setupLocal(domainName) {
   const configPath = path.join(localDir, 'config.yaml');
   fs.writeFileSync(configPath, `active-domain: ${domainName}\n`);
   console.log('Wrote', configPath);
-
-  // 3. Add .ctxlayer to .gitignore
-  const gitignorePath = path.join(CWD, '.gitignore');
-  let content = '';
-  if (fs.existsSync(gitignorePath)) {
-    content = fs.readFileSync(gitignorePath, 'utf8');
-  }
-
-  const GITIGNORE_ENTRY = '/.ctxlayer/';
-  const lines = content.split(/\r?\n/);
-  const alreadyListed = lines.some((line) => line.trim() === GITIGNORE_ENTRY);
-
-  if (!alreadyListed) {
-    const suffix = content.length > 0 && !content.endsWith('\n') ? '\n' : '';
-    fs.appendFileSync(gitignorePath, suffix + GITIGNORE_ENTRY + '\n');
-    console.log('Added', GITIGNORE_ENTRY, 'to .gitignore');
-  }
 }
 
 // ---------------------------------------------------------------------------
-// Ensure workspace initialized (creates .ctxlayer and config if missing)
+// Ensure workspace initialized (creates ctxlayer and config if missing)
 // ---------------------------------------------------------------------------
 
 function ensureWorkspaceInitialized() {
@@ -285,20 +268,6 @@ function ensureWorkspaceInitialized() {
   if (!fs.existsSync(configPath)) {
     fs.writeFileSync(configPath, '');
     console.log('Wrote', configPath);
-  }
-
-  const gitignorePath = path.join(CWD, '.gitignore');
-  const GITIGNORE_ENTRY = '/.ctxlayer/';
-  let content = '';
-  if (fs.existsSync(gitignorePath)) {
-    content = fs.readFileSync(gitignorePath, 'utf8');
-  }
-  const lines = content.split(/\r?\n/);
-  const alreadyListed = lines.some((line) => line.trim() === GITIGNORE_ENTRY);
-  if (!alreadyListed) {
-    const suffix = content.length > 0 && !content.endsWith('\n') ? '\n' : '';
-    fs.appendFileSync(gitignorePath, suffix + GITIGNORE_ENTRY + '\n');
-    console.log('Added', GITIGNORE_ENTRY, 'to .gitignore');
   }
 }
 
@@ -706,7 +675,7 @@ async function dropTask(taskNameArg, options = {}) {
 
     const domains = getLocalDomainDirs();
     if (domains.length === 0) {
-      throw new Error('No domain directories found in .ctxlayer/. Import a task first.');
+      throw new Error('No domain directories found in ctxlayer/. Import a task first.');
     }
 
     let selectedDomain;
@@ -781,7 +750,7 @@ async function dropTask(taskNameArg, options = {}) {
 }
 
 // ---------------------------------------------------------------------------
-// ctx drop domain - remove domain directory from local .ctxlayer/
+// ctx drop domain - remove domain directory from local ctxlayer/
 // ---------------------------------------------------------------------------
 
 async function dropDomain(domainNameArg, options = {}) {
@@ -790,7 +759,7 @@ async function dropDomain(domainNameArg, options = {}) {
 
     const domains = getLocalDomainDirs();
     if (domains.length === 0) {
-      throw new Error('No domain directories found in .ctxlayer/.');
+      throw new Error('No domain directories found in ctxlayer/.');
     }
 
     const domainName = resolveConflictingValues(domainNameArg, options.domainName, 'domain name');
@@ -813,7 +782,7 @@ async function dropDomain(domainNameArg, options = {}) {
     const confirmed =
       options.yes ||
       (await confirm({
-        message: `Remove domain directory "${selectedDomain}" from .ctxlayer/?`,
+        message: `Remove domain directory "${selectedDomain}" from ctxlayer/?`,
         default: false,
       }));
 
@@ -1037,7 +1006,7 @@ async function setActive(options = {}) {
     } else if (options.taskName) {
       if (!activeFromConfig) {
         throw new Error(
-          'Option "--task" requires an active domain in .ctxlayer/config.yaml, or pass "--domain".'
+          'Option "--task" requires an active domain in ctxlayer/config.yaml, or pass "--domain".'
         );
       }
       selectedDomain = activeFromConfig;
@@ -1127,7 +1096,7 @@ async function importTask(options = {}) {
       } else if (options.taskName) {
         if (!activeFromConfig) {
           throw new Error(
-            'Option "--task" requires an active domain in .ctxlayer/config.yaml, or pass "--domain".'
+            'Option "--task" requires an active domain in ctxlayer/config.yaml, or pass "--domain".'
           );
         }
         selectedDomain = activeFromConfig;
@@ -1259,7 +1228,7 @@ Main Commands:
 Convenience Commands:
   git [args...]     Run git in the current task directory
   drop task [name]  Remove a task symlink (supports --domain, --task)
-  drop domain [name]  Remove a domain directory from local .ctxlayer/ (supports --domain, --yes)
+  drop domain [name]  Remove a domain directory from local ctxlayer/ (supports --domain, --yes)
   delete task       Delete a task from the context store and remove its symlink (supports --domain, --task, --yes)
   delete domain [name]  Delete a domain from the context store (supports --domain, --yes)
 `);

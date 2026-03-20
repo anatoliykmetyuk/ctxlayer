@@ -74,7 +74,7 @@ describe('ctx delete domain', () => {
     const domainDir = path.join(tmpDomainsRoot, 'domain-alpha');
     assert.ok(!fs.existsSync(domainDir), 'domain dir should be deleted from store');
 
-    const localDomainDir = path.join(tmpCwd, '.ctxlayer', 'domain-alpha');
+    const localDomainDir = path.join(tmpCwd, 'ctxlayer', 'domain-alpha');
     assert.ok(!fs.existsSync(localDomainDir), 'local domain dir should be removed');
 
     assert.equal(process.exit.mock.calls.length, 0);
@@ -89,7 +89,7 @@ describe('ctx delete domain', () => {
     const domainDir = path.join(tmpDomainsRoot, 'domain-beta');
     assert.ok(!fs.existsSync(domainDir), 'domain dir should be deleted from store');
 
-    const localDomainDir = path.join(tmpCwd, '.ctxlayer', 'domain-beta');
+    const localDomainDir = path.join(tmpCwd, 'ctxlayer', 'domain-beta');
     assert.ok(!fs.existsSync(localDomainDir), 'local domain dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -125,7 +125,7 @@ describe('ctx delete domain', () => {
 
       assert.equal(res.status, 0, res.stdout + res.stderr);
       assert.ok(!fs.existsSync(path.join(tmpDomainsRoot, name)));
-      const localDomainDir = path.join(tmpCwd, '.ctxlayer', name);
+      const localDomainDir = path.join(tmpCwd, 'ctxlayer', name);
       assert.ok(!fs.existsSync(localDomainDir));
     });
 
@@ -160,8 +160,8 @@ describe('ctx delete domain', () => {
 
       fs.rmSync(path.join(tmpDomainsRoot, 'cli-domain-a'), { recursive: true, force: true });
       fs.rmSync(path.join(tmpDomainsRoot, 'cli-domain-b'), { recursive: true, force: true });
-      fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'cli-domain-a'), { recursive: true, force: true });
-      fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'cli-domain-b'), { recursive: true, force: true });
+      fs.rmSync(path.join(tmpCwd, 'ctxlayer', 'cli-domain-a'), { recursive: true, force: true });
+      fs.rmSync(path.join(tmpCwd, 'ctxlayer', 'cli-domain-b'), { recursive: true, force: true });
     });
   });
 });
