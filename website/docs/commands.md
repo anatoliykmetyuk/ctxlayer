@@ -9,8 +9,8 @@ The `ctx` CLI manages domains and tasks in your context layer. Run `ctx` with no
 
 | Command | Description |
 |---------|-------------|
-| `ctx new [name]` | Create a new task. Supports non-interactive flags such as `--task`, `--domain`, `--use-current-domain`, `--create-domain`, and `--clone-from` |
-| `ctx import` | Import a task from any domain as a symlink into `.ctxlayer/`. Supports `--domain` and `--task` |
+| `ctx new [name]` | Create a new task. Supports non-interactive flags such as `--task`, `--domain`, `--use-current-domain`, and `--create-domain` |
+| `ctx import` | Import a task from any domain as a symlink into `.ctxlayer/`. Supports `--domain`, `--task`, and `--clone-from` |
 | `ctx status` | Show the active domain and task, plus git tracking info |
 | `ctx set` | Set active domain and task. Supports `--domain` and `--task` |
 | `ctx git [args...]` | Run git in the active task directory |
@@ -43,36 +43,16 @@ ctx new my-feature-branch
 ctx new --use-current-domain --task my-feature-branch
 ctx new --domain existing-domain --task my-feature-branch
 ctx new --domain new-domain --create-domain --task my-feature-branch
-ctx new --clone-from https://github.com/user/repo.git --task my-feature-branch
 ```
-
-### Import a context-layer domain from git
-
-Use this flow when the domain itself already lives in a git repository and you want to bring it into your local context layer store.
-
-```bash
-ctx new --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
-ctx new --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
-```
-
-The command will:
-
-1. clone the domain repo into `~/.agents/ctxlayer/domains/<domain>/`
-2. create the requested task inside that cloned domain
-3. link the task into your project's `.ctxlayer/`
-
-If you prefer prompts, run `ctx new`, then choose **Fetch from git**.
 
 ## ctx import
 
 Imports an existing task from any domain into your project as a symlink. This is useful when you need your agent to access domain knowledge from other projects.
 
-> `ctx import` only works with domains that are already present in your local context layer store. To bring in a domain from a remote git repository first, use `ctx new --clone-from ...`.
-
 **What it does:**
 
 1. Ensures the workspace is initialized
-2. Prompts you to select a domain (or accepts `--domain`)
+2. Prompts you to select a domain, accepts `--domain`, or clones a domain first via `--clone-from`
 3. Prompts you to select a task from that domain (or accepts `--task`)
 4. Creates a symlink at `.ctxlayer/<domain>/<task>` pointing to the task in the context layer
 5. If `config.yaml` has no active domain/task, sets the imported domain and task as active; otherwise only creates the symlink
@@ -82,7 +62,26 @@ Imports an existing task from any domain into your project as a symlink. This is
 ```bash
 ctx import
 ctx import --domain my-domain --task my-task
+ctx import --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
+ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
 ```
+
+### Import a context-layer domain from git
+
+Use this flow when the domain itself already lives in a git repository and you want `ctx` to clone that domain and immediately import one task from it.
+
+```bash
+ctx import --clone-from https://github.com/acme/payments-context.git --task investigate-checkout-failure
+ctx import --clone-from https://github.com/acme/payments-context.git --domain payments-context --task audit-tax-calculation
+```
+
+The command will:
+
+1. clone the domain repo into `~/.agents/ctxlayer/domains/<domain>/`
+2. locate the requested task inside the cloned domain
+3. link that task into your project's `.ctxlayer/`
+
+If the task is not present in the cloned domain, `ctx import` exits with an error instead of creating it.
 
 ## ctx status
 

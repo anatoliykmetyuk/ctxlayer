@@ -306,6 +306,19 @@ function ensureWorkspaceInitialized() {
 // Choice 1: Fetch from git
 // ---------------------------------------------------------------------------
 
+function cloneDomainFromGit(url, domainName) {
+  ensureDomainsRoot();
+
+  const targetPath = path.join(DOMAINS_ROOT, domainName);
+  if (fs.existsSync(targetPath)) {
+    throw new Error('Domain folder already exists: ' + targetPath);
+  }
+
+  console.log('Cloning', url, 'into', targetPath);
+  execSync(`git clone ${url} ${targetPath}`, { stdio: 'inherit' });
+  return domainName;
+}
+
 async function initFromGit({ url: urlArg, domainName: domainNameArg } = {}) {
   const url = urlArg || (await input({ message: 'GitHub repo URL:' }));
   if (!url) {
@@ -320,16 +333,7 @@ async function initFromGit({ url: urlArg, domainName: domainNameArg } = {}) {
       default: defaultName,
     })) ||
     defaultName;
-
-  ensureDomainsRoot();
-
-  const targetPath = path.join(DOMAINS_ROOT, domainName);
-  if (fs.existsSync(targetPath)) {
-    throw new Error('Domain folder already exists: ' + targetPath);
-  }
-
-  console.log('Cloning', url, 'into', targetPath);
-  execSync(`git clone ${url} ${targetPath}`, { stdio: 'inherit' });
+  cloneDomainFromGit(url, domainName);
 
   setupLocal(domainName);
   return domainName;
@@ -476,13 +480,16 @@ async function newTask(nameArg, options = {}) {
 
     const taskName = resolveConflictingValues(nameArg, options.taskName, 'task name');
 
-    if (options.useCurrentDomain && (options.domainName || options.createDomain || options.cloneFrom)) {
+    if (options.cloneFrom) {
       throw new Error(
-        'Cannot combine "--use-current-domain" with "--domain", "--create-domain", or "--clone-from".'
+        'Option "--clone-from" is not supported by "ctx new". Use "ctx import --clone-from ... --task ...".'
       );
     }
-    if (options.createDomain && options.cloneFrom) {
-      throw new Error('Cannot combine "--create-domain" with "--clone-from".');
+
+    if (options.useCurrentDomain && (options.domainName || options.createDomain)) {
+      throw new Error(
+        'Cannot combine "--use-current-domain" with "--domain" or "--create-domain".'
+      );
     }
     if (options.createDomain && !options.domainName) {
       throw new Error('Option "--create-domain" requires "--domain".');
@@ -491,12 +498,12 @@ async function newTask(nameArg, options = {}) {
     let domainName;
     if (options.useCurrentDomain) {
       if (!hasValidDomain) {
-        throw new Error('No valid active domain set. Use "--domain", "--create-domain", or "--clone-from".');
+        throw new Error('No valid active domain set. Use "--domain" or "--create-domain".');
       }
       domainName = config['active-domain'];
     } else if (!hasValidDomain) {
       domainName = await selectOrCreateDomain(options);
-    } else if (options.domainName || options.createDomain || options.cloneFrom) {
+    } else if (options.domainName || options.createDomain) {
       domainName = await selectOrCreateDomain(options);
     } else {
       const useCurrent = await confirm({
@@ -538,10 +545,6 @@ async function selectOrCreateDomain(options = {}) {
         .filter((e) => e.isDirectory())
         .map((e) => e.name)
     : [];
-
-  if (options.cloneFrom) {
-    return await initFromGit({ url: options.cloneFrom, domainName: options.domainName });
-  }
 
   if (options.createDomain) {
     return await initFromScratch({ domainName: options.domainName });
@@ -1057,23 +1060,33 @@ async function importTask(options = {}) {
 
     const config = readConfigOrNull();
 
-    const domains = getStoredDomains();
-
-    if (domains.length === 0) {
-      throw new Error('No domains found in ' + DOMAINS_ROOT);
+    if (options.cloneFrom && !options.taskName) {
+      throw new Error('Option "--clone-from" requires "--task".');
     }
 
-    const selectedDomain =
-      options.domainName && domains.includes(options.domainName)
-        ? options.domainName
-        : options.domainName
-          ? (() => {
-              throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
-            })()
-          : await select({
-              message: 'Select a domain:',
-              choices: domains.map((name) => ({ name, value: name })),
-            });
+    let selectedDomain;
+    if (options.cloneFrom) {
+      selectedDomain = options.domainName || repoNameFromUrl(options.cloneFrom);
+      cloneDomainFromGit(options.cloneFrom, selectedDomain);
+    } else {
+      const domains = getStoredDomains();
+
+      if (domains.length === 0) {
+        throw new Error('No domains found in ' + DOMAINS_ROOT);
+      }
+
+      selectedDomain =
+        options.domainName && domains.includes(options.domainName)
+          ? options.domainName
+          : options.domainName
+            ? (() => {
+                throw new Error('Domain directory not found: ' + path.join(DOMAINS_ROOT, options.domainName));
+              })()
+            : await select({
+                message: 'Select a domain:',
+                choices: domains.map((name) => ({ name, value: name })),
+              });
+    }
 
     const tasks = getStoredTasks(selectedDomain);
 
@@ -1161,13 +1174,14 @@ if (argv[0] === 'git') {
     domainName: readStringOption(options, 'domain'),
     useCurrentDomain: readBooleanFlag(options, 'use-current-domain'),
     createDomain: readBooleanFlag(options, 'create-domain'),
-    cloneFrom: readStringOption(options, 'clone-from'),
+    cloneFrom: Object.hasOwn(options, 'clone-from') ? options['clone-from'] : undefined,
   });
 } else if (argv[0] === 'import') {
   const { options } = parseOptions(argv.slice(1));
   await importTask({
     domainName: readStringOption(options, 'domain'),
     taskName: readStringOption(options, 'task'),
+    cloneFrom: readStringOption(options, 'clone-from'),
   });
 } else if (argv[0] === 'status' && argv.length === 1) {
   status();
@@ -1182,8 +1196,8 @@ if (argv[0] === 'git') {
 Usage: ctx <command>
 
 Main Commands:
-  new [name]        Create a new task (supports --task, --domain, --use-current-domain, --create-domain, --clone-from)
-  import            Import a task from any domain as a symlink (supports --domain, --task)
+  new [name]        Create a new task (supports --task, --domain, --use-current-domain, --create-domain)
+  import            Import a task from any domain as a symlink (supports --domain, --task, --clone-from)
   status            Show the current active domain and task
   set               Set active domain and task (supports --domain, --task)
 

@@ -141,46 +141,14 @@ describe('ctx new', () => {
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('supports importing a domain from git interactively', async () => {
-    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
-    selectQueue = ['__fetch_git__'];
-    inputQueue = ['https://github.com/user/interactive-domain.git', 'interactive-domain'];
-
-    await newTask('git-task');
-
-    const expectedDomainDir = path.join(tmpDomainsRoot, 'interactive-domain');
-    assert.ok(fs.existsSync(expectedDomainDir));
-    assert.ok(fs.existsSync(path.join(expectedDomainDir, 'git-task', 'docs')));
-    assert.ok(fs.existsSync(path.join(expectedDomainDir, 'git-task', 'data')));
-    assert.equal(
-      execSyncCalls[0].command,
-      `git clone https://github.com/user/interactive-domain.git ${expectedDomainDir}`
-    );
-
-    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
-    assert.ok(config.includes('active-domain: interactive-domain'));
-    assert.ok(config.includes('active-task: git-task'));
-    assert.equal(process.exit.mock.calls.length, 0);
-  });
-
-  it('supports importing a domain from git non-interactively', async () => {
+  it('rejects clone-from and points callers to ctx import', async () => {
     await newTask('scripted-git-task', {
       cloneFrom: 'https://github.com/user/scripted-domain.git',
     });
 
-    const expectedDomainDir = path.join(tmpDomainsRoot, 'scripted-domain');
-    assert.ok(fs.existsSync(expectedDomainDir));
-    assert.ok(fs.existsSync(path.join(expectedDomainDir, 'scripted-git-task', 'docs')));
-    assert.ok(fs.existsSync(path.join(expectedDomainDir, 'scripted-git-task', 'data')));
-    assert.equal(
-      execSyncCalls[0].command,
-      `git clone https://github.com/user/scripted-domain.git ${expectedDomainDir}`
-    );
-
-    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
-    assert.ok(config.includes('active-domain: scripted-domain'));
-    assert.ok(config.includes('active-task: scripted-git-task'));
-    assert.equal(process.exit.mock.calls.length, 0);
+    assert.equal(execSyncCalls.length, 0);
+    assert.equal(process.exit.mock.calls.length, 1);
+    assert.deepStrictEqual(process.exit.mock.calls[0].arguments, [1]);
   });
 
   it('active domain set, answer no: goes to domain prompt then creates task', async () => {
