@@ -7,7 +7,6 @@
   <title>Getting Started — Context Layer Docs</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
-  <script defer data-domain="ctxlayer.dev" src="https://plausible.anatoliikmt.me/js/script.js"></script>
 </head>
 <body class="docs-page">
   <a href="#main" class="skip-link">Skip to main content</a>
@@ -116,24 +115,21 @@
   <li><strong>Task</strong> represents a unit of work within the project.</li>
 </ul>
 
-<p>After you’ve named your domain and task, you will notice the following directory structure created within your project directory:</p>
+<p>After you’ve named your domain and task, you will notice the following directory structure created within your project directory (each new task gets an <strong><code class="language-plaintext highlighter-rouge">INDEX.md</code></strong> at its root; you add folders such as <code class="language-plaintext highlighter-rouge">docs/</code> and <code class="language-plaintext highlighter-rouge">data/</code> when you need them):</p>
 
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-project/
 ├── README.md
 ├── ...  <span class="c"># your project files</span>
-└── ctxlayer/  <span class="c"># symlink to ~/.agents/ctxlayer/</span>
+└── .ctxlayer/  <span class="c"># symlink to ~/.agents/ctxlayer/</span>
     └── my-domain/
         ├── config.yaml
         ├── task-1/
-        │   ├── docs/
-        │   │   ├── 01-initial-research.md
-        │   │   └── 02-implementation-notes.md
-        │   └── data/
-        │       └── sample-data.json
+        │   └── INDEX.md
         └── task-2/
-            ├── docs/
-            └── data/
+            └── INDEX.md
 </code></pre></div></div>
+
+<p>Also, <code class="language-plaintext highlighter-rouge">.ctxlayer</code> will be added to your <code class="language-plaintext highlighter-rouge">.gitignore</code> file, so that the context layer is not committed to your project repository.</p>
 
 <h2 id="usage">Usage</h2>
 
@@ -148,17 +144,17 @@
   <li><strong>A Git repository</strong> - in case you want an agent to refer to existing library code or another project. It is recommended to use the <code class="language-plaintext highlighter-rouge">git submodule add</code> command when cloning the repository, as every domain is also initialized as a git repository.</li>
 </ul>
 
-<p>All of those examples belong in the <code class="language-plaintext highlighter-rouge">data/</code> folder of your task. Now is a good time to bring them into that directory.</p>
+<p>Create a <strong><code class="language-plaintext highlighter-rouge">data/</code></strong> folder in the task if you need a dedicated place for that material (it is not created automatically). Put those files there, and update <strong><code class="language-plaintext highlighter-rouge">INDEX.md</code></strong> so the index table lists them.</p>
 
 <h3 id="2-perform-task-research-and-documentation">2. Perform Task Research and Documentation</h3>
 
-<p>After you’ve assembled the corpus of reference material, it is a good idea to ask your agent to do some <strong>research</strong> on the task you are about to do, and possibly compose an <strong>implementation plan</strong>. Prompt it with the following:</p>
+<p>After you’ve assembled the corpus of reference material (if any), it is a good idea to ask your agent to do some <strong>research</strong> on the task you are about to do, and possibly compose an <strong>implementation plan</strong>. Prompt it with the following:</p>
 
 <blockquote>
   <p>I would like to do A. You will find reference materials X, Y, Z in the context layer’s data folder. Please use them to inform your research and planning. Do the research and compose a plan of how to do the task. Write the plan as a new document in the context layer’s docs folder.</p>
 </blockquote>
 
-<p>As you’ve installed the agent skill during the installation step above, the agent will know which folders to look at and will produce a markdown file with the implementation plan. Markdown files in the docs folder are numbered for easy sorting, as they intend to represent a sequential log of task execution. A file with a name something like <code class="language-plaintext highlighter-rouge">01-task-plan.md</code> will be produced.</p>
+<p>If you do not have a <code class="language-plaintext highlighter-rouge">data/</code> or <code class="language-plaintext highlighter-rouge">docs/</code> folder yet, ask the agent to create them and to keep <strong><code class="language-plaintext highlighter-rouge">INDEX.md</code></strong> in sync with new files (see <a href="/docs/format-reference.html">Directory Format Reference</a>). As you’ve installed the agent skill during the installation step above, the agent will follow the indexing conventions. Markdown files in <code class="language-plaintext highlighter-rouge">docs/</code> are numbered for easy sorting, as they intend to represent a sequential log of task execution. A file with a name something like <code class="language-plaintext highlighter-rouge">01-task-plan.md</code> will be produced.</p>
 
 <p>Review the plan and iterate on it with your agent until it looks good to you.</p>
 
@@ -188,7 +184,7 @@
   <p>We have just resolved an issue X / made a decision Y / followed a workflow Z. Please document it in the context layer as a new document. Include a brief description of the issue, what decisions were made, what approaches worked and what did not and why.</p>
 </blockquote>
 
-<p>This will produce a new document in the docs folder, numbered for easy sorting, readily accessible in case you need to return to the gathered domain intelligence in the future.</p>
+<p>This will produce a new document (typically under <code class="language-plaintext highlighter-rouge">docs/</code> once that folder exists), numbered for easy sorting, readily accessible in case you need to return to the gathered domain intelligence in the future. Keep <strong><code class="language-plaintext highlighter-rouge">INDEX.md</code></strong> updated as you add documents.</p>
 
 <h3 id="5-reuse-the-domain-intelligence">5. Reuse the Domain Intelligence</h3>
 
@@ -214,7 +210,7 @@ ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments
 ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments-context.git <span class="nt">--domain</span> payments-context <span class="nt">--task</span> audit-tax-calculation
 </code></pre></div></div>
 
-<p>Clone-only updates <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;name&gt;/</code> only. With <code class="language-plaintext highlighter-rouge">--task</code>, the matching task is also linked under your project’s <code class="language-plaintext highlighter-rouge">ctxlayer/</code>.</p>
+<p>Clone-only updates <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;name&gt;/</code> only. With <code class="language-plaintext highlighter-rouge">--task</code>, the matching task is also linked under your project’s <code class="language-plaintext highlighter-rouge">.ctxlayer/</code>.</p>
 
 <p>After that, use <code class="language-plaintext highlighter-rouge">ctx import</code> without <code class="language-plaintext highlighter-rouge">--clone-from</code> to link additional tasks from that same domain into other projects.</p>
 
@@ -241,7 +237,7 @@ ctx import <span class="nt">--clone-from</span> https://github.com/acme/payments
 
 <p>The above command is equivalent to:</p>
 
-<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ./ctxlayer/&lt;domain&gt;/&lt;task&gt;
+<div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">cd</span> ./.ctxlayer/&lt;domain&gt;/&lt;task&gt;
 git &lt;git-args...&gt;
 </code></pre></div></div>
 

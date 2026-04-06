@@ -7,7 +7,6 @@
   <title>Directory Format Reference — Context Layer Docs</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/style.css">
-  <script defer data-domain="ctxlayer.dev" src="https://plausible.anatoliikmt.me/js/script.js"></script>
 </head>
 <body class="docs-page">
   <a href="#main" class="skip-link">Skip to main content</a>
@@ -53,9 +52,9 @@
 
 <h2 id="location">Location</h2>
 
-<p>The context layer is stored in a centralized location on your machine at <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/</code>. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local <code class="language-plaintext highlighter-rouge">ctxlayer/</code> folder in the project root.</p>
+<p>The context layer is stored in a centralized location on your machine at <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/</code>. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder in the project root.</p>
 
-<p>You can add <code class="language-plaintext highlighter-rouge">ctxlayer/</code> to <code class="language-plaintext highlighter-rouge">.gitignore</code> if you do not want the local links and config in your project repository, or commit them if you prefer. The global store under <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/</code> is separate and is usually versioned with its own git repository per domain.</p>
+<p>The <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder is added to <code class="language-plaintext highlighter-rouge">.gitignore</code> when you initialize the context layer for a project via <code class="language-plaintext highlighter-rouge">ctx new</code>, so it is not committed to your project’s repository. You should use a separate git repository to version-control the context layer.</p>
 
 <p><strong>Global store (system-wide):</strong></p>
 
@@ -64,18 +63,20 @@
     └── my-domain-1/
         ├── .git/
         ├── task-1/
-        │   ├── docs/
+        │   ├── INDEX.md
+        │   ├── docs/                    <span class="c"># optional — add when you need a docs journal</span>
         │   │   ├── 01-initial-research.md
         │   │   └── 02-implementation-notes.md
-        │   └── data/
+        │   └── data/                    <span class="c"># optional — reference material, logs, submodules</span>
         │       └── sample-data.json
         └── task-2/
-            ├── docs/
-            └── data/
+            └── INDEX.md
     └── my-domain-2/
         ├── .git/
         ├── task-1/
+        │   └── INDEX.md
         └── task-2/
+            └── INDEX.md
 </code></pre></div></div>
 
 <p><strong>Local link (in your project):</strong></p>
@@ -83,7 +84,7 @@
 <div class="language-bash highlighter-rouge"><div class="highlight"><pre class="highlight"><code>my-project/
 ├── README.md
 ├── ...                    <span class="c"># your project files</span>
-└── ctxlayer/             <span class="c"># local config + symlinks</span>
+└── .ctxlayer/             <span class="c"># gitignored</span>
     ├── config.yaml        <span class="c"># active-domain, active-task</span>
     └── my-domain-1/
         ├── task-1/        <span class="c"># symlink → ~/.agents/ctxlayer/domains/my-domain-1/task-1/</span>
@@ -110,21 +111,22 @@
 
 <ul>
   <li><strong>Location:</strong> <code class="language-plaintext highlighter-rouge">~/.agents/ctxlayer/domains/&lt;domain&gt;/&lt;task&gt;/</code></li>
-  <li><strong>Structure:</strong> Each task has:
+  <li><strong>Created by <code class="language-plaintext highlighter-rouge">ctx new</code>:</strong> Each new task includes an <strong><code class="language-plaintext highlighter-rouge">INDEX.md</code></strong> at the task root — a short summary placeholder and an index table (ID, Filename, Description) for progressive discovery. See the <a href="https://github.com/anatoliykmetyuk/ctxlayer/blob/main/skills/ctxlayer/SKILL.md">agent skill</a> for indexing conventions.</li>
+  <li><strong>Common additions (not created automatically):</strong>
     <ul>
-      <li><strong><code class="language-plaintext highlighter-rouge">docs/</code></strong> — Markdown documentation (research, plans, decisions, procedures)</li>
+      <li><strong><code class="language-plaintext highlighter-rouge">docs/</code></strong> — Markdown documentation (research, plans, decisions, procedures). The skill treats this as the default place for documentation operations when you say “in the context layer”; create the folder when you start adding numbered docs.</li>
       <li><strong><code class="language-plaintext highlighter-rouge">data/</code></strong> — Reference material (logs, sample data, external repos, config snippets)</li>
     </ul>
   </li>
 </ul>
 
-<p>Tasks are created with <code class="language-plaintext highlighter-rouge">ctx new</code> and linked into projects via symlinks under <code class="language-plaintext highlighter-rouge">ctxlayer/&lt;domain&gt;/&lt;task&gt;/</code>.</p>
+<p>Tasks are created with <code class="language-plaintext highlighter-rouge">ctx new</code> and linked into projects via symlinks under <code class="language-plaintext highlighter-rouge">.ctxlayer/&lt;domain&gt;/&lt;task&gt;/</code>.</p>
 
 <p>The precise structure of the task directory is still evolving and will likely change in the future, as the Context Layer engineering pattern defined by this documentation evolves.</p>
 
 <h2 id="config-file">Config file</h2>
 
-<p>This file lives in the <code class="language-plaintext highlighter-rouge">ctxlayer/</code> folder in your project root: <code class="language-plaintext highlighter-rouge">ctxlayer/config.yaml</code>. It contains the active domain and task that will be used by default by the agent skill and commands like <code class="language-plaintext highlighter-rouge">ctx git</code>.</p>
+<p>This file lives in the <code class="language-plaintext highlighter-rouge">.ctxlayer/</code> folder in your project root: <code class="language-plaintext highlighter-rouge">.ctxlayer/config.yaml</code>. It contains the active domain and task that will be used by default by the agent skill and commands like <code class="language-plaintext highlighter-rouge">ctx git</code>.</p>
 
 <p><strong>Format:</strong></p>
 
@@ -151,11 +153,15 @@
   </tbody>
 </table>
 
-<p>The agent skill reads this file to know where to write documentation and which task’s <code class="language-plaintext highlighter-rouge">docs/</code> and <code class="language-plaintext highlighter-rouge">data/</code> to access when you say “in the context layer”. Commands like <code class="language-plaintext highlighter-rouge">ctx git</code> run in the active task directory.</p>
+<p>The agent skill reads this file to resolve the active task directory when you say “in the context layer”. It uses <strong><code class="language-plaintext highlighter-rouge">INDEX.md</code></strong> (and nested indexes) to navigate the task, and by default expects documentation under <strong><code class="language-plaintext highlighter-rouge">docs/</code></strong> once that folder exists. Commands like <code class="language-plaintext highlighter-rouge">ctx git</code> run in the active task directory.</p>
+
+<h2 id="indexmd">INDEX.md</h2>
+
+<p>Each task should have an <strong><code class="language-plaintext highlighter-rouge">INDEX.md</code></strong> at its root (and optionally in subdirectories). It summarizes what is in the folder: start with a short description of the task and how to use the context, then maintain a table with columns <strong>ID</strong>, <strong>Filename</strong>, and <strong>Description</strong>. Keep the index updated as you add or remove files. New tasks created with <code class="language-plaintext highlighter-rouge">ctx new</code> start from a minimal template with an empty table.</p>
 
 <h2 id="docs-folder-convention">Docs folder convention</h2>
 
-<p>Markdown files in <code class="language-plaintext highlighter-rouge">docs/</code> are <strong>numbered</strong> for sorting and to support <em>“document number N”</em> references in prompts.</p>
+<p>If you use a <code class="language-plaintext highlighter-rouge">docs/</code> folder, markdown files there are <strong>numbered</strong> for sorting and to support <em>“document number N”</em> references in prompts.</p>
 
 <p><strong>Naming:</strong> <code class="language-plaintext highlighter-rouge">NN-descriptive-name.md</code></p>
 
@@ -172,7 +178,7 @@
 
 <h2 id="data-folder-convention">Data folder convention</h2>
 
-<p>The <code class="language-plaintext highlighter-rouge">data/</code> folder holds reference material: sample data, config snippets, logs, external repositories, and anything the agent needs during implementation.</p>
+<p>If you add a <strong><code class="language-plaintext highlighter-rouge">data/</code></strong> folder, use it for reference material: sample data, config snippets, logs, external repositories, and anything the agent needs during implementation.</p>
 
 <p><strong>Adding external repos:</strong> Use <code class="language-plaintext highlighter-rouge">git submodule add &lt;repo-url&gt;</code> inside the task’s <code class="language-plaintext highlighter-rouge">data/</code> folder (not a plain <code class="language-plaintext highlighter-rouge">git clone</code>), so the domain repo stays lightweight and version-controlled via submodule references. You can also ask the agent to <em>add a git repo into the context layer’s data</em>, and it should use <code class="language-plaintext highlighter-rouge">git submodule add</code> by default.</p>
 
