@@ -10,7 +10,7 @@ import os from 'os';
  */
 export function createSandbox() {
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'ctxlayer-test-'));
-  const tmpHome = path.join(tmpDir, 'ctxlayer');
+  const tmpHome = path.join(tmpDir, '.ctxlayer');
   const tmpDomainsRoot = path.join(tmpHome, 'domains');
   const tmpCwd = path.join(tmpDir, 'repo');
 
@@ -35,14 +35,14 @@ export function createSandbox() {
 }
 
 /**
- * Creates ctxlayer/config.yaml in the given cwd.
+ * Creates .ctxlayer/config.yaml in the given cwd.
  *
  * @param {string} cwd - Path to the local repo (e.g. tmpCwd)
  * @param {string} domain - active-domain value
  * @param {string} [task] - optional active-task value
  */
 export function createConfig(cwd, domain, task) {
-  const localDir = path.join(cwd, 'ctxlayer');
+  const localDir = path.join(cwd, '.ctxlayer');
   fs.mkdirSync(localDir, { recursive: true });
   let content = `active-domain: ${domain}\n`;
   if (task) {
@@ -69,7 +69,7 @@ export function createDomain(domainsRoot, name, tasks = []) {
 }
 
 /**
- * Creates a symlink at cwd/ctxlayer/<domainName>/<taskName> pointing to
+ * Creates a symlink at cwd/.ctxlayer/<domainName>/<taskName> pointing to
  * domainsRoot/<domainName>/<taskName>. Mirrors ensureTaskSymlink behavior for test setup.
  *
  * @param {string} cwd - Path to the local repo (e.g. tmpCwd)
@@ -78,7 +78,7 @@ export function createDomain(domainsRoot, name, tasks = []) {
  * @param {string} domainsRoot
  */
 export function createTaskSymlink(cwd, domainName, taskName, domainsRoot) {
-  const localDomainDir = path.join(cwd, 'ctxlayer', domainName);
+  const localDomainDir = path.join(cwd, '.ctxlayer', domainName);
   fs.mkdirSync(localDomainDir, { recursive: true });
   const linkPath = path.join(localDomainDir, taskName);
   const target = path.resolve(path.join(domainsRoot, domainName, taskName));

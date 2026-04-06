@@ -23,7 +23,7 @@ flowchart TB
     subgraph paths [Path resolution]
         G[CWD = CONTEXT_LAYER_CWD or cwd]
         H[DOMAINS_ROOT = CONTEXT_LAYER_HOME/domains]
-        I[Local dir = CWD/ctxlayer]
+        I[Local dir = CWD/.ctxlayer]
     end
 
     subgraph prompts [Prompts]
@@ -47,7 +47,7 @@ flowchart TB
 | `CWD` | `CONTEXT_LAYER_CWD` env or `process.cwd()` | Current working directory (repo root) |
 | `CONTEXT_LAYER_HOME` | `CONTEXT_LAYER_HOME` env or `~/.agents/ctxlayer` | Global store root |
 | `DOMAINS_ROOT` | `CONTEXT_LAYER_HOME/domains` | Where domains and tasks live |
-| `LOCAL_DIR` | `ctxlayer` | Local config and symlinks |
+| `LOCAL_DIR` | `.ctxlayer` | Local config and symlinks |
 
 ### Path layout
 
@@ -55,7 +55,7 @@ flowchart TB
 ~/.agents/ctxlayer/domains/         # Global store (DOMAINS_ROOT)
   <domain>/<task>/docs|data/
 
-<repo>/ctxlayer/                   # Local (CWD + LOCAL_DIR)
+<repo>/.ctxlayer/                   # Local (CWD + LOCAL_DIR)
   config.yaml                       # active-domain, active-task
   <domain>/<task> -> symlink       # Points to global store
 ```
@@ -64,11 +64,11 @@ flowchart TB
 
 | Helper | Purpose |
 |--------|---------|
-| `readConfig()` | Returns `{ 'active-domain', 'active-task' }` from `ctxlayer/config.yaml`; throws if missing |
+| `readConfig()` | Returns `{ 'active-domain', 'active-task' }` from `.ctxlayer/config.yaml`; throws if missing |
 | `writeConfig(config)` | Writes active-domain and active-task to config |
 | `ensureDomainsRoot()` | Creates `DOMAINS_ROOT` if missing |
-| `ensureTaskSymlink(domain, task)` | Creates symlink at `ctxlayer/<domain>/<task>` → task dir in store |
-| `getLocalDomainDirs()` | Returns domain names under `ctxlayer/` (excludes config.yaml) |
+| `ensureTaskSymlink(domain, task)` | Creates symlink at `.ctxlayer/<domain>/<task>` → task dir in store |
+| `getLocalDomainDirs()` | Returns domain names under `.ctxlayer/` (excludes config.yaml) |
 
 ---
 
@@ -83,7 +83,7 @@ flowchart TB
 | Command type | Where to list items | Example |
 |--------------|---------------------|---------|
 | Global store | `DOMAINS_ROOT` | `delete task`, `delete domain`, `import` |
-| Local symlinks | `getLocalDomainDirs()` + `ctxlayer/<domain>/` | `drop task`, `drop domain` |
+| Local symlinks | `getLocalDomainDirs()` + `.ctxlayer/<domain>/` | `drop task`, `drop domain` |
 | Active context | `readConfig()` | `ctx git`, `drop task <name>` (with arg) |
 
 ### Prompt patterns
@@ -197,9 +197,9 @@ const INTELLIGENCE_HOME = process.env.INTELLIGENCE_HOME || path.join(os.homedir(
 | Helper | Purpose |
 |--------|---------|
 | `createSandbox()` | Creates temp dirs, sets `CONTEXT_LAYER_HOME` and `CONTEXT_LAYER_CWD`, returns `{ tmpDir, tmpHome, tmpDomainsRoot, tmpCwd, cleanup }` |
-| `createConfig(cwd, domain, task?)` | Creates `ctxlayer/config.yaml` with `active-domain` and optional `active-task` |
+| `createConfig(cwd, domain, task?)` | Creates `.ctxlayer/config.yaml` with `active-domain` and optional `active-task` |
 | `createDomain(domainsRoot, name, tasks?)` | Creates domain dir with optional task subdirs, each with `docs/` and `data/` |
-| `createTaskSymlink(cwd, domainName, taskName, domainsRoot)` | Creates symlink at `ctxlayer/<domain>/<task>` → task dir in store |
+| `createTaskSymlink(cwd, domainName, taskName, domainsRoot)` | Creates symlink at `.ctxlayer/<domain>/<task>` → task dir in store |
 
 Always use these. Do not inline the logic.
 
@@ -334,7 +334,7 @@ after(() => {
 ### Verifying symlinks
 
 ```js
-const linkPath = path.join(tmpCwd, 'ctxlayer', domain, task);
+const linkPath = path.join(tmpCwd, '.ctxlayer', domain, task);
 assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
 assert.equal(fs.readlinkSync(linkPath), path.resolve(expectedTarget));
 ```

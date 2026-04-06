@@ -20,6 +20,6 @@ website/.jekyll-cache/
 *.swp
 *.swo
 .cursor/
-/ctxlayer/
+/.ctxlayer/
 
 .agents/

@@ -84,11 +84,11 @@ describe('ctx new', () => {
     assert.ok(fs.existsSync(path.join(taskDir, 'docs')));
     assert.ok(fs.existsSync(path.join(taskDir, 'data')));
 
-    const linkPath = path.join(tmpCwd, 'ctxlayer', DOMAIN, 'my-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', DOMAIN, 'my-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(fs.readlinkSync(linkPath), path.resolve(taskDir));
 
-    const config = fs.readFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: my-domain'));
     assert.ok(config.includes('active-task: my-task'));
 
@@ -102,7 +102,7 @@ describe('ctx new', () => {
 
     const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'prompted-task');
     assert.ok(fs.existsSync(taskDir));
-    const linkPath = path.join(tmpCwd, 'ctxlayer', DOMAIN, 'prompted-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', DOMAIN, 'prompted-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -116,14 +116,14 @@ describe('ctx new', () => {
     const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'flag-task');
     assert.ok(fs.existsSync(taskDir));
 
-    const config = fs.readFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: my-domain'));
     assert.ok(config.includes('active-task: flag-task'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('supports non-interactive scratch domain creation', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     await newTask('script-task', {
       domainName: 'script-domain',
@@ -135,7 +135,7 @@ describe('ctx new', () => {
     assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'docs')));
     assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'data')));
 
-    const config = fs.readFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: script-domain'));
     assert.ok(config.includes('active-task: script-task'));
     assert.equal(process.exit.mock.calls.length, 0);
@@ -159,7 +159,7 @@ describe('ctx new', () => {
     selectQueue = ['__select_existing__', 'domain-b'];
     await newTask('switched-task');
 
-    const config = fs.readFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: domain-b'));
     assert.ok(config.includes('active-task: switched-task'));
     const taskDir = path.join(tmpDomainsRoot, 'domain-b', 'switched-task');
@@ -168,13 +168,13 @@ describe('ctx new', () => {
   });
 
   it('works when no config: ensures init, prompts for domain then creates task', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
     selectQueue = ['__select_existing__', DOMAIN];
     await newTask('bootstrap-task');
 
     const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'bootstrap-task');
     assert.ok(fs.existsSync(taskDir));
-    const configPath = path.join(tmpCwd, 'ctxlayer', 'config.yaml');
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
     assert.ok(config.includes('active-domain: my-domain'));
@@ -189,14 +189,14 @@ describe('ctx new', () => {
 
     const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'recovery-task');
     assert.ok(fs.existsSync(taskDir));
-    const config = fs.readFileSync(path.join(tmpCwd, 'ctxlayer', 'config.yaml'), 'utf8');
+    const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: my-domain'));
     assert.ok(config.includes('active-task: recovery-task'));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
-  it('create from scratch: creates domain dir, config, and task', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+  it('create from scratch: creates domain dir, config, task, and updates .gitignore', async () => {
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
     for (const name of fs.readdirSync(tmpDomainsRoot)) {
       fs.rmSync(path.join(tmpDomainsRoot, name), { recursive: true, force: true });
     }
@@ -207,34 +207,37 @@ describe('ctx new', () => {
 
     const domainDir = path.join(tmpDomainsRoot, 'scratch-domain');
     assert.ok(fs.existsSync(domainDir));
-    const configPath = path.join(tmpCwd, 'ctxlayer', 'config.yaml');
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
     assert.ok(config.includes('active-domain: scratch-domain'));
     assert.ok(config.includes('active-task: first-task'));
+    const gitignorePath = path.join(tmpCwd, '.gitignore');
+    assert.ok(fs.existsSync(gitignorePath));
+    assert.ok(fs.readFileSync(gitignorePath, 'utf8').includes('.ctxlayer'));
     const taskDir = path.join(domainDir, 'first-task');
     assert.ok(fs.existsSync(taskDir));
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('use existing domain when not initialized: selects domain and creates task', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
     createDomain(tmpDomainsRoot, 'existing-domain', []);
     selectQueue = ['__select_existing__', 'existing-domain'];
     await newTask('first-task');
 
-    const configPath = path.join(tmpCwd, 'ctxlayer', 'config.yaml');
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
     assert.ok(config.includes('active-domain: existing-domain'));
     assert.ok(config.includes('active-task: first-task'));
-    const linkPath = path.join(tmpCwd, 'ctxlayer', 'existing-domain', 'first-task');
+    const linkPath = path.join(tmpCwd, '.ctxlayer', 'existing-domain', 'first-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('works when domain list empty: create from scratch', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
     for (const name of fs.readdirSync(tmpDomainsRoot)) {
       fs.rmSync(path.join(tmpDomainsRoot, name), { recursive: true, force: true });
     }
@@ -243,7 +246,7 @@ describe('ctx new', () => {
 
     await newTask('initial-task');
 
-    const configPath = path.join(tmpCwd, 'ctxlayer', 'config.yaml');
+    const configPath = path.join(tmpCwd, '.ctxlayer', 'config.yaml');
     assert.ok(fs.existsSync(configPath));
     const config = fs.readFileSync(configPath, 'utf8');
     assert.ok(config.includes('active-domain: new-domain'));
@@ -274,7 +277,7 @@ describe('ctx new', () => {
   });
 
   it('exits when domain already exists (create from scratch)', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
     createDomain(tmpDomainsRoot, 'dup-domain', []);
     selectQueue = ['__create_scratch__'];
     inputQueue = ['dup-domain'];

@@ -118,7 +118,7 @@ describe('ctx status', () => {
   });
 
   it('exits when no config exists', () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     status();
 

@@ -7,9 +7,9 @@ The context layer is the corpus of knowledge you curate for an AI agent to use d
 
 ## Location
 
-The context layer is stored in a centralized location on your machine at `~/.agents/ctxlayer/`. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local `ctxlayer/` folder in the project root.
+The context layer is stored in a centralized location on your machine at `~/.agents/ctxlayer/`. Software projects link to the tasks on the context layer through symlinks to the task directories. These symlinks are stored in a local `.ctxlayer/` folder in the project root.
 
-You can add `ctxlayer/` to `.gitignore` if you do not want the local links and config in your project repository, or commit them if you prefer. The global store under `~/.agents/ctxlayer/` is separate and is usually versioned with its own git repository per domain.
+The `.ctxlayer/` folder is added to `.gitignore` when you initialize the context layer for a project via `ctx new`, so it is not committed to your project's repository. You should use a separate git repository to version-control the context layer.
 
 **Global store (system-wide):**
 
@@ -39,7 +39,7 @@ You can add `ctxlayer/` to `.gitignore` if you do not want the local links and c
 my-project/
 ├── README.md
 ├── ...                    # your project files
-└── ctxlayer/             # local config + symlinks
+└── .ctxlayer/             # gitignored
     ├── config.yaml        # active-domain, active-task
     └── my-domain-1/
         ├── task-1/        # symlink → ~/.agents/ctxlayer/domains/my-domain-1/task-1/
@@ -67,13 +67,13 @@ A **task** is one unit of work within a domain (similar to a git branch in a git
   - **`docs/`** — Markdown documentation (research, plans, decisions, procedures)
   - **`data/`** — Reference material (logs, sample data, external repos, config snippets)
 
-Tasks are created with `ctx new` and linked into projects via symlinks under `ctxlayer/<domain>/<task>/`.
+Tasks are created with `ctx new` and linked into projects via symlinks under `.ctxlayer/<domain>/<task>/`.
 
 The precise structure of the task directory is still evolving and will likely change in the future, as the Context Layer engineering pattern defined by this documentation evolves.
 
 ## Config file
 
-This file lives in the `ctxlayer/` folder in your project root: `ctxlayer/config.yaml`. It contains the active domain and task that will be used by default by the agent skill and commands like `ctx git`.
+This file lives in the `.ctxlayer/` folder in your project root: `.ctxlayer/config.yaml`. It contains the active domain and task that will be used by default by the agent skill and commands like `ctx git`.
 
 **Format:**
 

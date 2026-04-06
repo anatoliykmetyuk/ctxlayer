@@ -3,7 +3,7 @@ skills/
 docs/
 website/
 .github/
-ctxlayer/
+.ctxlayer/
 DEVELOPMENT.md
 *.md
 !README.md

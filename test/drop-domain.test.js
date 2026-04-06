@@ -61,7 +61,7 @@ describe('ctx drop domain', () => {
     confirmQueue = [false];
     await dropDomain();
 
-    const domainDir = path.join(tmpCwd, 'ctxlayer', 'domain-alpha');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-alpha');
     assert.ok(fs.existsSync(domainDir), 'domain dir should remain');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -70,7 +70,7 @@ describe('ctx drop domain', () => {
     confirmQueue = [true];
     await dropDomain('domain-alpha');
 
-    const domainDir = path.join(tmpCwd, 'ctxlayer', 'domain-alpha');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-alpha');
     assert.ok(!fs.existsSync(domainDir), 'domain dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -81,7 +81,7 @@ describe('ctx drop domain', () => {
 
     await dropDomain(undefined, { domainName: 'domain-gamma', yes: true });
 
-    const domainDir = path.join(tmpCwd, 'ctxlayer', 'domain-gamma');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-gamma');
     assert.ok(!fs.existsSync(domainDir), 'domain dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -90,7 +90,7 @@ describe('ctx drop domain', () => {
     confirmQueue = [false];
     await dropDomain('domain-beta');
 
-    const domainDir = path.join(tmpCwd, 'ctxlayer', 'domain-beta');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-beta');
     assert.ok(fs.existsSync(domainDir), 'domain dir should remain');
     assert.equal(process.exit.mock.calls.length, 0);
   });
@@ -107,14 +107,14 @@ describe('ctx drop domain', () => {
     confirmQueue = [true];
     await dropDomain();
 
-    const domainDir = path.join(tmpCwd, 'ctxlayer', 'domain-beta');
+    const domainDir = path.join(tmpCwd, '.ctxlayer', 'domain-beta');
     assert.ok(!fs.existsSync(domainDir), 'domain dir should be removed');
     assert.equal(process.exit.mock.calls.length, 0);
   });
 
   it('exits when no domain directories exist', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer', 'domain-alpha'), { recursive: true, force: true });
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer', 'domain-beta'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'domain-alpha'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer', 'domain-beta'), { recursive: true, force: true });
 
     await dropDomain();
 
@@ -123,7 +123,7 @@ describe('ctx drop domain', () => {
   });
 
   it('exits when no config exists', async () => {
-    fs.rmSync(path.join(tmpCwd, 'ctxlayer'), { recursive: true, force: true });
+    fs.rmSync(path.join(tmpCwd, '.ctxlayer'), { recursive: true, force: true });
 
     await dropDomain();
 
