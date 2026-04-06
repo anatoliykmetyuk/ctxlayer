@@ -21,6 +21,7 @@
   "bugs": "https://github.com/anatoliykmetyuk/ctxlayer/issues",
   "files": [
     "bin/",
+    "lib/",
     "LICENSE"
   ],
   "dependencies": {

@@ -4,6 +4,7 @@ import fs from 'fs';
 import path from 'path';
 import os from 'os';
 import * as cp from 'child_process';
+import { writeInitialTaskIndex } from '../lib/initial-task-index.js';
 
 // ---------------------------------------------------------------------------
 // Sandbox setup -- must happen before importing cli.js so module-level
@@ -47,8 +48,9 @@ mock.module('child_process', {
 
         fs.mkdirSync(targetPath, { recursive: true });
         for (const task of tasks) {
-          fs.mkdirSync(path.join(targetPath, task, 'docs'), { recursive: true });
-          fs.mkdirSync(path.join(targetPath, task, 'data'), { recursive: true });
+          const taskDir = path.join(targetPath, task);
+          fs.mkdirSync(taskDir, { recursive: true });
+          writeInitialTaskIndex(taskDir, task);
         }
       }
     },
@@ -82,8 +84,9 @@ describe('ctx import', () => {
       const domainDir = path.join(tmpDomainsRoot, domain);
       fs.mkdirSync(domainDir, { recursive: true });
       for (const task of tasks) {
-        fs.mkdirSync(path.join(domainDir, task, 'docs'), { recursive: true });
-        fs.mkdirSync(path.join(domainDir, task, 'data'), { recursive: true });
+        const taskDir = path.join(domainDir, task);
+        fs.mkdirSync(taskDir, { recursive: true });
+        writeInitialTaskIndex(taskDir, task);
       }
     }
 

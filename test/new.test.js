@@ -81,8 +81,7 @@ describe('ctx new', () => {
 
     const taskDir = path.join(tmpDomainsRoot, DOMAIN, 'my-task');
     assert.ok(fs.existsSync(taskDir));
-    assert.ok(fs.existsSync(path.join(taskDir, 'docs')));
-    assert.ok(fs.existsSync(path.join(taskDir, 'data')));
+    assert.ok(fs.existsSync(path.join(taskDir, 'INDEX.md')));
 
     const linkPath = path.join(tmpCwd, '.ctxlayer', DOMAIN, 'my-task');
     assert.ok(fs.lstatSync(linkPath).isSymbolicLink());
@@ -132,8 +131,7 @@ describe('ctx new', () => {
 
     const domainDir = path.join(tmpDomainsRoot, 'script-domain');
     assert.ok(fs.existsSync(domainDir));
-    assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'docs')));
-    assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'data')));
+    assert.ok(fs.existsSync(path.join(domainDir, 'script-task', 'INDEX.md')));
 
     const config = fs.readFileSync(path.join(tmpCwd, '.ctxlayer', 'config.yaml'), 'utf8');
     assert.ok(config.includes('active-domain: script-domain'));

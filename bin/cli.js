@@ -5,6 +5,7 @@ import path from 'path';
 import os from 'os';
 import { execSync, spawnSync } from 'child_process';
 import { select, input, confirm } from '@inquirer/prompts';
+import { writeInitialTaskIndex } from '../lib/initial-task-index.js';
 
 // ---------------------------------------------------------------------------
 // Constants
@@ -455,8 +456,8 @@ async function createTaskInDomain(domainName, taskNameArg) {
     throw new Error('Task folder already exists: ' + taskDir);
   }
 
-  fs.mkdirSync(path.join(taskDir, 'docs'), { recursive: true });
-  fs.mkdirSync(path.join(taskDir, 'data'), { recursive: true });
+  fs.mkdirSync(taskDir, { recursive: true });
+  writeInitialTaskIndex(taskDir, taskName);
   console.log('Created', taskDir);
 
   ensureTaskSymlink(domainName, taskName);

@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import { writeInitialTaskIndex } from '../lib/initial-task-index.js';
 
 /**
  * Creates a sandboxed environment with temp dirs and env vars.
@@ -53,7 +54,7 @@ export function createConfig(cwd, domain, task) {
 
 /**
  * Creates a domain directory under domainsRoot with optional task subdirs.
- * Each task gets docs/ and data/ subdirs.
+ * Each task gets an INDEX.md (same as ctx new).
  *
  * @param {string} domainsRoot
  * @param {string} name - domain name
@@ -63,8 +64,9 @@ export function createDomain(domainsRoot, name, tasks = []) {
   const domainDir = path.join(domainsRoot, name);
   fs.mkdirSync(domainDir, { recursive: true });
   for (const task of tasks) {
-    fs.mkdirSync(path.join(domainDir, task, 'docs'), { recursive: true });
-    fs.mkdirSync(path.join(domainDir, task, 'data'), { recursive: true });
+    const taskDir = path.join(domainDir, task);
+    fs.mkdirSync(taskDir, { recursive: true });
+    writeInitialTaskIndex(taskDir, task);
   }
 }
 
