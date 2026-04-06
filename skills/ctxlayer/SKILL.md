@@ -51,6 +51,8 @@ The user may refer to the files and folders by their ID, e.g. "folder 01-02-03" 
 
 When creating a new file or folder, use the next available ID to prefix the filename or folder name. You can find the next available ID by listing all the files and folders in the context layer, determining the greatest ID, and incrementing it by 1. Also always update the corresponding `INDEX.md` file to include the new item.
 
+These indexing rules may be overriden by the `INDEX.md` file itself at a task or subdirectory level. Look for sections `Indexing Conventions` and `Indexing Rules` in the `INDEX.md` file to understand how to override the conventions at the level of the folder where the `INDEX.md` file is located.
+
 ### Updating the Index
 
 Index should always stay up-to-date. When making any changes - updates, deletions or additions of new files or information - to the context layer, update corresponding `INDEX.md` files to reflect the changes.
@@ -59,7 +61,7 @@ The user may also explicitly ask to update the index, e.g. "update the index of 
 
 If asked to build the index from scratch, scan the filesystem tree and write `INDEX.md` files anew from disk contents; do not reconcile against existing index entries as the source of truth.
 
-If asked to rebuild the IDs of a directory, subdirectory, or entire context layer task, reassign IDs to files and folders to remove gaps in numbering. Preserve the ordering of file IDs during this operation.
+If asked to rebuild the IDs of a directory, subdirectory, or entire context layer task, you must first identify any references from existing markdown files to other context layer files or folders by their IDs. You must then reassign IDs to files and folders to remove gaps in numbering, while updating the existing references to the new IDs. Preserve the ordering of file IDs during this operation.
 
 ## Common Operations
 
