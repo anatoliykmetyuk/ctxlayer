@@ -31,7 +31,7 @@ Creates a new task. This is the main entry point for getting started and will in
    - **Create from scratch** — create a new domain directory and run `git init` in it
    - **Select existing domain** — pick from domains already in the user-wide context layer (in the `~/.agents/ctxlayer/domains/` directory)
 3. Prompts for task name (or use `ctx new my-task` / `ctx new --task my-task` to pass it)
-4. Creates the task directory under `~/.agents/ctxlayer/domains/<domain>/<task>/` with `docs/` and `data/` subfolders
+4. Creates the task directory under `~/.agents/ctxlayer/domains/<domain>/<task>/` with an `INDEX.md` file (title, summary placeholder, and an empty index table — see [Directory Format Reference](/docs/format-reference.html))
 5. Creates a symlink at `.ctxlayer/<domain>/<task>` pointing to the task, so the task becomes accessible to the agent from the project's root directory.
 6. Writes `active-domain` and `active-task` to `.ctxlayer/config.yaml`, so the agent and commands know which task to access by default.
 

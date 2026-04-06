@@ -19,18 +19,20 @@ The `.ctxlayer/` folder is added to `.gitignore` when you initialize the context
     └── my-domain-1/
         ├── .git/
         ├── task-1/
-        │   ├── docs/
+        │   ├── INDEX.md
+        │   ├── docs/                    # optional — add when you need a docs journal
         │   │   ├── 01-initial-research.md
         │   │   └── 02-implementation-notes.md
-        │   └── data/
+        │   └── data/                    # optional — reference material, logs, submodules
         │       └── sample-data.json
         └── task-2/
-            ├── docs/
-            └── data/
+            └── INDEX.md
     └── my-domain-2/
         ├── .git/
         ├── task-1/
+        │   └── INDEX.md
         └── task-2/
+            └── INDEX.md
 ```
 
 **Local link (in your project):**
@@ -63,8 +65,9 @@ A **domain** is a context organization unit. It holds knowledge that may apply t
 A **task** is one unit of work within a domain (similar to a git branch in a git repository).
 
 - **Location:** `~/.agents/ctxlayer/domains/<domain>/<task>/`
-- **Structure:** Each task has:
-  - **`docs/`** — Markdown documentation (research, plans, decisions, procedures)
+- **Created by `ctx new`:** Each new task includes an **`INDEX.md`** at the task root — a short summary placeholder and an index table (ID, Filename, Description) for progressive discovery. See the [agent skill](https://github.com/anatoliykmetyuk/ctxlayer/blob/main/skills/ctxlayer/SKILL.md) for indexing conventions.
+- **Common additions (not created automatically):**
+  - **`docs/`** — Markdown documentation (research, plans, decisions, procedures). The skill treats this as the default place for documentation operations when you say "in the context layer"; create the folder when you start adding numbered docs.
   - **`data/`** — Reference material (logs, sample data, external repos, config snippets)
 
 Tasks are created with `ctx new` and linked into projects via symlinks under `.ctxlayer/<domain>/<task>/`.
@@ -87,11 +90,15 @@ active-task: my-task
 | `active-domain` | The domain used by the agent skill and by commands like `ctx git` |
 | `active-task` | The task directory used when running `ctx git`; may be omitted if no task is active |
 
-The agent skill reads this file to know where to write documentation and which task's `docs/` and `data/` to access when you say "in the context layer". Commands like `ctx git` run in the active task directory.
+The agent skill reads this file to resolve the active task directory when you say "in the context layer". It uses **`INDEX.md`** (and nested indexes) to navigate the task, and by default expects documentation under **`docs/`** once that folder exists. Commands like `ctx git` run in the active task directory.
+
+## INDEX.md
+
+Each task should have an **`INDEX.md`** at its root (and optionally in subdirectories). It summarizes what is in the folder: start with a short description of the task and how to use the context, then maintain a table with columns **ID**, **Filename**, and **Description**. Keep the index updated as you add or remove files. New tasks created with `ctx new` start from a minimal template with an empty table.
 
 ## Docs folder convention
 
-Markdown files in `docs/` are **numbered** for sorting and to support *"document number N"* references in prompts.
+If you use a `docs/` folder, markdown files there are **numbered** for sorting and to support *"document number N"* references in prompts.
 
 **Naming:** `NN-descriptive-name.md`
 
@@ -106,6 +113,6 @@ Each file is a standalone document. The docs folder acts as a **running report**
 
 ## Data folder convention
 
-The `data/` folder holds reference material: sample data, config snippets, logs, external repositories, and anything the agent needs during implementation.
+If you add a **`data/`** folder, use it for reference material: sample data, config snippets, logs, external repositories, and anything the agent needs during implementation.
 
 **Adding external repos:** Use `git submodule add <repo-url>` inside the task's `data/` folder (not a plain `git clone`), so the domain repo stays lightweight and version-controlled via submodule references. You can also ask the agent to *add a git repo into the context layer's data*, and it should use `git submodule add` by default.

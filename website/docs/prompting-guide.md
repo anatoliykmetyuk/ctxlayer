@@ -15,11 +15,11 @@ Mention the context layer in your prompt. Phrases that work:
 - _"to the context layer"_
 - _"into the context layer"_
 
-When the agent sees these, it reads `.ctxlayer/config.yaml` for the active domain and task and refers to the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory, accessed via the symlink in the project's local `.ctxlayer/<domain>/<task>/` directory, to find the requested information.
+When the agent sees these, it reads `.ctxlayer/config.yaml` for the active domain and task and refers to the `~/.agents/ctxlayer/domains/<domain>/<task>/` directory, accessed via the symlink in the project's local `.ctxlayer/<domain>/<task>/` directory, to find the requested information. Start from **`INDEX.md`** at the task root to see what is in the task and how it is organized.
 
 ## Reading documents
 
-Documents in the `docs/` folder should follow the numbering convention (`01-...`, `02-...`, etc.). You can reference them by number:
+Numbered markdown files (conventionally under a **`docs/`** folder when you use one) should follow the numbering convention (`01-...`, `02-...`, etc.). You can reference them by number:
 
 - _"In the context layer, read document number 1"_
 - _"As discussed in document 3 in the context layer, please implement..."_
@@ -35,13 +35,13 @@ Ask the agent to document something _"in the context layer"_ or _"to the context
 - _"Please write the research findings into the context layer as a new document"_
 - _"We resolved issue X. Please document it in the context layer"_
 
-The agent creates a new numbered markdown file in the active task's `docs/` folder and writes the content.
+The agent typically creates a new numbered markdown file under the task's **`docs/`** folder (create the folder if it does not exist yet) and writes the content. It should also update **`INDEX.md`** to list new items.
 
 As with any agentic system, it is not guaranteed to follow the numbering convention every time, so if it does not, the user is expected to correct it so that the documentation stays consistent.
 
 ## Using the data folder
 
-Reference material lives in the task's `data/` folder. Point the agent at it:
+If you use a **`data/`** folder for reference material, point the agent at it:
 
 - _"You will find reference materials X, Y, Z in the context layer's data folder. Please use them to inform your research"_
 - _"In the context layer, read the log files in the data folder and prepare a report on the failures"_
@@ -49,7 +49,7 @@ Reference material lives in the task's `data/` folder. Point the agent at it:
 
 ### Adding repositories to data
 
-To add an external repo as reference material, ask to _"add a repository to the context layer"_ or _"clone a repo as context layer context"_. The agent will use `git submodule add` in the task's `data/` folder, not a plain `git clone`, so the domain repo stays version-controlled via submodule references.
+To add an external repo as reference material, ask to _"add a repository to the context layer"_ or _"clone a repo as context layer context"_. The agent will use `git submodule add` (typically under the task's **`data/`** folder once you have one), not a plain `git clone`, so the domain repo stays version-controlled via submodule references.
 
 ## Specifying domain and task
 

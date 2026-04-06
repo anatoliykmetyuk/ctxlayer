@@ -51,7 +51,7 @@ If you already keep a context-layer domain in git, use `ctx import --clone-from 
 - __Domain__ represents a corpus of knowledge about the project you are working on. For a simple project, you can name it something like `<project-name>` or `<project-name>-ctx`.
 - __Task__ represents a unit of work within the project.
 
-After you've named your domain and task, you will notice the following directory structure created within your project directory:
+After you've named your domain and task, you will notice the following directory structure created within your project directory (each new task gets an **`INDEX.md`** at its root; you add folders such as `docs/` and `data/` when you need them):
 
 ```bash
 my-project/
@@ -61,14 +61,9 @@ my-project/
     └── my-domain/
         ├── config.yaml
         ├── task-1/
-        │   ├── docs/
-        │   │   ├── 01-initial-research.md
-        │   │   └── 02-implementation-notes.md
-        │   └── data/
-        │       └── sample-data.json
+        │   └── INDEX.md
         └── task-2/
-            ├── docs/
-            └── data/
+            └── INDEX.md
 ```
 
 Also, `.ctxlayer` will be added to your `.gitignore` file, so that the context layer is not committed to your project repository.
@@ -84,15 +79,15 @@ Think of the task you want to do on your project. Do you have any reference data
 - **A CSV file** - in case you're making a data analytics dashboard and need an agent to design the data access layer against a specific example dataset.
 - **A Git repository** - in case you want an agent to refer to existing library code or another project. It is recommended to use the `git submodule add` command when cloning the repository, as every domain is also initialized as a git repository.
 
-All of those examples belong in the `data/` folder of your task. Now is a good time to bring them into that directory.
+Create a **`data/`** folder in the task if you need a dedicated place for that material (it is not created automatically). Put those files there, and update **`INDEX.md`** so the index table lists them.
 
 ### 2. Perform Task Research and Documentation
 
-After you've assembled the corpus of reference material, it is a good idea to ask your agent to do some **research** on the task you are about to do, and possibly compose an **implementation plan**. Prompt it with the following:
+After you've assembled the corpus of reference material (if any), it is a good idea to ask your agent to do some **research** on the task you are about to do, and possibly compose an **implementation plan**. Prompt it with the following:
 
 > I would like to do A. You will find reference materials X, Y, Z in the context layer's data folder. Please use them to inform your research and planning. Do the research and compose a plan of how to do the task. Write the plan as a new document in the context layer's docs folder.
 
-As you've installed the agent skill during the installation step above, the agent will know which folders to look at and will produce a markdown file with the implementation plan. Markdown files in the docs folder are numbered for easy sorting, as they intend to represent a sequential log of task execution. A file with a name something like `01-task-plan.md` will be produced.
+If you do not have a `data/` or `docs/` folder yet, ask the agent to create them and to keep **`INDEX.md`** in sync with new files (see [Directory Format Reference](/docs/format-reference.html)). As you've installed the agent skill during the installation step above, the agent will follow the indexing conventions. Markdown files in `docs/` are numbered for easy sorting, as they intend to represent a sequential log of task execution. A file with a name something like `01-task-plan.md` will be produced.
 
 Review the plan and iterate on it with your agent until it looks good to you.
 
@@ -116,7 +111,7 @@ When you encounter those and get your agent to successfully resolve them, ask it
 
 > We have just resolved an issue X / made a decision Y / followed a workflow Z. Please document it in the context layer as a new document. Include a brief description of the issue, what decisions were made, what approaches worked and what did not and why.
 
-This will produce a new document in the docs folder, numbered for easy sorting, readily accessible in case you need to return to the gathered domain intelligence in the future.
+This will produce a new document (typically under `docs/` once that folder exists), numbered for easy sorting, readily accessible in case you need to return to the gathered domain intelligence in the future. Keep **`INDEX.md`** updated as you add documents.
 
 ### 5. Reuse the Domain Intelligence
 
